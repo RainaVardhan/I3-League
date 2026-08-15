@@ -1,0 +1,15 @@
+.eyebrow {
+  display: inline-block;
+  font: 600 var(--text-eyebrow) var(--font-mono), monospace;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--blue);
+}
+
+.label {
+  display: inline-block;
+  font: 600 var(--text-label) var(--font-mono), monospace;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
