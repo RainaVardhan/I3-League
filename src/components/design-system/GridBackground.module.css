@@ -1,0 +1,16 @@
+.grid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.34;
+  background-image: linear-gradient(rgba(54, 91, 214, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(54, 91, 214, 0.05) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    rgba(0, 0, 0, 0.28) 40%,
+    transparent 78%
+  );
+}

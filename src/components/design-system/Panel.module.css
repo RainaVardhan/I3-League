@@ -1,0 +1,22 @@
+.standard,
+.selected {
+  border-radius: var(--radius-lg);
+  padding: var(--space-6) var(--space-8);
+}
+
+.standard {
+  background: var(--paper);
+  border: 1px solid var(--line);
+}
+
+.selected {
+  background: var(--blue-pale);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--blue);
+}
+
+/* Hard offset shadow — reserve for the one panel on a page that needs to
+   read as physically raised. Never apply to every card. */
+.prominent {
+  box-shadow: 8px 9px 0 var(--blue-soft);
+}

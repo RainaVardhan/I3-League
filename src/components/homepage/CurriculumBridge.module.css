@@ -1,0 +1,65 @@
+.bridge {
+  position: relative;
+  z-index: 3;
+  padding: 28px var(--gutter);
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: 0 14px 30px rgba(16, 33, 61, 0.14);
+}
+
+.inner {
+  max-width: var(--container);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.label {
+  font: 600 10px var(--font-mono), monospace;
+  letter-spacing: 0.17em;
+  color: #bbc8e9;
+}
+
+/* !important here is deliberate: this overrides the shared Button
+   component's ghost-variant colors for this one ink-background placement.
+   CSS Modules don't guarantee file bundling order, so a plain class-vs-class
+   override isn't reliable — see Button.module.css .ghost. */
+.btn {
+  background: transparent !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  color: var(--white) !important;
+  box-shadow: none !important;
+}
+.btn:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.55) !important;
+  color: var(--white) !important;
+}
+
+@media (max-width: 820px) {
+  .bridge {
+    padding: 24px 20px;
+  }
+  .label {
+    /* A bit bigger than the desktop size, not smaller — this is the only
+       copy in the bar, so it can afford more room once the row isn't
+       sharing space with a rail of nav links. */
+    font-size: 11px;
+  }
+  .btn {
+    min-height: 42px;
+    font-size: 12.5px;
+  }
+}
+
+@media (max-width: 460px) {
+  .inner {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .btn {
+    width: 100%;
+  }
+}

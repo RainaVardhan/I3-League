@@ -1,0 +1,904 @@
+// ============================================================================
+// i3League — Prisma Schema
+// ============================================================================
+// Read CLAUDE.md before editing this file. Key decisions encoded here:
+//
+// 1. Enrollment and Payment key off Student, never Team. A team of N is N
+//    independent enrollments that happen to share a Project.
+// 2. Project.visibility defaults to CONFIDENTIAL at the schema level, not
+//    just in application code, so a forgotten check fails safe.
+// 3. Several models below (JudgeAssignment, JudgeScore, Certificate, etc.)
+//    are "Phase 2" — the UI/workflow for them isn't built in the 2-week MVP,
+//    but the tables exist now so no migration is needed later.
+// 4. Where a stage (Section 15-21 of the spec) has many loosely-structured
+//    fields, we use a JSON `content` column on a shared model rather than a
+//    bespoke table per stage. This is a deliberate speed tradeoff for a
+//    2-week solo build — see the Submission model comment for the rationale.
+// ============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum Role {
+  STUDENT
+  PARENT
+  COACH
+  JUDGE
+  ADMIN
+}
+
+enum SchoolingType {
+  SCHOOL
+  HOMESCHOOL
+}
+
+enum ParticipationType {
+  INDIVIDUAL
+  TEAM
+}
+
+enum PaymentMethod {
+  PAYPAL
+  VENMO
+  ZELLE
+}
+
+enum PaymentStatus {
+  PENDING
+  SUBMITTED
+  VERIFIED
+  REJECTED
+  REFUNDED
+}
+
+enum StageName {
+  INSIGHT
+  INVESTIGATE
+  IMAGINE
+  IP_CHECKPOINT
+  ITERATE
+  IMPACT
+  INFLUENCE
+}
+
+enum StageStatus {
+  LOCKED
+  CURRENT
+  COMPLETE
+}
+
+enum ProjectVisibility {
+  CONFIDENTIAL
+  PUBLIC
+}
+
+enum ReviewStatus {
+  NOT_REQUIRED
+  PENDING_REVIEW
+  CLEARED
+  REJECTED
+}
+
+enum AssessmentQuestionType {
+  MULTIPLE_CHOICE
+  SHORT_ANSWER
+  SCENARIO
+}
+
+enum NotificationType {
+  WELCOME
+  STAGE_COMPLETE
+  NEXT_STAGE_UNLOCKED
+  DEADLINE_REMINDER   // Phase 2 — not sent automatically in V1
+  INACTIVITY          // Phase 2
+  QUALIFICATION       // Phase 2
+  FINALIST            // Phase 2
+}
+
+enum NotificationChannel {
+  EMAIL
+}
+
+enum QualificationWindow {
+  SPRING
+  SUMMER
+}
+
+// ============================================================================
+// CORE IDENTITY
+// ============================================================================
+
+/// One row per login-capable person. Role-specific detail lives in the
+/// Student / Parent / Coach / Judge / Admin profile tables below.
+model User {
+  id           String   @id @default(uuid())
+  supabaseUid  String   @unique // maps to Supabase Auth user id
+  email        String   @unique
+  role         Role
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  student Student?
+  parent  Parent?
+  coach   Coach?
+  judge   Judge?
+  admin   Admin?
+
+  notifications Notification[]
+  auditLogEntries AuditLog[] @relation("ActorAuditLogs")
+
+  @@index([role])
+}
+
+model Student {
+  id             String        @id @default(uuid())
+  user           User          @relation(fields: [userId], references: [id])
+  userId         String        @unique
+
+  firstName      String
+  lastName       String
+  displayName    String?
+  dateOfBirth    DateTime
+  grade          String
+  schoolingType  SchoolingType
+  school         School?       @relation(fields: [schoolId], references: [id])
+  schoolId       String?
+  homeschoolName String?       // used when schoolingType = HOMESCHOOL
+  city           String
+  state          String
+  country        String
+  interests      String[]      // innovation fields of interest, e.g. ["Technology","Environment"]
+
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  parentLinks       StudentParent[]
+  enrollments        Enrollment[]
+  teamMemberships     TeamMembership[]
+  stageProgress       StageProgress[]
+  submissions         Submission[]
+  attempts            Attempt[]
+  journalEntries      JournalEntry[]
+  qualificationRecords QualificationRecord[]
+  certificates         Certificate[]
+  competencyRatings    CompetencyRating[]
+  projects             StudentProject[]
+  individualProject    Project?  // opposite side of Project.individualStudent; @unique on that FK makes this 1:1, not an array
+
+  @@index([schoolId])
+}
+
+/// Many-to-many: a student can have more than one parent/guardian on file,
+/// and (rare, but the schema should allow it) a parent can have more than
+/// one child enrolled.
+model StudentParent {
+  student      Student  @relation(fields: [studentId], references: [id])
+  studentId    String
+  parent       Parent   @relation(fields: [parentId], references: [id])
+  parentId     String
+  relationship String   // e.g. "Mother", "Legal Guardian"
+
+  createdAt    DateTime @default(now())
+
+  @@id([studentId, parentId])
+}
+
+model Parent {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @unique
+
+  fullName  String
+  phone     String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  studentLinks   StudentParent[]
+  consents       Consent[]
+  mediaConsents  MediaConsent[]
+
+  @@index([userId])
+}
+
+model Coach {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @unique
+  fullName  String
+  school    School?  @relation(fields: [schoolId], references: [id])
+  schoolId  String?
+
+  createdAt DateTime @default(now())
+
+  teams Team[]
+
+  @@index([schoolId])
+}
+
+/// Phase 2 UI (judge portal), but the identity model exists now so judges
+/// can be created/invited ahead of when scoring actually launches.
+model Judge {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @unique
+  fullName  String
+
+  createdAt DateTime @default(now())
+
+  assignments JudgeAssignment[]
+  scores      JudgeScore[]
+}
+
+model Admin {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @unique
+  fullName  String
+
+  createdAt DateTime @default(now())
+}
+
+model School {
+  id        String   @id @default(uuid())
+  name      String
+  city      String?
+  state     String?
+  country   String?
+
+  createdAt DateTime @default(now())
+
+  students Student[]
+  coaches  Coach[]
+
+  @@unique([name, city, state])
+}
+
+// ============================================================================
+// SEASON / ENROLLMENT / PAYMENT
+// ============================================================================
+
+/// Everything season-specific lives here so a new season (2027-2028, etc.)
+/// never requires touching application code — see CLAUDE.md "Season-driven
+/// config."
+model Season {
+  id                     String   @id @default(uuid())
+  label                  String   @unique // e.g. "2026-2027"
+  openDate               DateTime
+  springQualifyDeadline  DateTime
+  summerQualifyDeadline  DateTime
+  nationalFinalsDate     DateTime
+  perParticipantPriceUsd Decimal  @db.Decimal(10, 2) // currently 111.00
+  maxTeamSize            Int      @default(4)
+  curriculumVersion      String
+
+  isActive               Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  enrollments          Enrollment[]
+  teams                Team[]
+  qualificationRecords QualificationRecord[]
+  curriculumModules    CurriculumModule[]
+}
+
+/// One row per student per season. This is the billing/access unit — a team
+/// is never billed or unlocked as a group. See CLAUDE.md "Team billing/access
+/// independence."
+model Enrollment {
+  id                String            @id @default(uuid())
+  student           Student           @relation(fields: [studentId], references: [id])
+  studentId         String
+  season            Season            @relation(fields: [seasonId], references: [id])
+  seasonId          String
+
+  participationType ParticipationType
+  team              Team?             @relation(fields: [teamId], references: [id])
+  teamId            String?
+
+  payment           Payment?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([studentId, seasonId]) // a student enrolls once per season
+  @@index([seasonId])
+  @@index([teamId])
+}
+
+/// Strictly one-to-one with Enrollment — i.e. per student, never per team.
+/// A team of 3 produces 3 separate Payment rows, even if all 3 reference the
+/// same external transaction (e.g. one parent paid for the whole team via a
+/// single Venmo transfer) — allow paymentReference to repeat across rows.
+model Payment {
+  id                String        @id @default(uuid())
+  enrollment        Enrollment    @relation(fields: [enrollmentId], references: [id])
+  enrollmentId      String        @unique
+
+  amountUsd         Decimal       @db.Decimal(10, 2)
+  method            PaymentMethod
+  paymentReference  String?       // transaction/confirmation number
+  screenshotUrl     String?
+
+  status            PaymentStatus @default(PENDING)
+  submittedAt       DateTime?
+  verifiedAt        DateTime?
+  verifiedByAdminId String?
+  rejectionReason   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+}
+
+/// Lightweight grouping only — no billing or curriculum logic lives here.
+/// See CLAUDE.md "Payment flow & pricing model."
+model Team {
+  id        String   @id @default(uuid())
+  name      String
+  season    Season   @relation(fields: [seasonId], references: [id])
+  seasonId  String
+  coach     Coach?   @relation(fields: [coachId], references: [id])
+  coachId   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  memberships TeamMembership[]
+  enrollments Enrollment[]
+  project     Project?
+
+  @@index([seasonId])
+}
+
+model TeamMembership {
+  team      Team     @relation(fields: [teamId], references: [id])
+  teamId    String
+  student   Student  @relation(fields: [studentId], references: [id])
+  studentId String
+  roleLabel String?  // free-text role on the team, e.g. "Lead Researcher"
+
+  joinedAt  DateTime @default(now())
+
+  @@id([teamId, studentId])
+}
+
+// ============================================================================
+// CONSENT / PRIVACY
+// ============================================================================
+
+model Consent {
+  id           String   @id @default(uuid())
+  parent       Parent   @relation(fields: [parentId], references: [id])
+  parentId     String
+  studentId    String   // denormalized for fast lookup without a join
+
+  participationAccepted     Boolean @default(false)
+  privacyAccepted            Boolean @default(false)
+  codeOfConductAccepted      Boolean @default(false)
+  competitionRulesAccepted   Boolean @default(false)
+  academicIntegrityAccepted  Boolean @default(false)
+  aiUseAccepted               Boolean @default(false)
+  safetyAccepted               Boolean @default(false)
+  ipPolicyAccepted             Boolean @default(false)
+
+  acceptedAt DateTime @default(now())
+
+  @@index([studentId])
+}
+
+/// Deliberately separate from Consent — media/photo permission must never be
+/// bundled with required consents. Defaults to false/not granted.
+model MediaConsent {
+  id        String   @id @default(uuid())
+  parent    Parent   @relation(fields: [parentId], references: [id])
+  parentId  String
+  studentId String
+
+  granted   Boolean  @default(false)
+  grantedAt DateTime?
+
+  @@index([studentId])
+}
+
+// ============================================================================
+// CURRICULUM
+// ============================================================================
+
+model CurriculumModule {
+  id          String    @id @default(uuid())
+  season      Season    @relation(fields: [seasonId], references: [id])
+  seasonId    String
+  stageName   StageName
+  title       String
+  description String?
+  order       Int       // display order within the stage page
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lessons     Lesson[]
+  assignments Assignment[]
+  assessment  Assessment?
+
+  @@unique([seasonId, stageName])
+}
+
+model Lesson {
+  id          String           @id @default(uuid())
+  module      CurriculumModule @relation(fields: [moduleId], references: [id])
+  moduleId    String
+  title       String
+  contentType String           // "reading" | "video" | "pdf" — kept as string, not enum, since V1 content is hand-authored, not admin-managed
+  contentUrl  String?
+  bodyMarkdown String?
+  order       Int
+
+  createdAt DateTime @default(now())
+}
+
+model Assignment {
+  id           String           @id @default(uuid())
+  module       CurriculumModule @relation(fields: [moduleId], references: [id])
+  moduleId     String
+  title        String
+  instructions String
+  order        Int
+
+  createdAt DateTime @default(now())
+}
+
+// ============================================================================
+// STAGE PROGRESS / SUBMISSIONS
+// ============================================================================
+
+/// One row per student per stage per season. This is what the dashboard's
+/// journey visual (⚫ / 🔵 / ✅) and the "next step" logic read from.
+model StageProgress {
+  id          String      @id @default(uuid())
+  student     Student     @relation(fields: [studentId], references: [id])
+  studentId   String
+  stageName   StageName
+  status      StageStatus @default(LOCKED)
+
+  unlockedAt  DateTime?
+  completedAt DateTime?
+  unlockedByAdminOverride Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([studentId, stageName])
+  @@index([studentId])
+}
+
+/// Sections 15-21 of the spec each define many loosely-structured fields
+/// (problem info, root cause, stakeholders, solution comparisons, version
+/// history, etc.). Rather than a bespoke table per stage — 7 tables with
+/// 40+ combined columns for a 2-week solo build — we use one Submission
+/// model with a typed `stageName` and a JSON `content` column holding the
+/// stage-specific fields. Validate `content`'s shape in application code
+/// against a per-stage schema (e.g. zod) before writing. Revisit this if/when
+/// the team grows past a solo builder — structured columns would be worth
+/// the migration cost at that point.
+model Submission {
+  id          String    @id @default(uuid())
+  student     Student   @relation(fields: [studentId], references: [id])
+  studentId   String
+  project     Project   @relation(fields: [projectId], references: [id])
+  projectId   String
+  stageName   StageName
+
+  content     Json      // stage-specific structured answers
+  isFinal     Boolean   @default(false) // draft vs. submitted
+
+  submittedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  aiDisclosure     AIDisclosure?
+  speakingSubmission SpeakingSubmission?
+  characterChallenge CharacterChallenge?
+  ethicsChallenge    EthicsChallenge?
+
+  @@unique([studentId, projectId, stageName])
+  @@index([projectId])
+}
+
+model AIDisclosure {
+  id                String     @id @default(uuid())
+  submission        Submission @relation(fields: [submissionId], references: [id])
+  submissionId      String     @unique
+
+  usedAi            Boolean
+  toolName          String?
+  purpose           String?
+  selfCreatedPortion String?
+  verificationMethod String?
+
+  createdAt DateTime @default(now())
+}
+
+model SpeakingSubmission {
+  id           String     @id @default(uuid())
+  submission   Submission @relation(fields: [submissionId], references: [id])
+  submissionId String     @unique
+
+  mediaUrl     String
+  durationSeconds Int?
+
+  createdAt DateTime @default(now())
+}
+
+model CharacterChallenge {
+  id           String     @id @default(uuid())
+  submission   Submission @relation(fields: [submissionId], references: [id])
+  submissionId String     @unique
+  response     String
+
+  createdAt DateTime @default(now())
+}
+
+model EthicsChallenge {
+  id           String     @id @default(uuid())
+  submission   Submission @relation(fields: [submissionId], references: [id])
+  submissionId String     @unique
+  response     String
+
+  createdAt DateTime @default(now())
+}
+
+// ============================================================================
+// PROJECT / SAFETY / IP
+// ============================================================================
+
+/// The shared unit of work — one Project per individual OR per team, never
+/// per-student-on-a-team. See CLAUDE.md: visibility defaults to CONFIDENTIAL
+/// at the schema level so a forgotten check fails safe.
+///
+/// individualStudent/team below define *ownership* (who created it, what
+/// kind of project it is). For "which projects does this student have,"
+/// including team projects, query StudentProject instead of walking through
+/// Team/TeamMembership — see StudentProject's comment for why.
+///
+/// EXACTLY ONE of individualStudentId / teamId must be set. Prisma can't
+/// express that natively, so it's enforced at two layers (see CLAUDE.md
+/// "Core business rules"):
+///   1. App layer: a zod refinement runs before every Project creation.
+///   2. DB layer (fail-safe): a raw SQL CHECK constraint added by hand to
+///      the migration that creates this table —
+///      ALTER TABLE "Project" ADD CONSTRAINT "project_exactly_one_owner_check"
+///      CHECK (num_nonnulls("individualStudentId", "teamId") = 1);
+///      Do not drop this constraint on a future `prisma migrate dev` reset
+///      without re-adding it — Prisma won't regenerate it from this file.
+model Project {
+  id             String            @id @default(uuid())
+  title          String
+  category       String            // innovation field, e.g. "Healthcare"
+
+  // Exactly one of these should be set, depending on ParticipationType.
+  individualStudent   Student?     @relation(fields: [individualStudentId], references: [id])
+  individualStudentId String?      @unique
+  team                Team?        @relation(fields: [teamId], references: [id])
+  teamId              String?      @unique
+
+  visibility     ProjectVisibility @default(CONFIDENTIAL)
+  visibilitySetAt     DateTime?
+  visibilitySetByStudent Boolean   @default(false) // true only if the student explicitly requested PUBLIC
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  submissions       Submission[]
+  safetyReview      SafetyReview?
+  ipReview          IPReview?
+  contributions     TeamContribution[]
+  studentLinks      StudentProject[]
+  qualificationPackage QualificationPackage? // Phase 2
+
+  @@index([visibility])
+}
+
+/// Ties every project back to each student it belongs to, whether the
+/// project is individual (one row) or a team project (one row per teammate).
+/// This exists so "give me all of this student's projects" — including
+/// confidentiality checks — never has to traverse Team/TeamMembership to
+/// find the answer.
+///
+/// Keep this in sync in application code, not just at creation:
+/// - On individual Project creation: insert one row (student = the creator).
+/// - On team Project creation: insert one row per current TeamMembership.
+/// - On a student joining a team after the project already exists: insert
+///   a new row for them.
+/// - On a student LEAVING a team: DO NOT delete their row. This link is a
+///   historical record — a student's Innovator Profile and journey should
+///   still show a project they contributed to even after they've left the
+///   team. Deleting it would erase real work from their record. If a
+///   "leaving" concept is ever needed (e.g. to stop a former teammate from
+///   editing the project going forward), model that as a separate flag
+///   (e.g. `isActiveMember`) on this table rather than removing the row.
+model StudentProject {
+  student       Student  @relation(fields: [studentId], references: [id])
+  studentId     String
+  project       Project  @relation(fields: [projectId], references: [id])
+  projectId     String
+  isActiveMember Boolean @default(true) // set false if they leave the team; row is never deleted
+
+  createdAt DateTime @default(now())
+
+  @@id([studentId, projectId])
+  @@index([studentId])
+  @@index([projectId])
+}
+
+/// Only meaningful when Project.teamId is set. Tracks what each individual
+/// teammate contributed, independent of the shared project content.
+model TeamContribution {
+  id          String   @id @default(uuid())
+  project     Project  @relation(fields: [projectId], references: [id])
+  projectId   String
+  studentId   String
+  description String
+
+  createdAt DateTime @default(now())
+
+  @@index([projectId])
+}
+
+model SafetyReview {
+  id               String       @id @default(uuid())
+  project          Project      @relation(fields: [projectId], references: [id])
+  projectId        String       @unique
+
+  answers          Json         // involves-humans, involves-animals, chemicals, etc.
+  isHighRisk       Boolean      @default(false)
+  status           ReviewStatus @default(NOT_REQUIRED)
+
+  reviewedByAdminId String?
+  reviewedAt         DateTime?
+  reviewNotes         String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model IPReview {
+  id                String       @id @default(uuid())
+  project           Project      @relation(fields: [projectId], references: [id])
+  projectId         String       @unique
+
+  answers           Json         // prior-art search, prior public disclosure, etc.
+  requestedVisibility ProjectVisibility @default(CONFIDENTIAL) // what the student asked for
+  status            ReviewStatus @default(NOT_REQUIRED)
+
+  reviewedByAdminId String?
+  reviewedAt         DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ============================================================================
+// ASSESSMENTS
+// ============================================================================
+
+model Assessment {
+  id             String           @id @default(uuid())
+  module         CurriculumModule @relation(fields: [moduleId], references: [id])
+  moduleId       String           @unique
+  title          String
+
+  passScorePct   Int              @default(70) // admin-configurable
+  maxAttempts    Int              @default(2)  // admin-configurable
+  timeLimitMins  Int?
+  isPublished    Boolean          @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  questions Question[]
+  attempts  Attempt[]
+}
+
+model Question {
+  id            String                 @id @default(uuid())
+  assessment    Assessment             @relation(fields: [assessmentId], references: [id])
+  assessmentId  String
+  type          AssessmentQuestionType
+  prompt        String
+  options       Json?                  // for MULTIPLE_CHOICE: [{id, text}]
+  correctAnswer Json                    // shape depends on `type`
+  points        Int                    @default(1)
+
+  createdAt DateTime @default(now())
+
+  @@index([assessmentId])
+}
+
+model Attempt {
+  id           String     @id @default(uuid())
+  student      Student    @relation(fields: [studentId], references: [id])
+  studentId    String
+  assessment   Assessment @relation(fields: [assessmentId], references: [id])
+  assessmentId String
+
+  attemptNumber Int
+  answers       Json       // {questionId: answer}
+  scorePct      Int?
+  passed        Boolean?
+  startedAt     DateTime   @default(now())
+  submittedAt   DateTime?
+
+  @@unique([studentId, assessmentId, attemptNumber])
+  @@index([studentId, assessmentId])
+}
+
+// ============================================================================
+// JOURNAL (append-only)
+// ============================================================================
+
+/// Append-only by convention: an "edit" inserts a new row with the same
+/// entryGroupId and an incremented version, rather than updating in place.
+/// Never expose an UPDATE/DELETE path on this model from the API layer.
+model JournalEntry {
+  id           String   @id @default(uuid())
+  student      Student  @relation(fields: [studentId], references: [id])
+  studentId    String
+  entryGroupId String   // shared across versions of the "same" entry
+  version      Int      @default(1)
+
+  entryDate    DateTime @default(now())
+  entryType    String   // "thought" | "observation" | "research" | "sketch" | "experiment" | "failure" | "result" | "feedback" | "decision" | "improvement" | "mentor_feedback" | "ai_use"
+  text         String?
+  attachments  Json?    // [{type, url}]
+
+  createdAt DateTime @default(now())
+
+  @@index([studentId, entryGroupId])
+}
+
+// ============================================================================
+// QUALIFICATION / CERTIFICATION
+// ============================================================================
+
+model QualificationRecord {
+  id          String              @id @default(uuid())
+  student     Student             @relation(fields: [studentId], references: [id])
+  studentId   String
+  season      Season              @relation(fields: [seasonId], references: [id])
+  seasonId    String
+  window      QualificationWindow
+
+  requirementsMet Json            // checklist snapshot, e.g. {"sixStages": true, "assessments": true, ...}
+  isEligible      Boolean         @default(false)
+  qualifiedAt     DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([studentId, seasonId])
+}
+
+/// Phase 2 UI (the full national qualification submission form), schema
+/// ready now so it doesn't require a migration later.
+model QualificationPackage {
+  id                String   @id @default(uuid())
+  project           Project  @relation(fields: [projectId], references: [id])
+  projectId         String   @unique
+
+  abstract          String?
+  demoVideoUrl      String?
+  presentationUrl   String?
+  publicSafeSummary String?
+  originalityDeclarationAccepted Boolean @default(false)
+  mentorDisclosure  String?
+
+  submittedAt DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+model Certificate {
+  id               String   @id @default(uuid())
+  student          Student  @relation(fields: [studentId], references: [id])
+  studentId        String
+  credentialNumber String   @unique
+  verificationToken String  @unique @default(uuid()) // Phase 2: powers the public verify-link/QR page
+  issuedAt         DateTime @default(now())
+  revokedAt        DateTime?
+
+  @@index([studentId])
+}
+
+/// Phase 2 UI (Innovator Transcript), populated by judges/admins once
+/// scoring exists. Schema exists now so ratings have somewhere to land.
+model CompetencyRating {
+  id          String  @id @default(uuid())
+  student     Student @relation(fields: [studentId], references: [id])
+  studentId   String
+  competency  String  // e.g. "Critical Thinking", "Communication"
+  rating      String  // "Developing" | "Proficient" | "Distinguished"
+  ratedByUserId String
+
+  createdAt DateTime @default(now())
+
+  @@index([studentId])
+}
+
+// ============================================================================
+// JUDGING (Phase 2 — tables exist now, no portal UI yet)
+// ============================================================================
+
+model JudgeAssignment {
+  id        String   @id @default(uuid())
+  judge     Judge    @relation(fields: [judgeId], references: [id])
+  judgeId   String
+  projectId String
+
+  conflictOfInterestDeclared Boolean @default(false)
+  conflictOfInterestNotes    String?
+
+  assignedAt DateTime @default(now())
+
+  @@unique([judgeId, projectId])
+}
+
+model JudgeScore {
+  id           String  @id @default(uuid())
+  judge        Judge   @relation(fields: [judgeId], references: [id])
+  judgeId      String
+  projectId    String
+
+  rubricScores Json    // {"Problem Significance": 8, "Originality": 7, ...} — categories admin-configurable
+  comments     String?
+  submittedAt  DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@unique([judgeId, projectId])
+}
+
+// ============================================================================
+// NOTIFICATIONS / AUDIT
+// ============================================================================
+
+model Notification {
+  id        String               @id @default(uuid())
+  user      User                 @relation(fields: [userId], references: [id])
+  userId    String
+  type      NotificationType
+  channel   NotificationChannel  @default(EMAIL)
+  sentAt    DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+/// Basic action logging per CLAUDE.md — no admin UI for this in V1, but the
+/// table exists and every sensitive admin action should write here.
+model AuditLog {
+  id         String   @id @default(uuid())
+  actor      User     @relation("ActorAuditLogs", fields: [actorUserId], references: [id])
+  actorUserId String
+  action     String   // e.g. "STAGE_UNLOCK_OVERRIDE", "PAYMENT_VERIFIED", "PROJECT_VISIBILITY_CHANGED"
+  targetType String   // e.g. "Student", "Project", "Payment"
+  targetId   String
+  metadata   Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([actorUserId])
+  @@index([targetType, targetId])
+}

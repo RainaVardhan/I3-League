@@ -1,0 +1,1117 @@
+/* The scroll-jacking cube sequence: a tall section with a pinned viewport
+   inside it. Scroll position within .stageScroll drives rotation/opacity via
+   refs in JourneyHero.tsx — see docs/design-system.md Section 11 for the
+   canonical spec this implements.
+
+   Three responsive tiers, not just "desktop vs mobile":
+     - Desktop  (>1500px): hero text overlaid on the card, journey rail
+       floats on the card's right edge, animation starts as soon as the
+       card pins under the header.
+     - Midsized (821-1500px): same overlay/pin behavior, but the rail
+       collapses into a horizontal strip along the card's bottom edge and
+       the cube re-centers in the freed-up space.
+     - Smaller  (<=820px): hero text moves into normal document flow above
+       the card (.mobileIntro) instead of overlaying it, the card itself is
+       a shorter "card" rather than a near-full-viewport panel, and it only
+       pins (and the animation only starts) once scrolled to vertical
+       center — see JourneyHero.tsx's stickyOffsetPx()/heroExtraPx(). */
+
+.stageScroll {
+  position: relative;
+}
+
+/* ---- Smaller tier: normal-flow hero intro (see stageScroll comment) ---- */
+
+.mobileIntro {
+  display: none;
+}
+
+.stageScrollSticky {
+  position: sticky;
+  top: var(--header-h);
+  height: calc(100svh - var(--header-h));
+  /* Deliberately lower than the reference's 650px: position:sticky pins the
+     TOP of this element, so if min-height ever forces it taller than the
+     actual viewport, the bottom portion renders below the fold and can
+     never be scrolled into view for the whole pinned duration — the box
+     reads as permanently cut off on a short browser window. 520px keeps
+     that floor from kicking in until well under most real browser windows. */
+  min-height: 520px;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--canvas);
+  border-bottom: 1px solid var(--line);
+  /* Single source of truth for where the card's left edge sits (and so,
+     where the text column's available width ends) on the side-by-side
+     tiers (>820px). Was 46.4vw, giving the card a noticeably wider share
+     (~49vw) than the text column (~46vw); moved out to 49vw so the split
+     reads as roughly half-and-half, text column slightly the larger of
+     the two. Kept as one shared value across the base/1500px/900px tiers
+     (previously each tier hardcoded its own slightly different number)
+     since there's no longer a rail competing for space at any of them —
+     see the individual tier comments below for their (now much smaller)
+     right-edge-only overrides. */
+  --split-x: 49vw;
+  /* Left edge of the text column (.stagePanel and — see the IP Checkpoint
+     split further down — .stageGate's title/body). Unchanged formula from
+     .stagePanel's own original hardcoded `left`, just promoted to a shared
+     variable so .stageGate can position itself identically without a
+     second copy of the same expression. */
+  --text-col-left: max(30px, calc((100vw - var(--container)) / 2 + 90px));
+  /* Single source of truth for the cube's horizontal anchor, so
+     .hexBadge/.stageGate::before (see the IP Checkpoint split below) can
+     compute their own position from the same value .cubeSceneWrapper uses
+     instead of a second hardcoded copy that can drift out of sync. This is
+     the midpoint between --split-x and this tier's right inset (4.2vw);
+     re-declared (not just read) at the 1500px/900px tiers below, wherever
+     that right inset changes. */
+  --cube-left: 72.4vw;
+}
+
+/* Cobalt back plane + warm paper foreground plane — the offset between them
+   is the primary depth cue (Section 7A). Insets tightened from the
+   reference's 5.5vh so short windows waste less height on empty margin. */
+.stageScrollSticky::before,
+.stageScrollSticky::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  top: 4vh;
+  right: 4.2vw;
+  bottom: 4vh;
+  left: var(--split-x);
+}
+.stageScrollSticky::before {
+  z-index: -3;
+  background: var(--blue);
+  transform: translate(28px, 30px);
+  box-shadow: 0 34px 70px rgba(16, 33, 61, 0.16);
+}
+.stageScrollSticky::after {
+  z-index: -2;
+  background: var(--paper);
+  border: 1px solid rgba(16, 33, 61, 0.15);
+  box-shadow:
+    0 34px 66px rgba(16, 33, 61, 0.13),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+/* ---- Hero text (desktop/midsized overlay) ---- */
+
+.heroText {
+  position: absolute;
+  z-index: 5;
+  left: max(30px, calc((100vw - var(--container)) / 2));
+  top: 50%;
+  /* The plain 42vw/550px cap (from the reference design) grows independently
+     of the box's own left edge (--split-x below) — past ~830px viewport
+     width the two mathematically collide and keep colliding worse on wider
+     screens. The third min() term shrinks this column just enough to always
+     leave a 40px gap before the box, whatever the viewport width. */
+  width: min(550px, 42vw, calc(var(--split-x) - max(30px, (100vw - var(--container)) / 2) - 40px));
+  transform: translateY(calc(-50% + var(--drift, 0px)));
+  text-align: left;
+  will-change: opacity, transform;
+}
+.eyebrowWrap {
+  margin-bottom: 18px;
+}
+.heroText h1,
+.mobileIntro h1 {
+  margin: 0 0 22px;
+  font: 700 clamp(52px, 5.5vw, 78px) / 0.94 var(--font-display), sans-serif;
+  letter-spacing: -0.048em;
+  color: var(--ink);
+  text-wrap: balance;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+.accent {
+  color: var(--blue);
+}
+.sub {
+  max-width: 485px;
+  margin: 0 0 26px;
+  color: #53627a;
+  font-size: 17px;
+  line-height: 1.65;
+}
+.btnRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.enrollNote {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: #68758a;
+  font: 500 12px / 1.4 var(--font-mono), monospace;
+  letter-spacing: 0.03em;
+}
+.scrollCue {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+  color: #8a95a4;
+  font: 500 10px var(--font-mono), monospace;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+/* Desktop/midsized: the hero copy fades into the cube scene beside it, not
+   a card below it, so the cue points right (toward that scene) instead of
+   down. Rotating the same down-arrow markup keeps this to one SVG instead
+   of two, and the nudge switches to a horizontal bob to match. Down-facing
+   is reserved for the small tier (see the max-width: 820px override below),
+   where .mobileIntro really does sit above the card. */
+.scrollCue svg {
+  transform: rotate(-90deg);
+  animation: scrollNudgeRight 1.7s ease-in-out infinite;
+}
+@keyframes scrollNudgeRight {
+  0%,
+  100% {
+    transform: rotate(-90deg) translateY(0);
+  }
+  50% {
+    transform: rotate(-90deg) translateY(4px);
+  }
+}
+
+/* ---- Cube scene positioning ----
+   The Cube primitive owns size/perspective/drop-shadow; this wrapper owns
+   where it sits in the hero and the scroll-driven offset/scale/opacity. */
+
+/* Full-size, invisible pass-through (position:absolute + inset:0 makes it
+   exactly match .stageScrollSticky's own box, so it changes nothing about
+   .cubeSceneWrapper's percentage-based positioning below) whose only job is
+   to clip-path the cube to the box's exact rectangle — see the comment on
+   this wrapper in JourneyHero.tsx for why that's necessary. clip-path
+   values mirror .stageScrollSticky::before/after's own insets exactly, at
+   every breakpoint. */
+.cubeClip {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  clip-path: inset(4vh 4.2vw 4vh var(--split-x));
+}
+
+.cubeSceneWrapper {
+  position: absolute;
+  left: var(--cube-left);
+  top: 50%;
+  transform-origin: center;
+  transform: translate(-50%, -50%) translateX(var(--heroX, 0px)) scale(var(--sceneScale, 1));
+  will-change: transform, opacity;
+}
+
+/* ---- Stage copy panels ---- */
+
+.stagePanel {
+  position: absolute;
+  z-index: 4;
+  left: var(--text-col-left);
+  top: 50%;
+  /* Same self-limiting formula as .heroText above, and for the same reason
+     — keeps this column clear of the box's left edge at every width. */
+  width: min(
+    430px,
+    35vw,
+    calc(var(--split-x) - var(--text-col-left) - 40px)
+  );
+  transform: translateY(-50%) translateX(var(--slide, 0px));
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity, transform;
+}
+.stagePanel::after {
+  content: "";
+  position: absolute;
+  top: 17px;
+  left: calc(100% + 22px);
+  width: 64px;
+  height: 1px;
+  background: rgba(49, 88, 216, 0.24);
+}
+.panelNum {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--blue);
+  font: 700 11px var(--font-mono), monospace;
+  letter-spacing: 0.17em;
+}
+.stagePanel h3 {
+  margin: 0 0 7px;
+  color: var(--ink);
+  font: 700 clamp(29px, 2.8vw, 39px) / 1.08 var(--font-display), sans-serif;
+  letter-spacing: -0.032em;
+}
+.icant {
+  margin: 0 0 17px;
+  color: #69768a;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.stagePanel p:last-child {
+  margin: 0;
+  max-width: 410px;
+  color: #53627a;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+/* ---- IP Checkpoint gate ----
+   Split in two, same as every other stage: the badge + "IP CHECKPOINT"
+   label sit on the cube's own anchor point (replacing it — the cube fades
+   to opacity 0 whenever the gate is showing, see JourneyHero.tsx), while
+   the title/body sit in the same text column .stagePanel uses, instead of
+   the whole gate bundled into one block centered on the cube. The "bigger,
+   rarer moment" treatment (see CLAUDE.md's note that coral is "reserved
+   for action + the IP Checkpoint only") lives entirely in the badge/label
+   pair above — .stageGate h3/p below deliberately match .stagePanel h3/
+   p:last-child's font/size/color/spacing exactly, so the text in the copy
+   column outside the card reads as part of the same sequence as every
+   other stage instead of visually breaking rhythm. */
+
+.stageGate {
+  --gate-scale: 1;
+  /* Single source of truth for the badge's size, so the "IP CHECKPOINT"
+     label's offset below can be computed from it instead of a hardcoded px
+     guess that silently drifts out of sync (and starts overlapping the
+     badge) whenever the badge size changes. Bigger than the 72px it used
+     to be — badge + label are meant to be the "bigger, rarer moment"
+     element inside the card (see the section comment above), and 72px
+     wasn't reading that way next to a 248px cube. */
+  --gate-badge-size: 112px;
+  position: absolute;
+  z-index: 4;
+  left: var(--text-col-left);
+  top: 50%;
+  width: min(
+    430px,
+    35vw,
+    calc(var(--split-x) - var(--text-col-left) - 40px)
+  );
+  transform: translateY(-50%) translateX(var(--slide, 0px)) scale(var(--gate-scale));
+  text-align: left;
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity, transform;
+}
+/* Positioned relative to .stageGate's own box (its nearest positioned
+   ancestor) rather than in normal flow, landing on --cube-left regardless
+   of .stageGate's own (much narrower, left-column) width. translateY(-100%)
+   makes `top` the label's *bottom* edge, so it sits a fixed 14px above
+   .hexBadge regardless of --gate-badge-size. */
+.stageGate::before {
+  content: "IP CHECKPOINT";
+  position: absolute;
+  left: calc(var(--cube-left) - var(--text-col-left));
+  top: calc(50% - (var(--gate-badge-size) / 2) - 14px);
+  margin-bottom: 0;
+  color: var(--coral);
+  font: 650 16px var(--font-mono), monospace;
+  letter-spacing: 0.16em;
+  /* Without an explicit width, an absolutely positioned element still
+     shrink-to-fits within the *available* space rather than always sizing
+     to its single-line content — at some widths that's narrower than "IP
+     CHECKPOINT" needs, wrapping it onto two lines. Force one line. */
+  white-space: nowrap;
+  transform: translateX(-50%) translateY(-100%);
+}
+.hexBadge {
+  position: absolute;
+  left: calc(var(--cube-left) - var(--text-col-left));
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  width: var(--gate-badge-size);
+  height: var(--gate-badge-size);
+  margin: 0;
+  color: var(--coral);
+  background: var(--coral-soft);
+  border: 1px solid rgba(227, 94, 73, 0.32);
+  box-shadow:
+    0 10px 22px rgba(16, 33, 61, 0.09),
+    6px 7px 0 rgba(227, 94, 73, 0.1);
+}
+.hexBadge svg {
+  width: 52px;
+  height: 52px;
+}
+.stageGate h3 {
+  margin: 0 0 7px;
+  color: var(--ink);
+  font: 700 clamp(29px, 2.8vw, 39px) / 1.08 var(--font-display), sans-serif;
+  letter-spacing: -0.032em;
+}
+.stageGate p {
+  margin: 0;
+  max-width: 410px;
+  color: #53627a;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+/* ---- Journey masthead / watermark / progress ---- */
+
+.journeyMasthead {
+  position: absolute;
+  z-index: 2;
+  top: calc(5.5vh + 24px);
+  left: calc(var(--split-x) + 34px);
+  right: calc(4.2vw + 20px);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 16px;
+  color: #7b8798;
+  pointer-events: none;
+}
+.journeyMasthead::after {
+  content: "";
+  height: 1px;
+  background: rgba(16, 33, 61, 0.13);
+  grid-column: 2;
+}
+.jmLabel,
+.jmCount {
+  font: 650 9px var(--font-mono), monospace;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.jmCount {
+  color: var(--blue-dark);
+}
+
+/* Watermark digit + progress bar as one flex row, not two independently
+   absolute-positioned elements. That used to mean the progress bar's
+   `left` was a fixed offset while the watermark digit's width scales with
+   viewport (a clamp() font-size) — at some widths the two nearly touched,
+   at others there'd be a big gap. `gap` here computes the spacing from
+   the digit's *actual* rendered width every time, so it's consistent at
+   any viewport size. Also sits higher than the previous 4vh+8/12px (was
+   floating right at the card's bottom edge). At <=820px this collapses to
+   display:contents — see that override — handing .journeyWatermark and
+   .journeyProgress back their own independent positioning, unchanged. */
+.journeyBottomRow {
+  position: absolute;
+  z-index: 6;
+  left: calc(var(--split-x) + 40px);
+  right: calc(4.2vw + 20px);
+  bottom: calc(4vh + 30px);
+  display: flex;
+  align-items: flex-end;
+  gap: 32px;
+  pointer-events: none;
+}
+.journeyWatermark {
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+  flex: 0 0 auto;
+  pointer-events: none;
+  user-select: none;
+}
+.jwNum {
+  /* Fixed width (in em, so it still scales with the responsive clamp()
+     font-size) instead of sizing to its own text. The watermark cycles
+     through different 2-character labels ("01".."06", "IP", "I³") as the
+     user scrolls, and those render at different natural widths — without a
+     fixed width here, .journeyWatermark (flex: 0 0 auto) resizes per label,
+     which pushes .journeyProgress's flex-1 remainder (and so the visible
+     progress-bar track) to a different length every time the label changes.
+     1.15em comfortably fits the widest label ("06", measured ~1.12em) at
+     this font/weight/letter-spacing. */
+  display: inline-block;
+  width: 1.15em;
+  color: rgba(49, 88, 216, 0.125);
+  font: 700 clamp(108px, 11.5vw, 188px) / 0.78 var(--font-display), sans-serif;
+  letter-spacing: -0.075em;
+  text-align: left;
+}
+.jwName {
+  display: none;
+}
+.journeyWatermark.isGate .jwNum {
+  color: rgba(227, 94, 73, 0.105);
+}
+
+/* The progress bar doubles as the journey nav now — it replaces the old
+   .stageRail list. The track itself stays a visual fill indicator; the
+   .jpStops layer holds one button per stage (positioned via stopPercent()
+   in JourneyHero.tsx) plus a leading .jpStopStart button at 0% that scrolls
+   back to u=0 — the hero's "See a problem. Solve it. Change the world."
+   screen — so the whole journey (including "back to the start") is
+   reachable from one control. */
+.journeyProgress {
+  flex: 1 1 auto;
+  min-width: 0;
+  pointer-events: none;
+}
+.jpLabel {
+  display: block;
+  margin: 0 0 8px;
+  color: #8a95a4;
+  font: 600 8.5px var(--font-mono), monospace;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+.jpTrack {
+  position: relative;
+  display: block;
+  height: 1.5px;
+  background: rgba(16, 33, 61, 0.08);
+  overflow: visible;
+}
+.jpFill {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--blue);
+  transform-origin: left center;
+}
+
+.jpStops {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+}
+/* Small, quiet dots by default — the fill bar already communicates
+   progress, so the stops only need to read clearly on hover/focus or once
+   a stage is active, not compete visually the rest of the time. Active/hover
+   states are color + a light scale only now — no glow ring — so the track
+   stays flat and the dots don't compete with the fill for attention. */
+.jpStop {
+  position: absolute;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  /* Opaque, not translucent — this sits on top of .jpFill (a plain block
+     that stacks behind it) once a stage is passed, and a translucent fill
+     barely tints the now-solid progress line underneath, reading as if the
+     line were drawn over the dot instead of the other way around. A flat
+     opaque color reads as a distinct dot regardless of what's behind it. */
+  background: #c7cfdd;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+.jpStop:hover {
+  background: var(--blue);
+  transform: translate(-50%, -50%) scale(1.15);
+}
+.jpStop:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+.jpStop.isActive {
+  background: var(--blue);
+  transform: translate(-50%, -50%) scale(1.15);
+}
+.jpStopGate {
+  background: #f0b3a4;
+}
+.jpStopGate:hover {
+  background: var(--coral);
+}
+.jpStopGate.isActive {
+  background: var(--coral);
+  transform: translate(-50%, -50%) scale(1.15);
+}
+/* The "back to start" stop reads as a ring rather than a filled dot, so it
+   doesn't look like just another stage — it's the one stop that leaves the
+   journey rather than advancing it. */
+.jpStopStart {
+  width: 7px;
+  height: 7px;
+  background: var(--paper);
+  border: 1.5px solid rgba(16, 33, 61, 0.28);
+}
+.jpStopStart:hover {
+  border-color: var(--blue);
+  background: var(--blue-pale);
+}
+.jpStopStart.isActive {
+  border-color: var(--blue);
+  background: var(--blue-pale);
+  transform: translate(-50%, -50%) scale(1.15);
+}
+
+/* ============================================================
+   Responsive cascade — see docs/design-system.md Section 5, and the
+   tier breakdown in the top-of-file comment.
+   ============================================================ */
+
+/* ---- Midsized tier: 821-1500px ----
+   Cube/gate re-center in the box now that nothing is competing for space
+   on the right side of it. Also widened from the reference's 1100px for
+   the same cube-overflow reasons as before — see the historical note
+   further down at the 900px query. */
+@media (max-width: 1500px) {
+  .stageScrollSticky {
+    /* Box now spans --split-x (49vw, shared with the base tier) to 97.5vw,
+       so its center is 73.25vw — replaces the old rail-avoiding 63.5%. */
+    --cube-left: 73.25vw;
+  }
+  .stageScrollSticky::before,
+  .stageScrollSticky::after {
+    right: 2.5vw;
+  }
+  .cubeClip {
+    clip-path: inset(4vh 2.5vw 4vh var(--split-x));
+  }
+  .heroText {
+    width: min(43vw, calc(var(--split-x) - max(30px, (100vw - var(--container)) / 2) - 40px));
+  }
+  .stagePanel {
+    width: min(
+      35vw,
+      calc(var(--split-x) - var(--text-col-left) - 40px)
+    );
+  }
+  .stageGate {
+    width: min(
+      35vw,
+      calc(var(--split-x) - var(--text-col-left) - 40px)
+    );
+  }
+  .journeyMasthead {
+    left: calc(var(--split-x) + 30px);
+    right: calc(2.5vw + 20px);
+  }
+  .journeyBottomRow {
+    left: calc(var(--split-x) + 32px);
+    right: calc(2.5vw + 20px);
+  }
+  .stagePanel::after {
+    width: 44px;
+  }
+}
+
+@media (max-width: 900px) {
+  .stageScrollSticky {
+    /* Box spans --split-x (49vw) to 98vw, center 73.5vw — same reasoning
+       as the 1500px query. */
+    --cube-left: 73.5vw;
+  }
+  .stageScrollSticky::before,
+  .stageScrollSticky::after {
+    right: 2vw;
+  }
+  .cubeClip {
+    clip-path: inset(4vh 2vw 4vh var(--split-x));
+  }
+  .heroText {
+    left: 28px;
+    width: 42vw;
+  }
+  .heroText h1 {
+    font-size: clamp(44px, 5.8vw, 61px);
+  }
+  .stagePanel,
+  .stageGate {
+    left: 40px;
+    width: 36vw;
+  }
+  .journeyMasthead {
+    left: calc(var(--split-x) + 22px);
+    right: calc(2vw + 20px);
+  }
+  .journeyBottomRow {
+    left: calc(var(--split-x) + 24px);
+    right: calc(2vw + 20px);
+  }
+  .jwNum {
+    font-size: clamp(90px, 12vw, 132px);
+  }
+  .stagePanel::after {
+    display: none;
+  }
+}
+
+/* ---- Smaller tier: <=820px ----
+   Hero copy moves to .mobileIntro (normal flow, above the card) instead of
+   overlaying it. The card becomes a shorter, human-scale "card" — not a
+   near-full-viewport panel — and pins at vertical center instead of near
+   the header; JourneyHero.tsx's stickyOffsetPx()/heroExtraPx() compute the
+   matching scroll-driven trigger point, so --card-h here is the single
+   source of truth both the CSS lock position and the JS progress formula
+   key off (JS measures it live via offsetHeight rather than duplicating
+   the formula, so it can never drift out of sync with this rule). */
+@media (max-width: 820px) {
+  /* Compact, top-of-page block — not vertically centered/filled to the
+     viewport. A centered version was tried and reverted: filling
+     100svh-header-h pushed the card a full screen down, opening a big
+     empty gap between "Scroll through the journey" and the card. The card
+     should follow directly after this text instead. */
+  /* isolation:isolate is load-bearing, not decorative: without it,
+     .checkerboard's negative z-index (-4) escapes past this
+     position:relative box (relative alone doesn't create a stacking
+     context) all the way to the document root, where it gets painted
+     behind other root-level content (e.g. GridBackground's z-index:0)
+     instead of just behind this block's own text — same reason
+     .stageScrollSticky below carries isolation:isolate. */
+  .mobileIntro {
+    position: relative;
+    isolation: isolate;
+    display: block;
+    padding: 44px 20px 28px;
+    text-align: center;
+  }
+  .mobileIntro .eyebrowWrap {
+    margin-bottom: 10px;
+  }
+  .mobileIntro h1 {
+    margin-bottom: 12px;
+    font-size: clamp(39px, 11.3vw, 54px);
+    line-height: 0.94;
+    letter-spacing: -0.045em;
+  }
+  .mobileIntro .sub {
+    max-width: 350px;
+    margin: 0 auto 14px;
+    font-size: 14.5px;
+    line-height: 1.48;
+  }
+  .mobileIntro .btnRow {
+    justify-content: center;
+    /* More breathing room before "Enrollment opens..." below — 12px read as
+       cramped once the row wraps to its own centered line at this width. */
+    margin-bottom: 24px;
+    gap: 9px;
+  }
+  .mobileIntro .enrollNote {
+    justify-content: center;
+    font-size: 10.5px;
+  }
+  .mobileIntro .scrollCue {
+    margin-top: 10px;
+    font-size: 8.5px;
+  }
+  /* The card sits directly underneath this text at this tier (see the
+     .mobileIntro comment above), so the cue reverts to pointing down —
+     the rotated right-facing arrow above is a desktop/midsized-only
+     affordance, since there the copy fades into the cube scene beside it
+     rather than a card below it. */
+  .scrollCue svg {
+    transform: rotate(0deg);
+    animation: scrollNudge 1.7s ease-in-out infinite;
+  }
+  @keyframes scrollNudge {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(4px);
+    }
+  }
+  /* !important: overrides the shared Button component's base sizing for
+     this hero placement only — see the note in CurriculumBridge.module.css. */
+  .mobileIntro .heroBtn {
+    min-height: 43px !important;
+    padding: 0 15px !important;
+    font-size: 13px !important;
+  }
+
+  /* The overlay .heroText version is unused at this tier — .mobileIntro
+     above replaces it. */
+  .heroText {
+    display: none;
+  }
+
+  /* Card sits right at the top of this box (--top-inset is just a small
+     shadow/breathing margin, not a reserved text zone) so it follows
+     directly under "Scroll through the journey" with no gap. The stage
+     copy (.stagePanel/.stageGate) now lives *below* the card instead of
+     above it — --card-bottom marks where the card's own visual box ends;
+     everything from there to the bottom of this box is that text zone.
+     --card-h is sized to give the card real height (the "longer card"
+     ask) *and* comfortably fit the tallest stage copy (Iterate, Influence
+     — 2-line title + 3-line body) below it without clipping against this
+     box's own bottom edge (overflow:hidden up on .stageScrollSticky) —
+     capped by `100svh - header - buffer` (not a flat vh%) so it can never
+     grow taller than what's actually left below the pinned header, on any
+     viewport. `top` is a fixed MOBILE_HEADER_GAP below the header — not
+     vertically centered in the viewport — so there's always a visible
+     gap between the header and the card once it locks in place;
+     JourneyHero.tsx's mobileStickyOffsetPx() mirrors this exact offset
+     for the scroll-jack math, so the two can never drift apart. Declared
+     on .stageScrollSticky itself (not the media query body — custom
+     properties need a rule to live in) so every descendant below can
+     read it via var(). */
+  .stageScrollSticky {
+    --top-inset: 18px;
+    --card-bottom: 398px;
+    --card-h: min(760px, calc(100svh - var(--header-h) - 40px));
+    /* Where the IP Checkpoint badge sits, expressed relative to .stageGate's
+       own top edge (var(--card-bottom) + 56px — see .stageGate below) since
+       that's the containing block .hexBadge/.stageGate::before are
+       absolutely positioned against. Algebraically this is just the cube's
+       own center (see .cubeSceneWrapper) minus .stageGate's top, so the
+       badge lands exactly on the cube's anchor point inside the card. */
+    --gate-icon-offset: calc((var(--top-inset) - var(--card-bottom)) / 2 - 56px);
+    height: var(--card-h);
+    min-height: 0;
+    top: calc(var(--header-h) + 20px);
+  }
+  .stageScrollSticky::before {
+    top: var(--top-inset);
+    left: 7vw;
+    right: 7vw;
+    bottom: calc(var(--card-h) - var(--card-bottom));
+    transform: translate(14px, 15px);
+    box-shadow: 0 22px 42px rgba(16, 33, 61, 0.14);
+  }
+  .stageScrollSticky::after {
+    top: var(--top-inset);
+    left: 7vw;
+    right: 7vw;
+    bottom: calc(var(--card-h) - var(--card-bottom));
+    box-shadow: 0 22px 40px rgba(16, 33, 61, 0.11);
+  }
+  .cubeClip {
+    clip-path: inset(var(--top-inset) 7vw calc(var(--card-h) - var(--card-bottom)) 7vw);
+  }
+  /* Centered within the card box itself: the midpoint between --top-inset
+     and --card-bottom. Safe from the stage-copy text below: the IP
+     Checkpoint gate fades the cube out entirely while it's on screen (see
+     .stageGate below), so nothing ever overlaps a centered cube here. */
+  .cubeSceneWrapper {
+    left: 50%;
+    top: calc((var(--top-inset) + var(--card-bottom)) / 2);
+    transform: translate(-50%, -50%) scale(var(--sceneScale, 1));
+  }
+  /* Sits below the card (see .stageScrollSticky comment above) — no
+     longer sharing the cube's anchor the way it does on wider tiers,
+     since that would put it back on the card instead of under it. Sized
+     up from an earlier, much-tighter pass — that version read as too
+     small once there was real room below the card to work with. */
+  .stagePanel {
+    left: 50%;
+    top: calc(var(--card-bottom) + 56px);
+    width: min(420px, calc(100vw - 20px));
+    transform: translateX(-50%) translateY(var(--slide, 0px));
+    text-align: center;
+  }
+  .panelNum {
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+  .stagePanel h3 {
+    font-size: clamp(26px, 7.5vw, 34px);
+    margin-bottom: 8px;
+  }
+  .icant {
+    margin-bottom: 8px;
+    font-size: 15px;
+  }
+  .stagePanel p:last-child {
+    max-width: 400px;
+    margin: 0 auto;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+  /* .stageGate itself stays positioned below the card — same spot as
+     .stagePanel above — and now holds *only* the title/body copy in
+     normal flow. The badge + "IP CHECKPOINT" label are pulled back out of
+     that flow with their own position:absolute (below) so they land on
+     the cube's own anchor point inside the card instead — matching how
+     every other stage shows its cube face on the card and its
+     description underneath, rather than dumping the whole gate visual
+     into the text zone. */
+  .stageGate {
+    left: 50%;
+    top: calc(var(--card-bottom) + 56px);
+    width: min(420px, calc(100vw - 20px));
+    transform: translate(-50%, 0) scale(var(--gate-scale));
+    /* .stagePanel centers its text at this tier (see above) — .stageGate
+       inherited the base rule's text-align: left instead, so the IP
+       Checkpoint's heading/body read left-aligned while every other
+       stage's copy is centered underneath the card. */
+    text-align: center;
+    /* Single source of truth for the badge's size, so the label's offset
+       below can be computed from it instead of a hardcoded px guess that
+       silently drifts out of sync (and starts overlapping the badge)
+       whenever the badge size changes — which is exactly what happened
+       here when the badge grew from 60px to its current size. */
+    --gate-badge-size: 96px;
+  }
+  /* Positioned relative to .stageGate's own box (its nearest positioned
+     ancestor) via --gate-icon-offset, which already accounts for that —
+     see the comment on .stageScrollSticky above. translateY(-100%) makes
+     `top` the label's *bottom* edge, so it sits a fixed 10px above
+     .hexBadge regardless of the badge's own size (via --gate-badge-size,
+     declared on .stageGate above). */
+  .stageGate::before {
+    position: absolute;
+    left: 50%;
+    top: calc(var(--gate-icon-offset) - (var(--gate-badge-size) / 2) - 10px);
+    margin-bottom: 0;
+    /* Bigger than the other stages' small mono captions — the badge/label
+       pair inside the card is the "bigger, rarer moment" element, not the
+       heading below (see .stageGate h3 above). */
+    font-size: 18px;
+    letter-spacing: 0.14em;
+    transform: translateX(-50%) translateY(-100%);
+  }
+  .hexBadge {
+    position: absolute;
+    left: 50%;
+    top: var(--gate-icon-offset);
+    /* Bigger than even the desktop badge (72px) — the IP Checkpoint is
+       meant to read as the deliberately larger, rarer moment (see the
+       comment at the top of this "IP Checkpoint gate" section), and at
+       60px that distinction was getting lost at this tier. */
+    width: var(--gate-badge-size);
+    height: var(--gate-badge-size);
+    margin: 0;
+    transform: translate(-50%, -50%);
+  }
+  .hexBadge svg {
+    width: 54px;
+    height: 54px;
+  }
+  .stageGate h3 {
+    /* Same size as every other stage's heading (.stagePanel h3) — the
+       "bigger, rarer moment" treatment belongs to the badge/label inside
+       the card above, not the text in the copy zone below it. */
+    font-size: clamp(26px, 7.5vw, 34px);
+    margin-bottom: 8px;
+  }
+  .stageGate p {
+    max-width: 400px;
+    margin: 0 auto;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+  /* A small caption on the card's own top-left corner (not part of the
+     below-card text zone) — stays put regardless of --card-bottom. */
+  .journeyMasthead {
+    top: calc(var(--top-inset) + 16px);
+    left: calc(7vw + 20px);
+    right: calc(7vw + 20px);
+  }
+  .jmLabel {
+    display: none;
+  }
+  /* Bolder/bigger on mobile — the desktop sizing reads as too subtle at
+     this width. */
+  .jmCount {
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .journeyMasthead::after {
+    grid-column: 1;
+    height: 2px;
+    background: rgba(16, 33, 61, 0.22);
+  }
+  /* Undoes the desktop-tier flex row — .journeyWatermark and
+     .journeyProgress go back to being independently absolute-positioned
+     (each re-declares position:absolute below, since the shared base rule
+     no longer sets it once they're flex-row children there), exactly as
+     they were before that restructure. */
+  .journeyBottomRow {
+    display: contents;
+  }
+  /* Sized down from the desktop clamp so the digit's own footprint stays
+     clear of the now-centered cube (see .cubeSceneWrapper above) — a
+     wide/tall numeral here would sit right under the cube at this tier's
+     card proportions. Positioned from the card's own bottom edge
+     (--card-bottom), not this box's bottom edge, since the stage-copy
+     text zone now sits below that. */
+  .journeyWatermark {
+    position: absolute;
+    left: calc(7vw + 18px);
+    bottom: calc(var(--card-h) - var(--card-bottom) + 20px);
+    gap: 10px;
+  }
+  .jwNum {
+    font-size: clamp(46px, 13vw, 64px);
+    color: rgba(49, 88, 216, 0.32);
+  }
+  .journeyWatermark.isGate .jwNum {
+    color: rgba(227, 94, 73, 0.28);
+  }
+  /* Spans from just clear of the watermark digit's right edge over to the
+     card's own right edge — padded on both sides — rather than a narrow
+     bar docked only to the right. */
+  .journeyProgress {
+    position: absolute;
+    left: calc(7vw + 100px);
+    right: calc(7vw + 20px);
+    width: auto;
+    bottom: calc(var(--card-h) - var(--card-bottom) + 24px);
+  }
+  .jpTrack {
+    height: 2.5px;
+    background: rgba(16, 33, 61, 0.16);
+  }
+  /* Stops keep a slightly larger tap target than desktop's hover-driven
+     size, without going back to the old heavy dot treatment. */
+  .jpStop {
+    width: 9px;
+    height: 9px;
+  }
+  .jpStopStart {
+    width: 10px;
+    height: 10px;
+  }
+}
+
+@media (max-width: 460px) {
+  .mobileIntro {
+    padding: 40px 14px 28px;
+  }
+  .mobileIntro h1 {
+    font-size: clamp(35px, 10.5vw, 46px);
+  }
+  .mobileIntro .sub {
+    max-width: 315px;
+    font-size: 13.7px;
+  }
+  .mobileIntro .btnRow {
+    gap: 8px;
+  }
+  .mobileIntro .heroBtn {
+    padding: 0 12px !important;
+    font-size: 12.2px !important;
+  }
+  /* Same approach as the 820px tier, just smaller — overriding the custom
+     properties here is enough to reflow .cubeClip, .cubeSceneWrapper,
+     .stagePanel/.stageGate (now below the card) and the
+     watermark/progress bar (anchored to the card's own bottom edge) all
+     automatically, since they're all expressed in terms of
+     --top-inset/--card-bottom/--card-h — no need to repeat them. */
+  .stageScrollSticky {
+    --top-inset: 16px;
+    --card-bottom: 336px;
+    --card-h: min(660px, calc(100svh - var(--header-h) - 36px));
+  }
+  .stagePanel {
+    width: calc(100vw - 30px);
+  }
+  .stageGate {
+    width: calc(100vw - 30px);
+  }
+  .jmCount {
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .journeyMasthead::after {
+    height: 2px;
+    background: rgba(16, 33, 61, 0.22);
+  }
+  .journeyWatermark {
+    left: calc(7vw + 14px);
+    bottom: calc(var(--card-h) - var(--card-bottom) + 17px);
+  }
+  .jwNum {
+    font-size: 44px;
+    color: rgba(49, 88, 216, 0.34);
+  }
+  .journeyWatermark.isGate .jwNum {
+    color: rgba(227, 94, 73, 0.3);
+  }
+  .journeyProgress {
+    left: calc(7vw + 74px);
+    right: calc(7vw + 16px);
+    width: auto;
+    bottom: calc(var(--card-h) - var(--card-bottom) + 20px);
+  }
+  .jpTrack {
+    height: 2.5px;
+    background: rgba(16, 33, 61, 0.18);
+  }
+}
+
+/* ---- Reduced motion: static, readable, non-pinned fallback ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  .stageScroll {
+    height: auto !important;
+  }
+  .mobileIntro {
+    display: none !important;
+  }
+  .stageScrollSticky {
+    position: relative;
+    top: auto;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    padding: 64px 24px 78px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(250px, 0.8fr);
+    gap: 48px;
+    background: var(--canvas);
+  }
+  .stageScrollSticky::before,
+  .stageScrollSticky::after {
+    display: none;
+  }
+  .heroText,
+  .cubeClip,
+  .cubeSceneWrapper,
+  .stagePanel,
+  .stageGate {
+    position: static;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    transform: none !important;
+    width: auto;
+    max-width: none;
+    text-align: left;
+  }
+  .cubeClip {
+    /* No longer clipping/absolute here — .cubeClip (not .cubeSceneWrapper)
+       is the direct grid child in this static layout, so the grid
+       placement moves to it instead. */
+    clip-path: none;
+    inset: auto;
+  }
+  .heroText {
+    display: block !important;
+    grid-column: 1;
+  }
+  .cubeClip {
+    grid-column: 2;
+    grid-row: 1;
+    margin: auto;
+  }
+  .stagePanel,
+  .stageGate {
+    grid-column: 1 / -1;
+    padding: 28px 0;
+    border-top: 1px solid var(--line);
+  }
+  .hexBadge {
+    margin: 0 0 16px;
+  }
+  .stageGate h3,
+  .stageGate p {
+    margin-left: 0;
+    margin-right: 0;
+  }
+  .scrollCue {
+    display: none;
+  }
+  .journeyMasthead,
+  .journeyBottomRow,
+  .journeyWatermark,
+  .journeyProgress {
+    display: none;
+  }
+}
