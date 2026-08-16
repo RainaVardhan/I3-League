@@ -2,21 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { Logo } from "@/components/design-system/Logo";
 import { Button } from "@/components/design-system/Button";
+import { NavLink } from "@/components/design-system/NavLink";
+import { SITE_NAV_LINKS } from "@/lib/site-nav";
 import styles from "./Header.module.css";
-
-const NAV_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/how-it-works", label: "How It Works" },
-  { href: "/curriculum", label: "Curriculum" },
-  { href: "/pricing", label: "Pricing" },
-];
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
-  const pathname = usePathname();
   const navRef = useRef<HTMLUListElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
 
@@ -70,15 +63,11 @@ export function Header() {
             id="nav-links"
             className={isOpen ? `${styles.navLinks} ${styles.isOpen}` : styles.navLinks}
           >
-            {NAV_LINKS.map((link) => (
+            {SITE_NAV_LINKS.map((link) => (
               <li key={link.href}>
-                <Link
-                  href={link.href}
-                  aria-current={pathname === link.href ? "page" : undefined}
-                  onClick={() => setIsOpen(false)}
-                >
+                <NavLink href={link.href} onClick={() => setIsOpen(false)}>
                   {link.label}
-                </Link>
+                </NavLink>
               </li>
             ))}
           </ul>

@@ -22,12 +22,18 @@ type CheckerboardProps = {
   // single, self-contained instance that fades on both edges (the default
   // .checkerboard rule).
   fadeEdge?: "top" | "bottom";
+  // Lets a consumer override the base rule's position (top/bottom/left/
+  // right are hard-coded to JourneyHero's own --split-x-based card
+  // geometry) — pass a class from the consumer's own CSS module with
+  // `!important` overrides, same pattern as FinalCta.module.css's
+  // .eyebrowWrap/.btn.
+  className?: string;
 };
 
 // Purely decorative: a handful of 30px grid cells intermittently flip in
 // place, independent of scroll. Runs entirely on refs/DOM so it never
 // triggers a React re-render — see docs/design-system.md Section 8.
-export function Checkerboard({ fadeEdge }: CheckerboardProps = {}) {
+export function Checkerboard({ fadeEdge, className }: CheckerboardProps = {}) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -153,11 +159,6 @@ export function Checkerboard({ fadeEdge }: CheckerboardProps = {}) {
 
   const fadeClass =
     fadeEdge === "top" ? styles.fadeTopOnly : fadeEdge === "bottom" ? styles.fadeBottomOnly : "";
-  return (
-    <div
-      ref={containerRef}
-      className={fadeClass ? `${styles.checkerboard} ${fadeClass}` : styles.checkerboard}
-      aria-hidden="true"
-    />
-  );
+  const combinedClassName = [styles.checkerboard, fadeClass, className].filter(Boolean).join(" ");
+  return <div ref={containerRef} className={combinedClassName} aria-hidden="true" />;
 }

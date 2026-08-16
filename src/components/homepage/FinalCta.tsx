@@ -4,7 +4,8 @@ import { Eyebrow } from "@/components/design-system/Eyebrow";
 import styles from "./FinalCta.module.css";
 
 // Pattern E from docs/design-system.md Section 13 — the strongest dark
-// moment on the page, near the end, not a dark full-page shell.
+// moment on the page, near the end, not a dark full-page shell. Homepage
+// only — How It Works and other pages don't repeat this CTA.
 export function FinalCta() {
   return (
     <section className={styles.section}>
