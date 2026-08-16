@@ -1,0 +1,41 @@
+.roleGroup {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.label {
+  display: block;
+  margin-bottom: var(--space-2);
+  padding: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: var(--text-label);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.roleOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.roleOption {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--paper);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body), sans-serif;
+  font-size: var(--text-body);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.roleOption:has(input:checked) {
+  border-color: var(--blue);
+  background: var(--blue-pale);
+}
