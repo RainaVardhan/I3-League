@@ -44,7 +44,9 @@
 
 .heading {
   margin: 18px 0 20px;
-  font: 700 clamp(52px, 5.5vw, 78px) / 0.94 var(--font-display), sans-serif;
+  /* var(--text-hero) — shared with the homepage hero and CurriculumHero,
+     so all three page titles are one type scale, not copy-pasted values. */
+  font: 700 var(--text-hero) / 0.94 var(--font-display), sans-serif;
   letter-spacing: -0.048em;
   color: var(--ink);
 }
@@ -53,7 +55,7 @@
   margin: 0;
   max-width: 570px;
   color: var(--muted);
-  font-size: 17px;
+  font-size: var(--text-lede);
   line-height: 1.68;
 }
 
@@ -112,6 +114,15 @@
     grid-template-columns: 1fr;
     gap: 40px;
     min-height: auto;
+  }
+  /* .copy/.lede's desktop max-widths (670px/570px) were sized for sitting
+     next to .statBox in the two-column layout. Once the grid drops to a
+     single column, nothing else shares this row, so those caps just leave
+     the paragraph wrapping early with a lot of dead space to its right
+     instead of using the width that's actually available. */
+  .copy,
+  .lede {
+    max-width: none;
   }
   .heading {
     font-size: clamp(48px, 14vw, 64px);

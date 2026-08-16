@@ -81,19 +81,20 @@
   bottom: 4vh;
   left: var(--split-x);
 }
+/* Same hard, flat offset shadow as How It Works' PageHero .statBox (Section
+   7B) — pale blue-soft, zero blur — rather than a separately blurred ink
+   drop shadow. The plane's own translate offset is what reads as the
+   shadow; it doesn't need an additional soft shadow under it too. */
 .stageScrollSticky::before {
   z-index: -3;
-  background: var(--blue);
+  background: var(--blue-soft);
   transform: translate(28px, 30px);
-  box-shadow: 0 34px 70px rgba(16, 33, 61, 0.16);
 }
 .stageScrollSticky::after {
   z-index: -2;
   background: var(--paper);
   border: 1px solid rgba(16, 33, 61, 0.15);
-  box-shadow:
-    0 34px 66px rgba(16, 33, 61, 0.13),
-    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
 }
 
 /* ---- Hero text (desktop/midsized overlay) ---- */
@@ -119,7 +120,10 @@
 .heroText h1,
 .mobileIntro h1 {
   margin: 0 0 22px;
-  font: 700 clamp(52px, 5.5vw, 78px) / 0.94 var(--font-display), sans-serif;
+  /* var(--text-hero) — same hero title size/line-height as How It Works'
+     PageHero and Curriculum's CurriculumHero, so all three read as one
+     type scale instead of three near-identical hand-copied values. */
+  font: 700 var(--text-hero) / 0.94 var(--font-display), sans-serif;
   letter-spacing: -0.048em;
   color: var(--ink);
   text-wrap: balance;
@@ -132,7 +136,7 @@
   max-width: 485px;
   margin: 0 0 26px;
   color: #53627a;
-  font-size: 17px;
+  font-size: var(--text-lede);
   line-height: 1.65;
 }
 .btnRow {
@@ -617,8 +621,13 @@
     left: 28px;
     width: 42vw;
   }
+  /* Floor raised to match the other pages' simple heroes, which stay
+     clamped at their own 52px minimum across this same width band (their
+     5.5vw term doesn't clear that floor until ~945px) — without this the
+     homepage title reads noticeably smaller than How It Works/Curriculum
+     at these widths even though both come from var(--text-hero) above. */
   .heroText h1 {
-    font-size: clamp(44px, 5.8vw, 61px);
+    font-size: clamp(52px, 5.8vw, 64px);
   }
   .stagePanel,
   .stageGate {
@@ -673,16 +682,20 @@
   .mobileIntro .eyebrowWrap {
     margin-bottom: 10px;
   }
+  /* How It Works/Curriculum stay flat at their base rule's 52px floor
+     (clamp(52px, 5.5vw, 78px)) across this whole 761-900px band — matching
+     that here, rather than their *next* tier's 64px, which only starts at
+     760px (see the 760px block below). */
   .mobileIntro h1 {
     margin-bottom: 12px;
-    font-size: clamp(39px, 11.3vw, 54px);
+    font-size: 52px;
     line-height: 0.94;
     letter-spacing: -0.045em;
   }
   .mobileIntro .sub {
     max-width: 350px;
     margin: 0 auto 14px;
-    font-size: 14.5px;
+    font-size: var(--text-lede);
     line-height: 1.48;
   }
   .mobileIntro .btnRow {
@@ -773,14 +786,12 @@
     right: 7vw;
     bottom: calc(var(--card-h) - var(--card-bottom));
     transform: translate(14px, 15px);
-    box-shadow: 0 22px 42px rgba(16, 33, 61, 0.14);
   }
   .stageScrollSticky::after {
     top: var(--top-inset);
     left: 7vw;
     right: 7vw;
     bottom: calc(var(--card-h) - var(--card-bottom));
-    box-shadow: 0 22px 40px rgba(16, 33, 61, 0.11);
   }
   .cubeClip {
     clip-path: inset(var(--top-inset) 7vw calc(var(--card-h) - var(--card-bottom)) 7vw);
@@ -971,16 +982,29 @@
   }
 }
 
+/* How It Works/Curriculum step up to a bigger, bolder title right at
+   760px (clamp(48px, 14vw, 64px) — its steep vw term clamps to the 64px
+   ceiling almost immediately). Mirrored here as its own breakpoint,
+   separate from the 820px tier above, so the homepage title makes the same
+   jump at the same width instead of already sitting at 64px since 820px. */
+@media (max-width: 760px) {
+  .mobileIntro h1 {
+    font-size: clamp(48px, 14vw, 64px);
+  }
+}
+
 @media (max-width: 460px) {
   .mobileIntro {
     padding: 40px 14px 28px;
   }
+  /* Matches How It Works/Curriculum's equivalent ≤460px tier exactly:
+     clamp(44px, 15vw, 58px) title, 15.5px lede. */
   .mobileIntro h1 {
-    font-size: clamp(35px, 10.5vw, 46px);
+    font-size: clamp(44px, 15vw, 58px);
   }
   .mobileIntro .sub {
     max-width: 315px;
-    font-size: 13.7px;
+    font-size: 15.5px;
   }
   .mobileIntro .btnRow {
     gap: 8px;
