@@ -1,0 +1,377 @@
+.section {
+  position: relative;
+  padding: 96px var(--gutter) 112px;
+  /* Separates this section from the hero above it — same "paper surface
+     with a soft seam" treatment as ProblemSection.module.css on the
+     homepage, marking the boundary between the two with a color change
+     instead of just whitespace. */
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  box-shadow:
+    inset 0 18px 34px rgba(16, 33, 61, 0.035),
+    0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.inner {
+  max-width: var(--container);
+  margin: 0 auto;
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 48px;
+}
+
+.heading {
+  margin: 10px 0 20px;
+  font: 700 clamp(38px, 4.3vw, 58px) / 1 var(--font-display), sans-serif;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+}
+
+.copy {
+  margin: 0;
+  max-width: 640px;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.shell {
+  position: relative;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  box-shadow:
+    18px 20px 0 rgba(49, 88, 216, 0.1),
+    0 34px 64px rgba(16, 33, 61, 0.1);
+}
+
+/* Two-layer rail: .rail is the full path, always painted. .railMask sits on
+   top in the section's own background color and clips away from the top
+   down as steps reveal (via .clipPath in ProcessSection.tsx), so the path
+   visibly "fills in" as you scroll instead of being static.
+
+   --rail-top/--rail-bottom/--rail-left are set in ProcessSection.tsx from
+   the actual first/last badge centers (via getBoundingClientRect + a
+   ResizeObserver), not hardcoded here — a fixed offset can't stay
+   centered on the badges at every viewport width (the old per-breakpoint
+   `left` guesses drifted up to 7px off at 980px), and top/bottom visibly
+   break whenever the first or last step's own detail panel is open,
+   since that changes the shell's height out from under a fixed pixel
+   guess. The static values below are only the pre-JS fallback for the
+   first paint. */
+.rail,
+.railMask {
+  position: absolute;
+  z-index: 1;
+  /* --rail-left is the badge's CENTER x, not its left edge — `left`
+     alone would position this element's own left edge there, landing
+     half the rail's width too far right. translateX(-50%) re-centers it
+     on that point regardless of `width`, so the 2px/3px breakpoint
+     override below doesn't also need its own left-position fixup. */
+  left: var(--rail-left, 104px);
+  transform: translateX(-50%);
+  top: var(--rail-top, 58px);
+  bottom: var(--rail-bottom, 58px);
+  width: 3px;
+}
+.rail {
+  background: var(--coral);
+}
+.railMask {
+  background: var(--paper);
+  clip-path: inset(0% 0 0 0);
+  transition: clip-path 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* .step is a <button> that toggles the detail panel below it (see
+   .detail) — every step expands in place instead of navigating anywhere,
+   since there's no dedicated page per step yet. The row divider used to
+   live on .step itself, which put the line directly between the header
+   and its own (still-closed) detail panel — as soon as a step opened, the
+   line read as cutting across the detail box instead of separating one
+   step from the next. It now lives on the <li>, after the detail panel,
+   so it always marks the boundary between steps regardless of open state. */
+.step {
+  position: relative;
+  /* Explicit (not auto) z-index so .step always paints above .rail/.railMask
+     (z-index: 1), even mid-transition. Reveal/hover/press all animate this
+     element's opacity/transform, and opacity + transform together promote
+     an element to its own stacking context for the duration — with z-index
+     left at "auto" that momentarily drops .step (and the .num badge inside
+     it) behind the rail, so the rail line visibly cut through each number
+     box while scrolling or pressing it. A fixed z-index above the rail's
+     keeps the row on top in every state instead of only once settled. */
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 120px minmax(180px, 0.48fr) minmax(0, 1fr) auto;
+  gap: 34px;
+  align-items: center;
+  width: 100%;
+  min-height: 132px;
+  padding: 31px 38px 31px 34px;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition:
+    background 0.16s ease,
+    transform 0.6s ease;
+}
+/* The reveal fade lives on everything except .num (below), not on .step
+   itself — fading .step as a whole made its background briefly
+   translucent mid-transition, and the num badge is what's supposed to sit
+   in front of the rail (see .num's z-index comment) and fully hide it.
+   A translucent badge let the rail show straight through while scrolling.
+   Sliding the whole row via .step's own transform is fine (no
+   translucency involved); only the text content needs to fade. */
+.step > :not(.num) {
+  transition: opacity 0.6s ease;
+}
+.list li {
+  border-bottom: 1px solid var(--line);
+}
+.list li:last-child {
+  border-bottom: 0;
+}
+.step:hover {
+  background: #fbfcff;
+}
+.step:active {
+  transform: scale(0.992);
+}
+
+/* Only steps inside an .animated list start hidden and slide in — see the
+   comment in ProcessSection.tsx on why this is additive, not the default.
+   .revealed is added to the <li> (that's what's observed, not the button
+   inside it), so the selector has to check the <li>'s class and reach into
+   its .step descendant — checking .step itself for :not(.revealed) never
+   matched, since .step never gets that class directly, which is why every
+   step stayed permanently invisible once .animated landed. */
+.animated li:not(.revealed) .step {
+  transform: translateY(24px);
+}
+.animated li:not(.revealed) .step > :not(.num) {
+  opacity: 0;
+}
+
+.num {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  margin-left: 42px;
+  background: var(--paper);
+  border: 2px solid var(--coral);
+  color: var(--coral);
+  font: 700 13px var(--font-mono), monospace;
+  letter-spacing: 0.08em;
+  box-shadow: 5px 6px 0 var(--coral-soft);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.15s ease,
+    color 0.15s ease;
+}
+.step:hover .num {
+  transform: translateY(-3px);
+  box-shadow: 7px 9px 0 var(--coral-soft);
+}
+/* Every badge is the same outline style at rest — the only state that
+   fills one in solid is that specific step being hovered or expanded
+   (aria-expanded reflects the open/closed state already tracked in
+   ProcessSection.tsx, so no extra class is needed here). */
+.step:hover .num,
+.step[aria-expanded="true"] .num {
+  background: var(--coral);
+  border-color: var(--coral);
+  color: var(--white);
+}
+
+.title {
+  margin: 0;
+  color: var(--ink);
+  font: 700 clamp(24px, 2.2vw, 31px) / 1.05 var(--font-display), sans-serif;
+  letter-spacing: -0.026em;
+  transition: transform 0.2s ease;
+}
+.step:hover .title {
+  transform: translateX(5px);
+}
+
+.stepCopy {
+  margin: 0;
+  max-width: 610px;
+  color: var(--muted);
+  font-size: 15.5px;
+  line-height: 1.65;
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 110px;
+  justify-content: flex-end;
+}
+
+.meta {
+  text-align: right;
+  color: var(--dim);
+  font: 600 9.5px var(--font-mono), monospace;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.chevron {
+  flex: 0 0 auto;
+  color: var(--dim);
+  transition: transform 0.25s ease;
+}
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+/* Detail panel — grid-rows 0fr/1fr auto-animates to the content's real
+   height without measuring it in JS. .detailInner needs overflow hidden so
+   content stays clipped during the collapsed (0fr) state. */
+.detail {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.detailOpen {
+  grid-template-rows: 1fr;
+}
+.detailInner {
+  overflow: hidden;
+}
+/* Plain text, not a card — a tinted/bordered box here (tried in earlier
+   passes) read as a heavy, out-of-place "popped" panel repeated down a
+   long list. This just continues the row's own body-copy style
+   (matches .stepCopy), indented under the title/copy column, with
+   margin instead of a box to separate it from the header above and the
+   next row's divider below. */
+.detailInner p {
+  margin: 4px 38px 28px 196px;
+  max-width: 610px;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+/* Qualify's badge has no dedicated override — it falls through to the
+   default .num styling, which every step (01–07) now shares (coral
+   outline). Its meta label ("Two deadlines") stays normal case rather
+   than the all-caps every other step's meta uses. */
+.isDeadline .meta {
+  text-transform: none;
+}
+
+/* Impact's badge has no dedicated override either now — every badge
+   (01–08) shares the same outline .num styling, filling in only on
+   hover/expand like the rest. */
+
+@media (max-width: 980px) {
+  .step {
+    grid-template-columns: 108px 190px minmax(0, 1fr);
+    gap: 26px;
+  }
+  .metaRow {
+    grid-column: 3;
+    justify-content: flex-start;
+    margin-top: -22px;
+  }
+  .meta {
+    text-align: left;
+  }
+}
+
+@media (max-width: 760px) {
+  .section {
+    padding: 78px 20px 94px;
+  }
+  .heading {
+    font-size: clamp(38px, 10vw, 50px);
+  }
+  .shell {
+    box-shadow:
+      11px 13px 0 rgba(49, 88, 216, 0.1),
+      0 24px 44px rgba(16, 33, 61, 0.09);
+  }
+  .rail,
+  .railMask {
+    width: 2px;
+  }
+  .step {
+    grid-template-columns: 72px 1fr;
+    gap: 16px;
+    min-height: 0;
+    padding: 28px 22px 28px 20px;
+  }
+  .num {
+    grid-row: 1 / 4;
+    width: 48px;
+    height: 48px;
+    margin-left: 10px;
+    font-size: 11px;
+    box-shadow: 4px 5px 0 var(--coral-soft);
+  }
+  .title {
+    font-size: 27px;
+  }
+  .stepCopy {
+    font-size: 14.5px;
+    line-height: 1.6;
+  }
+  .metaRow {
+    grid-column: 2;
+    margin: 1px 0 0;
+    min-width: 0;
+  }
+  .detailInner p {
+    margin: 4px 22px 20px 108px;
+  }
+}
+
+@media (max-width: 460px) {
+  .step {
+    padding-right: 18px;
+  }
+  .title {
+    font-size: 25px;
+  }
+  /* No margin-left override here — keep the 760px breakpoint's 108px
+     indent so the detail text still lines up under the title column
+     instead of starting back at the num badge. */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .num,
+  .title,
+  .chevron {
+    transition: none !important;
+  }
+  .railMask,
+  .detail {
+    transition: none !important;
+  }
+}
