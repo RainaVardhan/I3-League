@@ -1,0 +1,18 @@
+/* Shared by LoginForm, SignupForm, ForgotPasswordForm, and
+   ResetPasswordForm — identical in all four, so it lives here once instead
+   of four copies of the same 8 lines. Page-specific extras (e.g. login's
+   forgot-password link, signup's role selector) stay in each page's own
+   module. */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.formError {
+  margin: 0;
+  font-family: var(--font-body), sans-serif;
+  font-size: 14px;
+  color: var(--coral);
+}

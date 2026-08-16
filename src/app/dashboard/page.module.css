@@ -1,0 +1,31 @@
+.main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--space-8) var(--gutter);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+  width: 100%;
+  max-width: 480px;
+}
+
+.heading {
+  font-size: 22px;
+  margin-bottom: var(--space-2);
+}
+
+.notice {
+  margin: 0 0 var(--space-6);
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.logoutForm {
+  margin-top: var(--space-2);
+}

@@ -14,6 +14,10 @@ export default defineConfig({
   },
   engine: "classic",
   datasource: {
+    // Pooled (PgBouncer, port 6543) for normal app queries; migrations need
+    // the unpooled port 5432 connection below to run DDL/shadow-db operations,
+    // which PgBouncer's transaction mode doesn't support.
     url: env("DATABASE_URL"),
+    directUrl: env("DIRECT_URL"),
   },
 });
