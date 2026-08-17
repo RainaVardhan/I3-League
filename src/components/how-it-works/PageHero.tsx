@@ -35,7 +35,7 @@ export function PageHero() {
             to real impact.
           </h1>
           <p className={styles.lede}>
-            One clear pathway takes you from your first profile to certification, Nationals, and
+            One clear pathway takes you from your first profile to certification, the Finals, and
             the possibility of moving a promising innovation into the real world.
           </p>
         </div>

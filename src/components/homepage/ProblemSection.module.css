@@ -20,7 +20,6 @@
 
 .heading {
   margin: 13px 0 0;
-  max-width: 690px;
   color: var(--ink);
   font: 700 clamp(48px, 5.3vw, 70px) / 0.99 var(--font-display), sans-serif;
   letter-spacing: -0.045em;
@@ -40,11 +39,11 @@
   align-items: center;
   margin-top: 44px;
   padding: 24px 28px;
-  background: var(--blue-soft);
-  border: 1px solid rgba(49, 88, 216, 0.18);
-  border-left: 6px solid var(--blue);
+  background: var(--coral-soft);
+  border: 1px solid rgba(227, 94, 73, 0.18);
+  border-left: 6px solid var(--coral);
   box-shadow:
-    15px 16px 0 rgba(49, 88, 216, 0.11),
+    15px 16px 0 rgba(227, 94, 73, 0.11),
     0 22px 34px rgba(16, 33, 61, 0.07);
   color: #4e607a;
   font-size: 14px;
@@ -68,7 +67,7 @@
   color: #98a7b9;
 }
 .fieldLine span:last-child {
-  color: var(--blue-dark);
+  color: var(--coral);
   font-weight: 650;
 }
 
@@ -92,7 +91,7 @@
     padding: 20px 21px;
     font-size: 13px;
     line-height: 1.95;
-    box-shadow: 8px 9px 0 rgba(49, 88, 216, 0.1);
+    box-shadow: 8px 9px 0 rgba(227, 94, 73, 0.1);
   }
 }
 

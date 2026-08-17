@@ -1,0 +1,99 @@
+.section {
+  padding: 108px var(--gutter) 116px;
+  background: var(--paper);
+}
+
+.inner {
+  max-width: var(--container);
+  margin: 0 auto;
+}
+
+.head {
+  margin-bottom: 48px;
+}
+
+.heading {
+  margin: 10px 0 20px;
+  font: 700 clamp(36px, 4.4vw, 56px) / 1 var(--font-display), sans-serif;
+  letter-spacing: -0.043em;
+}
+
+.copy {
+  margin: 0;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.72;
+}
+
+/* Connected proof group (Pattern C) — same recipe as the homepage's "Why
+   I³ League" boxes (ProofSection.module.css): one shared plane subdivided
+   by hairline borders, a hard offset shadow instead of a soft blur, and a
+   pale blue fill instead of the plain white/paper this used before. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: var(--blue-pale);
+  border: 1px solid rgba(16, 33, 61, 0.15);
+  box-shadow:
+    20px 22px 0 rgba(49, 88, 216, 0.1),
+    0 38px 68px rgba(16, 33, 61, 0.12);
+}
+
+.grid article {
+  position: relative;
+  min-height: 250px;
+  padding: 38px 34px 42px;
+}
+.grid article + article {
+  border-left: 1px solid rgba(16, 33, 61, 0.12);
+}
+
+.kicker {
+  display: block;
+  margin-bottom: 24px;
+  color: var(--blue);
+  font: 650 10px var(--font-mono), monospace;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.grid h3 {
+  margin: 0 0 12px;
+  font: 700 26px / 1.1 var(--font-display), sans-serif;
+  letter-spacing: -0.026em;
+}
+
+.grid p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14.8px;
+  line-height: 1.68;
+}
+
+.grid article::after {
+  content: "";
+  position: absolute;
+  left: 34px;
+  bottom: 28px;
+  width: 42px;
+  height: 4px;
+  background: var(--blue);
+}
+
+@media (max-width: 760px) {
+  .section {
+    padding: 68px var(--gutter) 72px;
+  }
+  .grid {
+    grid-template-columns: 1fr;
+    box-shadow: 9px 11px 0 rgba(49, 88, 216, 0.07);
+  }
+  .grid article {
+    min-height: 0;
+    padding: 30px 26px 48px;
+  }
+  .grid article + article {
+    border-left: 0;
+    border-top: 1px solid rgba(16, 33, 61, 0.12);
+  }
+}

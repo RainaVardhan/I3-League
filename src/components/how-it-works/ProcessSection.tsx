@@ -2,14 +2,20 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Eyebrow } from "@/components/design-system/Eyebrow";
-import { STEPS, type Step } from "./steps";
+import { buildSteps, type Step } from "./steps";
 import styles from "./ProcessSection.module.css";
 
 const VARIANT_CLASS: Record<NonNullable<Step["variant"]>, string> = {
   deadline: styles.isDeadline,
 };
 
-export function ProcessSection() {
+type ProcessSectionProps = {
+  springQualifyDeadline: string;
+  summerQualifyDeadline: string;
+};
+
+export function ProcessSection({ springQualifyDeadline, summerQualifyDeadline }: ProcessSectionProps) {
+  const STEPS = buildSteps(springQualifyDeadline, summerQualifyDeadline);
   const shellRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLOListElement>(null);
   const stepRefs = useRef<Array<HTMLLIElement | null>>([]);

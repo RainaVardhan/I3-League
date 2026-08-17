@@ -81,14 +81,16 @@
   bottom: 4vh;
   left: var(--split-x);
 }
-/* Same hard, flat offset shadow as How It Works' PageHero .statBox (Section
-   7B) — pale blue-soft, zero blur — rather than a separately blurred ink
-   drop shadow. The plane's own translate offset is what reads as the
+/* Same hard, flat offset shadow as How It Works' PageHero .statBox and every
+   other hero card on the site (Section 7B) — pale blue-soft, zero blur, and
+   now the same literal 8px/9px offset too (previously scaled up to 28px/
+   30px for this card's much larger size) rather than a separately blurred
+   ink drop shadow. The plane's own translate offset is what reads as the
    shadow; it doesn't need an additional soft shadow under it too. */
 .stageScrollSticky::before {
   z-index: -3;
   background: var(--blue-soft);
-  transform: translate(28px, 30px);
+  transform: translate(8px, 9px);
 }
 .stageScrollSticky::after {
   z-index: -2;
@@ -785,7 +787,11 @@
     left: 7vw;
     right: 7vw;
     bottom: calc(var(--card-h) - var(--card-bottom));
-    transform: translate(14px, 15px);
+    /* Same 8px/9px offset as the base rule — this override only exists to
+       reposition the plane against this tier's own top/left/right/bottom
+       insets, not to change the offset itself, so it's restated rather
+       than left to inherit purely for clarity at the point of use. */
+    transform: translate(8px, 9px);
   }
   .stageScrollSticky::after {
     top: var(--top-inset);
