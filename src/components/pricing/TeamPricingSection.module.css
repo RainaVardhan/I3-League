@@ -1,0 +1,36 @@
+/* First section after the canvas hero — paper, per the same "seam" rhythm
+   ProblemSection/ThreePhases/WhoItsFor all use (docs/design-system.md
+   Section 18, rule 3). */
+.section {
+  padding: 104px var(--gutter) 112px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+}
+
+.inner {
+  max-width: var(--container);
+  margin: 0 auto;
+}
+
+.head {
+  margin-bottom: 48px;
+}
+
+.heading {
+  margin: 10px 0 16px;
+  font: 700 clamp(36px, 4.2vw, 52px) / 1 var(--font-display), sans-serif;
+  letter-spacing: -0.042em;
+}
+
+.copy {
+  margin: 0;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+@media (max-width: 820px) {
+  .section {
+    padding: 68px var(--gutter) 72px;
+  }
+}
