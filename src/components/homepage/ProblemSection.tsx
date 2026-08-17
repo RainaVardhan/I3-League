@@ -19,13 +19,11 @@ export function ProblemSection() {
   return (
     <section className={styles.section} aria-labelledby="fields-heading">
       <div className={styles.inner}>
-        <div className={styles.split}>
-          <div>
-            <Eyebrow>YOUR STARTING POINT</Eyebrow>
-            <h2 id="fields-heading" className={styles.heading}>
-              You choose the problem.
-            </h2>
-          </div>
+        <div className={styles.head}>
+          <Eyebrow>YOUR STARTING POINT</Eyebrow>
+          <h2 id="fields-heading" className={styles.heading}>
+            You choose the problem.
+          </h2>
           <p className={styles.copy}>
             No assigned prompt. Start with something you notice in the world around you, then use the
             I³ pathway to investigate it seriously.

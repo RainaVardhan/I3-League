@@ -684,13 +684,14 @@
   .mobileIntro .eyebrowWrap {
     margin-bottom: 10px;
   }
-  /* How It Works/Curriculum stay flat at their base rule's 52px floor
-     (clamp(52px, 5.5vw, 78px)) across this whole 761-900px band — matching
-     that here, rather than their *next* tier's 64px, which only starts at
-     760px (see the 760px block below). */
+  /* How It Works/Curriculum step up to their bigger, bolder title
+     (clamp(48px, 14vw, 64px) — its steep vw term clamps to the 64px
+     ceiling almost immediately) right at this same 820px breakpoint, so
+     the homepage title makes the same jump at the same width instead of
+     lagging a tier behind. */
   .mobileIntro h1 {
     margin-bottom: 12px;
-    font-size: 52px;
+    font-size: clamp(48px, 14vw, 64px);
     line-height: 0.94;
     letter-spacing: -0.045em;
   }
@@ -985,17 +986,6 @@
   .jpStopStart {
     width: 10px;
     height: 10px;
-  }
-}
-
-/* How It Works/Curriculum step up to a bigger, bolder title right at
-   760px (clamp(48px, 14vw, 64px) — its steep vw term clamps to the 64px
-   ceiling almost immediately). Mirrored here as its own breakpoint,
-   separate from the 820px tier above, so the homepage title makes the same
-   jump at the same width instead of already sitting at 64px since 820px. */
-@media (max-width: 760px) {
-  .mobileIntro h1 {
-    font-size: clamp(48px, 14vw, 64px);
   }
 }
 

@@ -1,5 +1,4 @@
-import { Eyebrow } from "@/components/design-system/Eyebrow";
-import { Checkerboard } from "@/components/homepage/Checkerboard";
+import { SplitHero } from "@/components/design-system/SplitHero";
 import { STEP_COUNT } from "./steps";
 import styles from "./PageHero.module.css";
 
@@ -24,21 +23,19 @@ export function PageHero() {
   const stepCountWord = COUNT_WORDS[STEP_COUNT] ?? String(STEP_COUNT);
 
   return (
-    <section className={styles.hero} aria-labelledby="page-title">
-      <Checkerboard className={styles.checkerboard} />
-      <div className={styles.inner}>
-        <div className={styles.copy}>
-          <Eyebrow>HOW I³ LEAGUE WORKS</Eyebrow>
-          <h1 id="page-title" className={styles.heading}>
-            From enrollment
-            <br />
-            to real impact.
-          </h1>
-          <p className={styles.lede}>
-            One clear pathway takes you from your first profile to certification, the Finals, and
-            the possibility of moving a promising innovation into the real world.
-          </p>
-        </div>
+    <SplitHero
+      className={styles.hero}
+      innerClassName={styles.inner}
+      eyebrow="HOW I³ LEAGUE WORKS"
+      title={
+        <>
+          From enrollment
+          <br />
+          to real impact.
+        </>
+      }
+      lede="One clear pathway takes you from building your first profile to earning certification, competing in the Finals, and potentially turning a promising innovation into a real-world solution."
+      rightSlot={
         <div
           className={styles.statBox}
           aria-label={`${stepCountWord} steps, one innovation journey`}
@@ -50,7 +47,7 @@ export function PageHero() {
           </span>
           <span className={styles.rule} aria-hidden="true" />
         </div>
-      </div>
-    </section>
+      }
+    />
   );
 }

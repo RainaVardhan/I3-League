@@ -1,0 +1,93 @@
+.hero {
+  position: relative;
+  overflow: hidden;
+  /* Without this, the checkerboard's negative z-index (set in
+     Checkerboard.module.css) is resolved against the nearest ancestor that
+     actually establishes a stacking context — which, absent this, is way
+     up the tree, putting it behind unrelated page-level layers like
+     GridBackground (z-index: 0) instead of just behind this hero's own
+     content. isolation: isolate scopes it locally, same fix
+     JourneyHero.module.css's .stageScrollSticky already relies on. It also
+     means the checkerboard doesn't need its own framing panels to hide
+     behind on the right — the right-slot widget's own opaque background
+     naturally occludes it there, same as JourneyHero's card does for its
+     own instance. */
+  isolation: isolate;
+  background: var(--canvas);
+}
+
+/* !important: overrides Checkerboard's base rule, which hard-codes its
+   position to JourneyHero's own --split-x card geometry. These pages have
+   no such split, so the grid just fills the whole hero. */
+.checkerboard {
+  top: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+}
+
+.inner {
+  position: relative;
+  max-width: var(--container);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.18fr) minmax(300px, 0.82fr);
+  gap: 84px;
+  align-items: center;
+}
+
+.copy {
+  max-width: 670px;
+}
+
+.heading {
+  margin: 18px 0 20px;
+  /* var(--text-hero) — shared with the homepage hero, so all three page
+     titles are one type scale, not copy-pasted values. */
+  font: 700 var(--text-hero) / 0.94 var(--font-display), sans-serif;
+  letter-spacing: -0.045em;
+  color: var(--ink);
+}
+
+.lede {
+  margin: 0;
+  max-width: 570px;
+  color: var(--muted);
+  font-size: var(--text-lede);
+  line-height: 1.68;
+}
+
+@media (max-width: 900px) {
+  .inner {
+    grid-template-columns: minmax(0, 1fr) 330px;
+    gap: 50px;
+  }
+}
+
+@media (max-width: 820px) {
+  .inner {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  /* .copy/.lede's desktop max-widths (670px/570px) were sized for sitting
+     next to the right-slot widget in the two-column layout. Once the grid
+     drops to a single column, nothing else shares this row, so those caps
+     just leave the paragraph wrapping early with a lot of dead space to
+     its right instead of using the width that's actually available. */
+  .copy,
+  .lede {
+    max-width: none;
+  }
+  .heading {
+    font-size: clamp(48px, 14vw, 64px);
+  }
+}
+
+@media (max-width: 460px) {
+  .heading {
+    font-size: clamp(44px, 15vw, 58px);
+  }
+  .lede {
+    font-size: 15.5px;
+  }
+}

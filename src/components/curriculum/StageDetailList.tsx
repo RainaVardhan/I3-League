@@ -51,11 +51,13 @@ export function StageDetailList() {
     <section className={styles.section} aria-labelledby="stages-title">
       <div className={styles.inner}>
         <div className={styles.head}>
-          <Eyebrow>WHAT EACH STAGE ASKS OF YOU</Eyebrow>
-          <h2 id="stages-title" className={styles.headTitle}>
+          <Eyebrow>THE SIX STAGES</Eyebrow>
+          {/* Visually hidden: keeps a real heading in the outline for
+              screen-reader heading navigation now that the visible copy
+              underneath the eyebrow was trimmed away. */}
+          <h2 id="stages-title" className="sr-only">
             The six stages
           </h2>
-          <p className={styles.headLede}>Select a stage to see what it actually involves.</p>
         </div>
 
         <div className={styles.layout}>
@@ -102,20 +104,24 @@ export function StageDetailList() {
             id="stage-panel"
             role="tabpanel"
             aria-labelledby={`stage-tab-${active.number}`}
-            className={active.isGate ? `${styles.panel} ${styles.panelGate}` : styles.panel}
+            className={styles.panel}
           >
-            <span className={styles.panelWatermark} aria-hidden="true">
-              {active.number}
-            </span>
-            <h3 className={active.isGate ? `${styles.panelName} ${styles.panelNameGate}` : styles.panelName}>
-              {active.name}
-            </h3>
-            <p className={styles.panelHeadline}>{active.headline}</p>
-            {active.description.map((paragraph) => (
-              <p key={paragraph} className={styles.panelDescription}>
-                {paragraph}
-              </p>
-            ))}
+            <div className={active.isGate ? `${styles.panelHeader} ${styles.panelHeaderGate}` : styles.panelHeader}>
+              <span className={styles.panelWatermark} aria-hidden="true">
+                {active.number}
+              </span>
+              <h3 className={styles.panelName}>
+                {active.isGate ? "Information Protection Checkpoint" : active.name}
+              </h3>
+            </div>
+            <div className={styles.panelBody}>
+              <p className={styles.panelHeadline}>{active.headline}</p>
+              {active.description.map((paragraph) => (
+                <p key={paragraph} className={styles.panelDescription}>
+                  {paragraph}
+                </p>
+              ))}
+            </div>
           </div>
         </div>
       </div>

@@ -42,7 +42,7 @@ const STAGE_PANELS: StagePanel[] = [
     num: "02 / INVESTIGATE",
     title: "I Can Discover Truth",
     icant: "Research & evidence",
-    body: "Before you build anything, you dig. Credible sources, real interviews, and one hard question to answer: what changed your mind?",
+    body: "Before you build anything, you dig. Credible sources, real interviews, and one hard question to answer: What did you learn that was different from what you originally believed?",
   },
   {
     num: "03 / IMAGINE",
@@ -366,13 +366,15 @@ export function JourneyHero() {
         // Imagine and Iterate but isn't one of them, so it gets no number.
         if (journeyCountRef.current)
           journeyCountRef.current.textContent = display.isGate
-            ? "IP CHECKPOINT"
+            ? "INFORMATION PROTECTION CHECKPOINT"
             : `${display.num} / 06`;
         if (journeyWatermarkNumRef.current) journeyWatermarkNumRef.current.textContent = display.num;
         if (journeyWatermarkNameRef.current)
           journeyWatermarkNameRef.current.textContent = display.label;
         if (journeyProgressLabelRef.current)
-          journeyProgressLabelRef.current.textContent = `${display.num} · ${display.label}`;
+          journeyProgressLabelRef.current.textContent = display.isGate
+            ? "Information Protection Checkpoint"
+            : `${display.num} · ${display.label}`;
         journeyWatermarkRef.current?.classList.toggle(styles.isGate, !!display.isGate);
       }
 
@@ -537,7 +539,7 @@ export function JourneyHero() {
                     }}
                     className={item.isGate ? `${styles.jpStop} ${styles.jpStopGate}` : styles.jpStop}
                     style={{ left: `${stopPercent(BEATS[index].u)}%` }}
-                    aria-label={item.isGate ? `IP Checkpoint` : `${item.num} ${item.label}`}
+                    aria-label={item.isGate ? `Information Protection Checkpoint` : `${item.num} ${item.label}`}
                     onClick={() => scrollToBeat(index)}
                     onKeyDown={(event) => handleStopKeyDown(event, index)}
                   />
@@ -611,7 +613,7 @@ export function JourneyHero() {
               <path d="M7 11V7a5 5 0 0 1 10 0v4" />
             </svg>
           </span>
-          <h3>IP Checkpoint: Protect Before You Publish</h3>
+          <h3>Information Protection Checkpoint</h3>
           <p>
             A mandatory pause before you go public. Have you searched for prior art? Every project is
             marked Public or Confidential, and stays that way until you say otherwise.

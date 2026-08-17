@@ -22,8 +22,8 @@ export default function CurriculumPage() {
       <Header />
       <main id="main">
         <CurriculumHero />
-        <StageDetailList />
         <ThreePhases />
+        <StageDetailList />
         <StageWorkflow />
       </main>
       <Footer />

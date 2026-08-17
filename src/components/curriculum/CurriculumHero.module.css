@@ -1,93 +1,11 @@
+/* Everything but padding lives in the shared
+   src/components/design-system/SplitHero.module.css. */
 .hero {
-  position: relative;
   padding: 88px var(--gutter) 96px;
-  overflow: hidden;
-  /* Scopes the Checkerboard's negative z-index to this section instead of
-     resolving against a distant ancestor — see PageHero.module.css for the
-     same fix and full reasoning. */
-  isolation: isolate;
-  background: var(--canvas);
 }
 
-/* Fill the whole hero, same override PageHero.module.css uses — this page
-   has no JourneyHero-style split for the base rule's geometry to target. */
-.checkerboard {
-  top: 0 !important;
-  bottom: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-}
-
-/* Same column ratio/gap as How It Works' PageHero .inner — the equal-ish
-   1fr/1fr split tried here previously gave the text column noticeably less
-   room than it needs, leaving the lede wrapping early with a lot of unused
-   space in its own column before the card even started. */
-.inner {
-  position: relative;
-  max-width: var(--container);
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: minmax(0, 1.18fr) minmax(300px, 0.82fr);
-  gap: 84px;
-  align-items: center;
-}
-
-.copy {
-  max-width: 670px;
-}
-
-.heading {
-  margin: 18px 0 20px;
-  /* var(--text-hero) — shared with the homepage hero and How It Works'
-     PageHero, so all three page titles are one type scale. */
-  font: 700 var(--text-hero) / 0.94 var(--font-display), sans-serif;
-  letter-spacing: -0.045em;
-  color: var(--ink);
-}
-
-.lede {
-  margin: 0;
-  max-width: 570px;
-  color: var(--muted);
-  font-size: var(--text-lede);
-  line-height: 1.68;
-}
-
-@media (max-width: 980px) {
-  .inner {
-    grid-template-columns: minmax(0, 1fr) 330px;
-    gap: 50px;
-  }
-}
-
-@media (max-width: 760px) {
+@media (max-width: 820px) {
   .hero {
     padding: 60px var(--gutter) 56px;
-  }
-  .inner {
-    grid-template-columns: 1fr;
-    gap: 40px;
-  }
-  /* .copy/.lede's desktop max-widths (670px/570px) were sized for sitting
-     next to the framework card in the two-column layout. Once the grid
-     drops to a single column, nothing else shares this row, so those caps
-     just leave the paragraph wrapping early with a lot of dead space to
-     its right instead of using the width that's actually available. */
-  .copy,
-  .lede {
-    max-width: none;
-  }
-  /* Same mobile step-down as How It Works' PageHero .heading. */
-  .heading {
-    font-size: clamp(48px, 14vw, 64px);
-  }
-}
-
-@media (max-width: 460px) {
-  .heading {
-    font-size: clamp(44px, 15vw, 58px);
-  }
-  .lede {
-    font-size: 15.5px;
   }
 }

@@ -1,30 +1,29 @@
 import { Eyebrow } from "@/components/design-system/Eyebrow";
 import styles from "./StageWorkflow.module.css";
 
-// The Learn/Apply/Show/Defend pattern repeats inside every one of the six
-// stages (see each entry's description in stages.ts) — this section names
-// that recurring shape once, up front, instead of leaving a reader to infer
-// it stage by stage.
+// The six stages don't just teach concepts — they leave behind four
+// concrete bodies of work. This section names those four outputs once, up
+// front, instead of leaving a reader to infer them stage by stage.
 const WORKFLOW_STEPS = [
   {
     number: "01",
-    title: "Learn",
-    body: "Understand the principle and why it matters.",
+    title: "Research Record",
+    body: "Evidence, sources, interviews, assumptions, and decisions.",
   },
   {
     number: "02",
-    title: "Apply",
-    body: "Use the principle directly on your own innovation.",
+    title: "Innovation Portfolio",
+    body: "The evolution of the problem, ideas, prototypes, tests, and improvements.",
   },
   {
     number: "03",
-    title: "Show",
-    body: "Produce evidence of the thinking, research, testing, or decision.",
+    title: "Impact Case",
+    body: "Who the innovation helps, how it creates value, and what a real pilot could prove.",
   },
   {
     number: "04",
-    title: "Defend",
-    body: "Explain what you did, what changed, and why your conclusion holds up.",
+    title: "Final Defense",
+    body: "A clear presentation of the innovation, the evidence behind it, and how the student's thinking changed.",
   },
 ];
 
@@ -36,13 +35,14 @@ export function StageWorkflow() {
     <section className={styles.section} aria-labelledby="workflow-title">
       <div className={styles.inner}>
         <div className={styles.head}>
-          <Eyebrow>HOW EACH STAGE WORKS</Eyebrow>
+          <Eyebrow>WHAT STUDENTS BUILD</Eyebrow>
           <h2 id="workflow-title" className={styles.heading}>
-            Knowledge becomes evidence.
+            The curriculum leaves evidence behind.
           </h2>
           <p className={styles.copy}>
-            Students do more than understand innovation concepts. They repeatedly turn what they
-            learn into work that can be reviewed, tested, improved, and defended.
+            By the end of the I³ journey, students don&apos;t just understand innovation, they
+            have a body of work that shows how they think, research, build, improve, and
+            communicate.
           </p>
         </div>
 

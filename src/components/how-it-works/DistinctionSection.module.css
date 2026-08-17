@@ -117,7 +117,7 @@
   background: var(--coral);
 }
 
-@media (max-width: 760px) {
+@media (max-width: 820px) {
   .section {
     padding: 68px var(--gutter) 72px;
   }
