@@ -1,0 +1,90 @@
+.section {
+  /* Top padding pairs with ContactHero's own generous bottom padding — see
+     ContactHero.module.css — so the gap between hero and this section
+     reads as deliberate now that the hero has no side widget to anchor it.
+     Both the section and the cards below are --paper (white) — the cards
+     read as distinct via their border + hard offset shadow alone, same as
+     ThreePhases' paper-grid-on-paper-section treatment. */
+  padding: var(--space-16) var(--gutter) var(--space-20);
+  background: var(--paper);
+}
+
+.inner {
+  max-width: var(--container);
+  margin: 0 auto;
+}
+
+/* Individual boxes, gapped apart, each with its own square-cornered border
+   and hard offset shadow — same recipe as How It Works' DistinctionSection
+   (.grid/.card there), not the connected/divider "proof group" (Pattern C)
+   used by ThreePhases/WhoItsFor. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.card {
+  position: relative;
+  padding: 40px 34px 38px;
+  background: var(--paper);
+  border: 1px solid rgba(16, 33, 61, 0.15);
+  box-shadow:
+    14px 16px 0 var(--blue-soft),
+    0 28px 50px rgba(16, 33, 61, 0.1);
+  transition: background-color 0.16s ease;
+}
+.card:hover {
+  background: var(--blue-pale);
+}
+
+.kicker {
+  display: block;
+  margin-bottom: 17px;
+  color: var(--blue);
+  font: 650 10px var(--font-mono), monospace;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.card h3 {
+  margin: 0 0 12px;
+  color: var(--ink);
+  font: 700 22px / 1.2 var(--font-display), sans-serif;
+  letter-spacing: -0.024em;
+}
+
+.card p {
+  margin: 0 0 22px;
+  color: var(--muted);
+  font-size: 14.5px;
+  line-height: 1.67;
+}
+
+.email {
+  display: inline-block;
+  color: var(--blue-dark);
+  font: 650 14px var(--font-body), sans-serif;
+  text-decoration: none;
+  border-bottom: 2px solid var(--blue-soft);
+}
+
+.email:hover {
+  border-bottom-color: var(--blue);
+}
+
+@media (max-width: 820px) {
+  .section {
+    padding-top: var(--space-10);
+  }
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .card {
+    padding: 30px 26px 32px;
+    /* Single flat shadow layer at mobile, same pattern DistinctionSection
+       uses for its cards at this breakpoint. */
+    box-shadow: 8px 9px 0 var(--blue-soft);
+  }
+}

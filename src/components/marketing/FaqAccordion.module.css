@@ -1,7 +1,11 @@
+/* Sharp corners + hairline border + hard offset shadow — same "box" family
+   as the site's other card/panel components (see PricingHero.module.css's
+   comment on the shared .statBox treatment), not the design-system Panel's
+   rounded corners. */
 .list {
   background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
+  box-shadow: 8px 9px 0 var(--blue-soft);
 }
 
 .item {
@@ -22,6 +26,10 @@
   list-style: none;
   font: 600 16.5px var(--font-body), sans-serif;
   color: var(--ink);
+  transition: background-color 0.16s ease;
+}
+.question:hover {
+  background: var(--blue-pale);
 }
 
 .question::-webkit-details-marker {
@@ -62,7 +70,7 @@
 
 .answer {
   margin: 0;
-  padding: 0 var(--space-6) 22px;
+  padding: 14px var(--space-6) 24px;
   max-width: 66ch;
   color: var(--muted);
   font-size: 15px;

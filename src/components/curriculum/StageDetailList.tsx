@@ -66,7 +66,6 @@ export function StageDetailList() {
               const isActive = index === activeIndex;
               const tabClass = [
                 styles.tab,
-                entry.isGate ? styles.tabGate : "",
                 isActive ? styles.tabActive : "",
                 isActive && entry.isGate ? styles.tabActiveGate : "",
               ]

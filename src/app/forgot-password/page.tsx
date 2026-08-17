@@ -3,7 +3,7 @@ import { AuthCard } from "@/components/auth/AuthCard";
 import { ForgotPasswordForm } from "./ForgotPasswordForm";
 
 export const metadata = {
-  title: "Forgot Password — I³ League",
+  title: "Forgot Password | I³ League",
 };
 
 export default function ForgotPasswordPage() {

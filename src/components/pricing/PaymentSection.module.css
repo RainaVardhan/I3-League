@@ -93,11 +93,12 @@
   letter-spacing: -0.01em;
 }
 
-/* Same size/color as the homepage's FinalCta .copy ("Bring the question...")
-   — the site owner asked for these two on-ink paragraphs to match exactly. */
+/* Same size/color as the homepage's FinalCta .copy ("Bring the question..."),
+   but unlike that one this line runs the full width of its panel (no
+   max-width cap) so it fills the box instead of trailing off in a narrow
+   column against all that open space. */
 .verification {
   margin: 40px 0 0;
-  max-width: 640px;
   color: #c6d0df;
   font-size: 16px;
   line-height: 1.65;

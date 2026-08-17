@@ -40,6 +40,21 @@
   max-width: 670px;
 }
 
+/* Single-column mode when no rightSlot is passed (FAQs, Contact Us) — same
+   Eyebrow/h1/lede treatment as the two-column pages, just centered with no
+   side widget. Compound selector (two classes) so this outranks the plain
+   `.inner` rules in the media queries below regardless of source order,
+   instead of needing to repeat the override inside each of them. */
+.inner.innerSingle {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  text-align: center;
+}
+
+.inner.innerSingle .copy {
+  max-width: 640px;
+}
+
 .heading {
   margin: 18px 0 20px;
   /* var(--text-hero) — shared with the homepage hero, so all three page

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { AuthCard } from "@/components/auth/AuthCard";
 
 export const metadata = {
-  title: "Link Expired — I³ League",
+  title: "Link Expired | I³ League",
 };
 
 export default function AuthCodeErrorPage() {

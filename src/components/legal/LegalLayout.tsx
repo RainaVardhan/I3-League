@@ -40,10 +40,10 @@ export function LegalLayout({ title, lastUpdated, currentHref, children }: Legal
         <p className={styles.updated}>Last updated: {lastUpdated}</p>
 
         <div className={styles.notice}>
-          <strong>Draft — pending legal review.</strong> This document establishes the shape of
+          <strong>Draft: pending legal review.</strong> This document establishes the shape of
           our {title.toLowerCase()} for the 2026–2027 season launch. It has not yet been reviewed
           by counsel and should not be treated as final. Questions in the meantime can go to{" "}
-          <a href="mailto:hello@i3league.org">hello@i3league.org</a>.
+          <a href="mailto:info@i3league.com">info@i3league.com</a>.
         </div>
 
         <div className={styles.prose}>{children}</div>

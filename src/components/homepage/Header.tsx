@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Logo } from "@/components/design-system/Logo";
 import { NavLink } from "@/components/design-system/NavLink";
-import { SITE_NAV_LINKS } from "@/lib/site-nav";
+import { HEADER_NAV_LINKS } from "@/lib/site-nav";
 import styles from "./Header.module.css";
 
 export function Header() {
@@ -11,9 +11,9 @@ export function Header() {
   const navRef = useRef<HTMLUListElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
 
-  // Mobile menu closes on outside click, Escape, or resize back to desktop —
-  // otherwise it can get stuck open if the viewport crosses the 900px
-  // breakpoint while it's expanded.
+  // Menu closes on outside click or Escape. The nav is always collapsed
+  // behind the toggle now (no separate desktop inline layout to fall back
+  // to), so there's no resize-based close to worry about anymore.
   useEffect(() => {
     function handleClick(event: MouseEvent) {
       if (!toggleRef.current || !navRef.current) return;
@@ -25,16 +25,11 @@ export function Header() {
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") setIsOpen(false);
     }
-    function handleResize() {
-      if (window.innerWidth > 900) setIsOpen(false);
-    }
     document.addEventListener("click", handleClick);
     document.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("resize", handleResize);
     return () => {
       document.removeEventListener("click", handleClick);
       document.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
@@ -61,7 +56,7 @@ export function Header() {
             id="nav-links"
             className={isOpen ? `${styles.navLinks} ${styles.isOpen}` : styles.navLinks}
           >
-            {SITE_NAV_LINKS.map((link) => (
+            {HEADER_NAV_LINKS.map((link) => (
               <li key={link.href}>
                 <NavLink href={link.href} onClick={() => setIsOpen(false)}>
                   {link.label}
@@ -70,8 +65,8 @@ export function Header() {
             ))}
             {/* Plain nav item, not the design-system Button — reads as one
                 of the options rather than a standalone CTA, and being
-                inside .navLinks it collapses into the dropdown at <=900px
-                the same way the rest of the list does, with no separate
+                inside .navLinks it lives in the same always-collapsed
+                dropdown as the rest of the list, with no separate
                 mobile-only duplicate needed. */}
             <li>
               <NavLink href="/login" onClick={() => setIsOpen(false)}>

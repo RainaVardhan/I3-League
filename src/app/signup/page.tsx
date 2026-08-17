@@ -3,7 +3,7 @@ import { AuthCard } from "@/components/auth/AuthCard";
 import { SignupForm } from "./SignupForm";
 
 export const metadata = {
-  title: "Create Account — I³ League",
+  title: "Create Account | I³ League",
 };
 
 export default function SignupPage() {
