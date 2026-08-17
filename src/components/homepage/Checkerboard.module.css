@@ -23,15 +23,19 @@
   background-image: linear-gradient(rgba(49, 88, 216, 0.12) 1px, transparent 1px),
     linear-gradient(90deg, rgba(49, 88, 216, 0.12) 1px, transparent 1px);
   background-size: 30px 30px;
-  /* Anchors the 30px grid's phase to the viewport rather than to this
-     element's own box. Two separate <Checkerboard> instances (the
-     small-tier hero copy's and the card's — see JourneyHero.tsx) sit at
-     different, dynamically-sized offsets on the page; without this,
-     each one's grid lines start counting from its own top-left corner,
-     so they don't line up at the seam between them and the pattern
-     visibly jumps. Fixed attachment makes both instances just windows
-     onto the same continuous pattern. */
-  background-attachment: fixed;
+  /* Phase-shifts the 30px grid so two separate <Checkerboard> instances
+     (the small-tier hero copy's and the card's — see JourneyHero.tsx),
+     sitting at different, dynamically-sized offsets on the page, still
+     read as one continuous pattern instead of each restarting its own
+     grid at its own top-left corner. --grid-phase-x/y are computed in
+     Checkerboard.tsx from this element's actual position on mount/resize.
+     Deliberately *not* background-attachment: fixed (viewport-anchored) —
+     that decouples the background from this box's own scroll position, so
+     the flip pieces (plain local left/top offsets inside the box) would
+     drift off the grid lines as the page scrolled. Default (scroll)
+     attachment keeps the background moving with the box as one rigid
+     unit, same as the pieces. */
+  background-position: var(--grid-phase-x, 0) var(--grid-phase-y, 0);
   mask-image: linear-gradient(to bottom, transparent 0%, #000 8%, #000 92%, transparent 100%);
 }
 

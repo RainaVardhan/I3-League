@@ -148,6 +148,41 @@
   gap: 12px;
   margin-bottom: 18px;
 }
+/* "Register Today" and "See How It Works" should read as the same size
+   and weight of action here, not one clearly heavier than the other — the
+   shared Button component's ghost variant otherwise keeps a deliberately
+   lighter shadow than primary (Button.module.css .primary/.ghost), so this
+   pins the ghost button's resting/hover/active shadow and motion to match
+   primary's exactly, just for this hero pairing. !important for the same
+   reason as CurriculumBridge.module.css's .btn override: CSS Modules
+   don't guarantee file bundling order. */
+.heroBtn {
+  box-shadow: 0 5px 0 #07142a !important;
+}
+.heroBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 0 #07142a !important;
+}
+.heroBtn:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 #07142a !important;
+}
+/* "See How It Works" sits on a near-white ghost background, not ink like
+   "Register Today" — the shared dark #07142a shadow above reads as a
+   harsh black smear under a light button, so this swaps in --dim (the
+   same light gray FinalCta.module.css's .btn already uses for its own
+   light-button-on-dark-card shadow) for a shadow that actually belongs to
+   this button's own coloring. Must come after .heroBtn above so its equal-
+   specificity !important wins in the cascade. */
+.heroBtnGhost {
+  box-shadow: 0 5px 0 var(--dim) !important;
+}
+.heroBtnGhost:hover {
+  box-shadow: 0 6px 0 var(--dim) !important;
+}
+.heroBtnGhost:active {
+  box-shadow: 0 2px 0 var(--dim) !important;
+}
 .enrollNote {
   display: flex;
   align-items: center;
@@ -450,12 +485,13 @@
 }
 
 /* The progress bar doubles as the journey nav now — it replaces the old
-   .stageRail list. The track itself stays a visual fill indicator; the
-   .jpStops layer holds one button per stage (positioned via stopPercent()
-   in JourneyHero.tsx) plus a leading .jpStopStart button at 0% that scrolls
-   back to u=0 — the hero's "See a problem. Solve it. Change the world."
-   screen — so the whole journey (including "back to the start") is
-   reachable from one control. */
+   .stageRail list. Visually it's a single plain bar (track + fill), no
+   dots — the .jpStops layer still holds one invisible button per stage
+   (positioned via stopPercent() in JourneyHero.tsx) plus a leading button
+   at 0% that scrolls back to u=0 — the hero's "See a problem. Solve it.
+   Change the world." screen — so the whole journey (including "back to
+   the start") stays click- and keyboard-navigable, it just carries no dot
+   marker of its own anymore. */
 .journeyProgress {
   flex: 1 1 auto;
   min-width: 0;
@@ -472,15 +508,15 @@
 .jpTrack {
   position: relative;
   display: block;
-  height: 1.5px;
-  background: rgba(16, 33, 61, 0.08);
+  height: 1px;
+  background: rgba(16, 33, 61, 0.1);
   overflow: visible;
 }
 .jpFill {
   display: block;
   width: 0;
   height: 100%;
-  background: var(--blue);
+  background: var(--ink);
   transform-origin: left center;
 }
 
@@ -489,70 +525,28 @@
   inset: 0;
   pointer-events: auto;
 }
-/* Small, quiet dots by default — the fill bar already communicates
-   progress, so the stops only need to read clearly on hover/focus or once
-   a stage is active, not compete visually the rest of the time. Active/hover
-   states are color + a light scale only now — no glow ring — so the track
-   stays flat and the dots don't compete with the fill for attention. */
+/* Invisible hit targets, not visual dots — the bar (.jpTrack/.jpFill) is
+   the only thing that reads on screen. Each button spans a whole range of
+   the track (its left/width are set inline in JourneyHero.tsx from
+   TRACK_ZONES, split at the midpoint between neighboring stops), not just
+   a small area centered on its own stop, so the entire bar is clickable
+   and every point on it maps to whichever stage is closest. Kept as real
+   buttons rather than removed outright so the journey stays click- and
+   keyboard-navigable; only the focus ring makes one visible, and only
+   while it's actually focused. */
 .jpStop {
   position: absolute;
   top: 50%;
-  width: 6px;
-  height: 6px;
+  height: 16px;
   padding: 0;
   border: 0;
-  border-radius: 50%;
-  /* Opaque, not translucent — this sits on top of .jpFill (a plain block
-     that stacks behind it) once a stage is passed, and a translucent fill
-     barely tints the now-solid progress line underneath, reading as if the
-     line were drawn over the dot instead of the other way around. A flat
-     opaque color reads as a distinct dot regardless of what's behind it. */
-  background: #c7cfdd;
-  transform: translate(-50%, -50%);
+  background: transparent;
+  transform: translateY(-50%);
   cursor: pointer;
-  transition:
-    background 0.15s ease,
-    transform 0.15s ease;
-}
-.jpStop:hover {
-  background: var(--blue);
-  transform: translate(-50%, -50%) scale(1.15);
 }
 .jpStop:focus-visible {
-  outline: 2px solid var(--blue);
+  outline: 2px solid var(--ink);
   outline-offset: 2px;
-}
-.jpStop.isActive {
-  background: var(--blue);
-  transform: translate(-50%, -50%) scale(1.15);
-}
-.jpStopGate {
-  background: #f0b3a4;
-}
-.jpStopGate:hover {
-  background: var(--coral);
-}
-.jpStopGate.isActive {
-  background: var(--coral);
-  transform: translate(-50%, -50%) scale(1.15);
-}
-/* The "back to start" stop reads as a ring rather than a filled dot, so it
-   doesn't look like just another stage — it's the one stop that leaves the
-   journey rather than advancing it. */
-.jpStopStart {
-  width: 7px;
-  height: 7px;
-  background: var(--paper);
-  border: 1.5px solid rgba(16, 33, 61, 0.28);
-}
-.jpStopStart:hover {
-  border-color: var(--blue);
-  background: var(--blue-pale);
-}
-.jpStopStart.isActive {
-  border-color: var(--blue);
-  background: var(--blue-pale);
-  transform: translate(-50%, -50%) scale(1.15);
 }
 
 /* ============================================================
@@ -974,18 +968,13 @@
     bottom: calc(var(--card-h) - var(--card-bottom) + 24px);
   }
   .jpTrack {
-    height: 2.5px;
-    background: rgba(16, 33, 61, 0.16);
+    height: 1.5px;
+    background: rgba(16, 33, 61, 0.14);
   }
-  /* Stops keep a slightly larger tap target than desktop's hover-driven
-     size, without going back to the old heavy dot treatment. */
+  /* Taller invisible tap target at touch sizes than desktop's mouse-sized
+     hit area (width still comes from TRACK_ZONES, set inline). */
   .jpStop {
-    width: 9px;
-    height: 9px;
-  }
-  .jpStopStart {
-    width: 10px;
-    height: 10px;
+    height: 26px;
   }
 }
 
@@ -1052,8 +1041,8 @@
     bottom: calc(var(--card-h) - var(--card-bottom) + 20px);
   }
   .jpTrack {
-    height: 2.5px;
-    background: rgba(16, 33, 61, 0.18);
+    height: 1.5px;
+    background: rgba(16, 33, 61, 0.16);
   }
 }
 

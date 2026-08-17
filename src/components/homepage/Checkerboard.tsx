@@ -47,51 +47,65 @@ export function Checkerboard({ fadeEdge, className }: CheckerboardProps = {}) {
 
     const mod = (n: number, m: number) => ((n % m) + m) % m;
 
-    // The grid lines behind these pieces come from .checkerboard's
-    // background, which is background-attachment: fixed — anchored to the
-    // *viewport*, not to this container (see the comment on that rule: it's
-    // what keeps two side-by-side <Checkerboard> instances reading as one
-    // continuous pattern instead of each restarting its own grid phase at
-    // its own top-left corner). Pieces are positioned in *local* px offsets
-    // though, so without this correction they line up with a grid that
-    // starts at this container's own (0,0) — which only matches the actual
-    // (viewport-phased) grid lines when the container's edge happens to
-    // land on an exact CELL multiple. This measures that mismatch, fresh
-    // each time (the container can be mid-scroll, e.g. .mobileIntro's
-    // instance isn't sticky), so placed pieces snap to real grid cells.
-    function gridPhase() {
+    // Two separate <Checkerboard> instances (the small-tier hero copy's and
+    // the card's — see JourneyHero.tsx) sit at different, dynamically-sized
+    // offsets on the page, but need to read as windows onto one continuous
+    // grid rather than each restarting its own phase at its own top-left
+    // corner. That used to be solved with background-attachment: fixed
+    // (viewport-anchored), but that decouples the *visual* grid position
+    // from this box's own position: the box scrolls with the page while a
+    // fixed background does not, so pieces — which are plain local
+    // left/top offsets inside the box — drifted off the grid lines as soon
+    // as the page scrolled between one piece placement and the next.
+    //
+    // Instead, this measures the mismatch between this box's own top-left
+    // corner and the nearest grid line *once* (on mount and on resize) and
+    // bakes it into background-position via a CSS var, so the background
+    // and this box move together as one rigid unit — nothing needs to
+    // track scroll at all, and the cross-instance alignment still holds
+    // because both instances compute their own phase the same way.
+    let phase = { x: 0, y: 0 };
+
+    function measurePhase() {
       const rect = checker!.getBoundingClientRect();
-      return { x: mod(-rect.left, CELL), y: mod(-rect.top, CELL) };
+      // getBoundingClientRect() returns sub-pixel floats. Rounded to whole
+      // device pixels here so the background-position CSS var and each
+      // piece's inline left/top round to the *same* pixel independently —
+      // otherwise the two can land a device pixel apart and show up as a
+      // hairline double edge where a piece's border nearly, but doesn't
+      // quite, coincide with the grid line underneath it.
+      phase = { x: Math.round(mod(-rect.left, CELL)), y: Math.round(mod(-rect.top, CELL)) };
+      checker!.style.setProperty("--grid-phase-x", `${phase.x}px`);
+      checker!.style.setProperty("--grid-phase-y", `${phase.y}px`);
     }
 
     function cellDimensions() {
-      const phase = gridPhase();
       return {
         cols: Math.max(1, Math.floor((checker!.clientWidth - phase.x) / CELL)),
         rows: Math.max(1, Math.floor((checker!.clientHeight - phase.y) / CELL)),
-        phase,
       };
     }
 
     function randomCell(used: Set<string>) {
-      const { cols, rows, phase } = cellDimensions();
+      const { cols, rows } = cellDimensions();
       let key = "0:0";
       for (let i = 0; i < 60; i++) {
         const x = Math.floor(Math.random() * cols);
         const y = Math.floor(Math.random() * rows);
         key = `${x}:${y}`;
-        if (!used.has(key)) return { x, y, key, phase };
+        if (!used.has(key)) return { x, y, key };
       }
       const fallbackX = Math.floor(Math.random() * cols);
       const fallbackY = Math.floor(Math.random() * rows);
-      return { x: fallbackX, y: fallbackY, key: `${fallbackX}:${fallbackY}`, phase };
+      return { x: fallbackX, y: fallbackY, key: `${fallbackX}:${fallbackY}` };
     }
 
     function placePiece(el: HTMLSpanElement, used: Set<string>) {
       const cell = randomCell(used);
       used.add(cell.key);
-      el.style.left = `${cell.phase.x + cell.x * CELL}px`;
-      el.style.top = `${cell.phase.y + cell.y * CELL}px`;
+      el.dataset.cell = cell.key;
+      el.style.left = `${phase.x + cell.x * CELL}px`;
+      el.style.top = `${phase.y + cell.y * CELL}px`;
     }
 
     function animatePiece(el: HTMLSpanElement, token: number) {
@@ -103,8 +117,8 @@ export function Checkerboard({ fadeEdge, className }: CheckerboardProps = {}) {
       const cell = randomCell(used);
       el.dataset.cell = cell.key;
       el.dataset.active = "1";
-      el.style.left = `${cell.phase.x + cell.x * CELL}px`;
-      el.style.top = `${cell.phase.y + cell.y * CELL}px`;
+      el.style.left = `${phase.x + cell.x * CELL}px`;
+      el.style.top = `${phase.y + cell.y * CELL}px`;
       el.style.setProperty("--piece-color", COLORS[Math.floor(Math.random() * COLORS.length)]);
       const duration = 1600 + Math.floor(Math.random() * 1600);
       const axisClass = Math.random() > 0.5 ? styles.flipY : styles.flipX;
@@ -127,6 +141,7 @@ export function Checkerboard({ fadeEdge, className }: CheckerboardProps = {}) {
     function buildPieces() {
       generation += 1;
       const token = generation;
+      measurePhase();
       checker!.querySelectorAll(`.${styles.piece}`).forEach((node) => node.remove());
       pieces.length = 0;
       const used = new Set<string>();
