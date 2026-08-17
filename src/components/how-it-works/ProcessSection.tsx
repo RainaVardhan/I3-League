@@ -53,7 +53,7 @@ export function ProcessSection({ springQualifyDeadline, summerQualifyDeadline }:
     function revealUpTo(index: number) {
       if (index <= maxRevealedRef.current) return;
       maxRevealedRef.current = index;
-      const progress = ((index + 1) / STEPS.length) * 100;
+      const progress = ((index + 1) / stepRefs.current.length) * 100;
       if (railMaskRef.current) {
         railMaskRef.current.style.clipPath = `inset(${progress}% 0 0 0)`;
       }
@@ -81,7 +81,7 @@ export function ProcessSection({ springQualifyDeadline, summerQualifyDeadline }:
   // centers rather than the fixed pixel guesses this used to hardcode in
   // CSS. Those broke three ways: they don't match the badges' real
   // position at every breakpoint (badge size/padding both change at
-  // 980px/760px); opening the first or last step's own detail panel
+  // 900px/820px); opening the first or last step's own detail panel
   // changes the shell's height, so a fixed "58px from the bottom" no
   // longer lands on the last badge, it lands inside the newly opened text
   // below it; and the scroll-reveal slide-in (see the effect above) moves
@@ -106,7 +106,7 @@ export function ProcessSection({ springQualifyDeadline, summerQualifyDeadline }:
       // rail's true center column. Same reasoning as top/bottom: the old
       // hardcoded per-breakpoint `left` values (104px/96px/55px) were
       // guesses that drifted out of sync with the badge's real position,
-      // most visibly at the 980px breakpoint.
+      // most visibly at the 900px breakpoint.
       const centerX = firstRect.left + firstRect.width / 2 - shellRect.left;
 
       shell.style.setProperty("--rail-top", `${firstCenter}px`);
@@ -142,13 +142,12 @@ export function ProcessSection({ springQualifyDeadline, summerQualifyDeadline }:
       <div className={styles.inner}>
         <div className={styles.head}>
           <Eyebrow>THE PATH</Eyebrow>
-          <h2 id="process-title" className={styles.heading}>
-            Start here. Keep moving.
+          {/* Visually hidden: keeps a real heading in the outline for
+              screen-reader heading navigation now that the visible copy
+              underneath the eyebrow was trimmed away. */}
+          <h2 id="process-title" className="sr-only">
+            The path
           </h2>
-          <p className={styles.copy}>
-            Each step builds on the one before it. Learn the process, apply it to your own
-            innovation, complete the work, then earn the opportunity to go further.
-          </p>
         </div>
 
         <div ref={shellRef} className={styles.shell}>

@@ -37,7 +37,7 @@ export function WhoItsFor() {
         <div className={styles.head}>
           <Eyebrow>WHO IT&apos;S FOR</Eyebrow>
           <h2 id="fit-title" className={styles.heading}>
-            You do not need the perfect idea. You need a problem worth exploring.
+            For students ready to solve real problems.
           </h2>
           <p className={styles.copy}>
             The program is structured to help students move from observation to evidence, from

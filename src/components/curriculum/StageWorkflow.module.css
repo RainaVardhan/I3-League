@@ -41,6 +41,10 @@
 
 .grid article {
   padding: 40px 32px 34px;
+  transition: background-color 0.16s ease;
+}
+.grid article:hover {
+  background: var(--blue-pale);
 }
 .grid article + article {
   border-left: 1px solid rgba(16, 33, 61, 0.12);
@@ -68,7 +72,7 @@
   line-height: 1.6;
 }
 
-@media (max-width: 980px) {
+@media (max-width: 900px) {
   .grid {
     grid-template-columns: repeat(2, 1fr);
   }

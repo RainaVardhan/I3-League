@@ -32,7 +32,7 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  background: var(--blue-pale);
+  background: var(--white);
   border: 1px solid rgba(16, 33, 61, 0.15);
   box-shadow:
     20px 22px 0 rgba(49, 88, 216, 0.1),
@@ -43,6 +43,10 @@
   position: relative;
   min-height: 250px;
   padding: 38px 34px 42px;
+  transition: background-color 0.16s ease;
+}
+.grid article:hover {
+  background: var(--blue-pale);
 }
 .grid article + article {
   border-left: 1px solid rgba(16, 33, 61, 0.12);
@@ -80,7 +84,7 @@
   background: var(--blue);
 }
 
-@media (max-width: 760px) {
+@media (max-width: 820px) {
   .section {
     padding: 68px var(--gutter) 72px;
   }
