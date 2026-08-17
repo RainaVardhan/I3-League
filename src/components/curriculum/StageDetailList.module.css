@@ -117,7 +117,7 @@
 
 /* The single content pane the tab list drives. Hard offset shadow +
    left rule reuse the site's existing "information band" language
-   (docs/design-system.md Pattern B, already used on Eligibility/Pricing)
+   (docs/design-system.md Pattern B, already used on Pricing)
    rather than inventing a new depth treatment for this one section. */
 .panel {
   position: relative;

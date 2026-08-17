@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// Used only by src/middleware.ts. Bound to the request/response cookie pair
+// Used only by src/proxy.ts. Bound to the request/response cookie pair
 // (rather than next/headers' cookies()) so a refreshed session is visible
 // both to the rest of the middleware chain and to Server Components
 // downstream in the same request.

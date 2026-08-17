@@ -23,7 +23,7 @@ export async function createClient() {
           } catch {
             // Server Components can't write cookies — Next.js throws if you
             // try. That's fine here: this only gets hit on read-only paths
-            // (e.g. the dashboard reading the session). src/middleware.ts is
+            // (e.g. the dashboard reading the session). src/proxy.ts is
             // what actually persists the refreshed session cookie on every
             // request. Server Actions and Route Handlers ARE allowed to
             // write cookies, so setAll works for real there (e.g. login).

@@ -2,7 +2,9 @@ import { Header } from "@/components/homepage/Header";
 import { Footer } from "@/components/homepage/Footer";
 import { GridBackground } from "@/components/design-system/GridBackground";
 import { CurriculumHero } from "@/components/curriculum/CurriculumHero";
+import { StageWorkflow } from "@/components/curriculum/StageWorkflow";
 import { StageDetailList } from "@/components/curriculum/StageDetailList";
+import { ThreePhases } from "@/components/curriculum/ThreePhases";
 
 export const metadata = {
   title: "Curriculum | I³ League",
@@ -21,6 +23,8 @@ export default function CurriculumPage() {
       <main id="main">
         <CurriculumHero />
         <StageDetailList />
+        <ThreePhases />
+        <StageWorkflow />
       </main>
       <Footer />
     </>

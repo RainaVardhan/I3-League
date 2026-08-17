@@ -1,0 +1,139 @@
+.section {
+  padding: 108px var(--gutter) 118px;
+  background: var(--paper);
+}
+
+.inner {
+  max-width: var(--container);
+  margin: 0 auto;
+}
+
+.head {
+  margin: 0 0 42px;
+}
+
+.heading {
+  margin: 10px 0 12px;
+  font: 700 clamp(36px, 4.2vw, 52px) / 1 var(--font-display), sans-serif;
+  letter-spacing: -0.042em;
+}
+
+.copy {
+  margin: 0;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+}
+
+.card {
+  position: relative;
+  padding: 38px 40px 40px;
+  background: var(--canvas);
+  border: 1px solid var(--line);
+}
+
+/* Same background + shadow values as the "Student level / How you work /
+   What you build" boxes above (WhoItsFor.module.css's .grid) — same
+   blue-pale fill, same two-layer shadow (a cobalt-tinted offset plane plus
+   a soft ink blur), rather than a value invented fresh for this card. */
+.join {
+  background: var(--blue-pale);
+  border-color: rgba(16, 33, 61, 0.15);
+  box-shadow:
+    20px 22px 0 rgba(49, 88, 216, 0.1),
+    0 38px 68px rgba(16, 33, 61, 0.12);
+}
+
+/* Same coral-soft fill as the homepage's "problem fields" band
+   (ProblemSection.module.css's .fieldLine), but the shadow's own size
+   (offset + blur) matches .join above exactly — same-sized sibling cards
+   read oddly if their shadows are two different sizes, even though the
+   colors are deliberately different (coral here, cobalt there). */
+.qualify {
+  background: var(--coral-soft);
+  border-color: rgba(227, 94, 73, 0.24);
+  box-shadow:
+    20px 22px 0 rgba(227, 94, 73, 0.11),
+    0 38px 68px rgba(16, 33, 61, 0.12);
+}
+
+.label {
+  display: block;
+  margin-bottom: 20px;
+  color: var(--blue);
+  font: 650 10px var(--font-mono), monospace;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.qualify .label {
+  color: var(--coral);
+}
+
+.card h3 {
+  margin: 0 0 14px;
+  font: 700 28px / 1.08 var(--font-display), sans-serif;
+  letter-spacing: -0.026em;
+}
+
+.card > p {
+  margin: 0 0 22px;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.68;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+
+.list li {
+  position: relative;
+  padding: 12px 0 12px 20px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-2);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 19px;
+  width: 7px;
+  height: 7px;
+  background: var(--blue);
+}
+.qualify .list li::before {
+  background: var(--coral);
+}
+
+@media (max-width: 760px) {
+  .section {
+    padding: 68px var(--gutter) 72px;
+  }
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .card {
+    padding: 32px 26px;
+  }
+  /* Single flat shadow layer at mobile instead of the two-layer desktop
+     shadow — same size for both cards, own color each, matching the
+     desktop rule above. */
+  .join {
+    box-shadow: 9px 11px 0 rgba(49, 88, 216, 0.07);
+  }
+  .qualify {
+    box-shadow: 9px 11px 0 rgba(227, 94, 73, 0.1);
+  }
+}

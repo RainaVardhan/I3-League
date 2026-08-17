@@ -53,7 +53,7 @@ export function StageDetailList() {
         <div className={styles.head}>
           <Eyebrow>WHAT EACH STAGE ASKS OF YOU</Eyebrow>
           <h2 id="stages-title" className={styles.headTitle}>
-            The six stages, in plain terms.
+            The six stages
           </h2>
           <p className={styles.headLede}>Select a stage to see what it actually involves.</p>
         </div>

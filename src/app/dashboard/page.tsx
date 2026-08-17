@@ -22,7 +22,7 @@ export default async function DashboardPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Defense in depth — src/middleware.ts already redirects unauthenticated
+  // Defense in depth — src/proxy.ts already redirects unauthenticated
   // requests away from /dashboard, but this page shouldn't assume that.
   if (!user) {
     redirect("/login");

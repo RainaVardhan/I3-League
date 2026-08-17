@@ -72,7 +72,7 @@
   background: var(--paper) !important;
   border-color: var(--paper) !important;
   color: var(--ink) !important;
-  box-shadow: 0 5px 0 #8290a6 !important;
+  box-shadow: 0 5px 0 var(--dim) !important;
 }
 .btn:hover {
   background: var(--white) !important;

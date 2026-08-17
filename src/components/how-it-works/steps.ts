@@ -59,10 +59,14 @@ export const STEPS: Step[] = [
   {
     number: "06",
     title: "Qualify",
-    copy: "Complete everything by April 30 or July 30.",
+    // Placeholder copy — real Season dates are Season-driven config (see
+    // CLAUDE.md), never hardcoded here. buildSteps() below overrides this
+    // step's copy/detail with the live springQualifyDeadline/
+    // summerQualifyDeadline before rendering.
+    copy: "Complete everything by the qualification deadline.",
     meta: "Two deadlines",
     detail:
-      "Two windows each year: Spring (April 30) and Summer (July 30). Miss both, and you can keep learning toward the next cycle.",
+      "Two windows each year, Spring and Summer. Miss both, and you can keep learning toward the next cycle.",
     variant: "deadline",
   },
   {
@@ -84,3 +88,17 @@ export const STEPS: Step[] = [
 ];
 
 export const STEP_COUNT = STEPS.length;
+
+// Injects the real, Season-sourced qualification dates into the "Qualify"
+// step at render time, instead of hardcoding them into STEPS above.
+export function buildSteps(springQualifyDeadline: string, summerQualifyDeadline: string): Step[] {
+  return STEPS.map((step) =>
+    step.number === "06"
+      ? {
+          ...step,
+          copy: `Complete everything by ${springQualifyDeadline} or ${summerQualifyDeadline}.`,
+          detail: `Two windows each year: Spring (${springQualifyDeadline}) and Summer (${summerQualifyDeadline}). Miss both, and you can keep learning toward the next cycle.`,
+        }
+      : step,
+  );
+}
