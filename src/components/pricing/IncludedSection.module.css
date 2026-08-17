@@ -1,0 +1,110 @@
+/* Alternates against TeamPricingSection's paper above it — canvas here,
+   with the grid floating as a paper plane on top (contrast, same recipe as
+   ProcessSection's .shell floating paper on this page's canvas sections). */
+.section {
+  padding: 104px var(--gutter) 112px;
+  background: var(--canvas);
+  border-bottom: 1px solid var(--line);
+}
+
+.inner {
+  max-width: var(--container);
+  margin: 0 auto;
+}
+
+/* Same head-to-content gap as every other section on the site (WhoItsFor,
+   ThreePhases, ProcessSection) — docs/design-system.md's page-rhythm rule. */
+.head {
+  margin-bottom: 48px;
+}
+
+/* Connected proof group (Pattern C) — same recipe as Curriculum's
+   StageWorkflow "What Students Build" grid, just five columns instead of
+   four to fit all five items in one row without an uneven spanning cell. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  background: var(--paper);
+  border: 1px solid rgba(16, 33, 61, 0.15);
+  box-shadow:
+    20px 22px 0 rgba(49, 88, 216, 0.1),
+    0 38px 68px rgba(16, 33, 61, 0.12);
+}
+
+.grid article {
+  padding: 34px 24px 30px;
+  transition: background-color 0.16s ease;
+}
+.grid article:hover {
+  background: var(--blue-pale);
+}
+.grid article + article {
+  border-left: 1px solid rgba(16, 33, 61, 0.12);
+}
+
+.number {
+  display: block;
+  margin-bottom: 20px;
+  color: var(--blue);
+  font: 650 12px var(--font-mono), monospace;
+  letter-spacing: 0.1em;
+}
+
+.grid h3 {
+  margin: 0 0 8px;
+  color: var(--ink);
+  font: 700 18px / 1.2 var(--font-display), sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.grid p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+@media (max-width: 1000px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  /* Five items in three columns wraps to a 3+2 grid — item 4 starts a new
+     row (loses its left divider, gains a top one) and item 5 keeps its
+     left divider but also needs the top one, same nth-child override
+     pattern StageWorkflow uses for its own 4-into-2 wrap. */
+  .grid article:nth-child(4) {
+    border-left: 0;
+    border-top: 1px solid rgba(16, 33, 61, 0.12);
+  }
+  .grid article:nth-child(5) {
+    border-top: 1px solid rgba(16, 33, 61, 0.12);
+  }
+}
+
+@media (max-width: 820px) {
+  .section {
+    padding: 68px var(--gutter) 72px;
+  }
+  .grid {
+    box-shadow: 9px 11px 0 rgba(49, 88, 216, 0.07);
+  }
+  .grid article {
+    padding: 26px 22px 28px;
+  }
+}
+
+@media (max-width: 620px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  /* :nth-child outspecifies the "article + article" left-border rule above
+     (0,2,1 beats 0,1,2), so this reliably wins without !important — same
+     trick StageWorkflow's own 1-column breakpoint uses. */
+  .grid article:nth-child(2),
+  .grid article:nth-child(3),
+  .grid article:nth-child(4),
+  .grid article:nth-child(5) {
+    border-left: 0;
+    border-top: 1px solid rgba(16, 33, 61, 0.12);
+  }
+}
