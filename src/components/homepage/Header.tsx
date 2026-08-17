@@ -1,9 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { Logo } from "@/components/design-system/Logo";
-import { Button } from "@/components/design-system/Button";
 import { NavLink } from "@/components/design-system/NavLink";
 import { SITE_NAV_LINKS } from "@/lib/site-nav";
 import styles from "./Header.module.css";
@@ -70,11 +68,18 @@ export function Header() {
                 </NavLink>
               </li>
             ))}
+            {/* Plain nav item, not the design-system Button — reads as one
+                of the options rather than a standalone CTA, and being
+                inside .navLinks it collapses into the dropdown at <=900px
+                the same way the rest of the list does, with no separate
+                mobile-only duplicate needed. */}
+            <li>
+              <NavLink href="/login" onClick={() => setIsOpen(false)}>
+                Register
+              </NavLink>
+            </li>
           </ul>
         </nav>
-        <Button as={Link} href="/pricing" className={styles.navCta}>
-          Start Your Innovation
-        </Button>
       </div>
     </header>
   );

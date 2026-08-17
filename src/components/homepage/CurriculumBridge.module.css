@@ -23,19 +23,20 @@
 }
 
 /* !important here is deliberate: this overrides the shared Button
-   component's ghost-variant colors for this one ink-background placement.
-   CSS Modules don't guarantee file bundling order, so a plain class-vs-class
-   override isn't reliable — see Button.module.css .ghost. */
+   component's primary-variant colors for this one ink-background
+   placement — same light-on-dark treatment as FinalCta's .btn, so the
+   two on-ink CTAs on this page read as the same button type. CSS Modules
+   don't guarantee file bundling order, so a plain class-vs-class override
+   isn't reliable — see Button.module.css .primary. */
 .btn {
-  background: transparent !important;
-  border-color: rgba(255, 255, 255, 0.3) !important;
-  color: var(--white) !important;
-  box-shadow: none !important;
+  background: var(--paper) !important;
+  border-color: var(--paper) !important;
+  color: var(--ink) !important;
+  box-shadow: 0 5px 0 var(--dim) !important;
 }
 .btn:hover {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: rgba(255, 255, 255, 0.55) !important;
-  color: var(--white) !important;
+  background: var(--white) !important;
+  border-color: var(--white) !important;
 }
 
 @media (max-width: 820px) {

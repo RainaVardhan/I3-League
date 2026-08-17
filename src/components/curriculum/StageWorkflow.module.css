@@ -35,8 +35,8 @@
   background: var(--paper);
   border: 1px solid rgba(16, 33, 61, 0.15);
   box-shadow:
-    24px 26px 0 var(--blue-soft),
-    0 38px 70px rgba(16, 33, 61, 0.12);
+    20px 22px 0 var(--blue-soft),
+    0 38px 68px rgba(16, 33, 61, 0.12);
 }
 
 .grid article {
@@ -100,7 +100,7 @@
     line-height: 1.65;
   }
   .grid {
-    box-shadow: 10px 12px 0 var(--blue-soft), 0 28px 48px rgba(16, 33, 61, 0.13);
+    box-shadow: 9px 11px 0 var(--blue-soft);
   }
   .grid article {
     padding: 28px 22px 30px;

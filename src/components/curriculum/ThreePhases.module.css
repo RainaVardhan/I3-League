@@ -40,10 +40,10 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  background: var(--white);
+  background: var(--paper);
   border: 1px solid rgba(16, 33, 61, 0.15);
   box-shadow:
-    20px 22px 0 rgba(49, 88, 216, 0.1),
+    20px 22px 0 var(--blue-soft),
     0 38px 68px rgba(16, 33, 61, 0.12);
 }
 
@@ -99,7 +99,7 @@
   }
   .grid {
     grid-template-columns: 1fr;
-    box-shadow: 9px 11px 0 rgba(49, 88, 216, 0.07);
+    box-shadow: 9px 11px 0 var(--blue-soft);
   }
   .grid article {
     min-height: 0;

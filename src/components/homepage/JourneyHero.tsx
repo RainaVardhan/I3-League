@@ -125,6 +125,24 @@ function stopPercent(u: number) {
   return clamp(((u - min) / (max - min)) * 100, 0, 100);
 }
 
+// The whole bar is clickable, not just a small target at each stop: this
+// splits the full 0-100% track into one contiguous range per stop (the
+// "back to start" stop at index 0, then one per RAIL_ITEMS entry), split at
+// the midpoint between each pair of neighboring stops. Clicking anywhere in
+// a range jumps to whichever stop it's closest to. Computed once at module
+// load — the stop positions are fixed (derived from the static BEATS
+// array), not something that changes per render.
+function buildTrackZones() {
+  const points = [0, ...RAIL_ITEMS.map((_, i) => stopPercent(BEATS[i].u))];
+  const bounds = [0];
+  for (let i = 1; i < points.length; i++) {
+    bounds.push((points[i - 1] + points[i]) / 2);
+  }
+  bounds.push(100);
+  return points.map((_, i) => ({ left: bounds[i], width: bounds[i + 1] - bounds[i] }));
+}
+const TRACK_ZONES = buildTrackZones();
+
 // Cube size cascade per docs/design-system.md Section 11 — deliberately
 // driven from JS (not CSS) because the Cube primitive sets its --cs custom
 // property as an inline style, which a stylesheet media query can't override.
@@ -159,10 +177,15 @@ function HeroCopy() {
         measurable difference.
       </p>
       <div className={styles.btnRow}>
-        <Button as={Link} href="/pricing" className={styles.heroBtn}>
-          Start Your Innovation
+        <Button as={Link} href="/login" className={styles.heroBtn}>
+          Register Today
         </Button>
-        <Button as={Link} href="/how-it-works" variant="ghost" className={styles.heroBtn}>
+        <Button
+          as={Link}
+          href="/how-it-works"
+          variant="ghost"
+          className={`${styles.heroBtn} ${styles.heroBtnGhost}`}
+        >
           See How It Works
         </Button>
       </div>
@@ -524,8 +547,8 @@ export function JourneyHero() {
                 <button
                   type="button"
                   ref={journeyStartRef}
-                  className={`${styles.jpStop} ${styles.jpStopStart}`}
-                  style={{ left: "0%" }}
+                  className={styles.jpStop}
+                  style={{ left: `${TRACK_ZONES[0].left}%`, width: `${TRACK_ZONES[0].width}%` }}
                   aria-label="Back to start: See a problem. Solve it. Change the world."
                   onClick={scrollToStart}
                   onKeyDown={(event) => handleStopKeyDown(event, -1)}
@@ -537,8 +560,11 @@ export function JourneyHero() {
                     ref={(el) => {
                       navRefs.current[index] = el;
                     }}
-                    className={item.isGate ? `${styles.jpStop} ${styles.jpStopGate}` : styles.jpStop}
-                    style={{ left: `${stopPercent(BEATS[index].u)}%` }}
+                    className={styles.jpStop}
+                    style={{
+                      left: `${TRACK_ZONES[index + 1].left}%`,
+                      width: `${TRACK_ZONES[index + 1].width}%`,
+                    }}
                     aria-label={item.isGate ? `Information Protection Checkpoint` : `${item.num} ${item.label}`}
                     onClick={() => scrollToBeat(index)}
                     onKeyDown={(event) => handleStopKeyDown(event, index)}

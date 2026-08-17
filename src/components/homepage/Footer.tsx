@@ -21,6 +21,17 @@ export function Footer() {
             ))}
           </ul>
         </div>
+        <div className={styles.col}>
+          <h3>Account</h3>
+          <ul>
+            <li>
+              <NavLink href="/login">Sign In</NavLink>
+            </li>
+            <li>
+              <NavLink href="/signup">Create Account</NavLink>
+            </li>
+          </ul>
+        </div>
       </div>
       <p className={styles.legal}>© 2026 I³ League. All rights reserved.</p>
     </footer>

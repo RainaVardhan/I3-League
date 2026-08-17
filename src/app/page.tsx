@@ -6,8 +6,11 @@ import { ProofSection } from "@/components/homepage/ProofSection";
 import { FinalCta } from "@/components/homepage/FinalCta";
 import { Footer } from "@/components/homepage/Footer";
 import { GridBackground } from "@/components/design-system/GridBackground";
+import { getActiveSeason, formatSeasonMonthYear } from "@/lib/season";
 
-export default function Home() {
+export default async function Home() {
+  const season = await getActiveSeason();
+
   return (
     <>
       <a className="skip-link" href="#main">
@@ -20,7 +23,7 @@ export default function Home() {
         <CurriculumBridge />
         <ProblemSection />
         <ProofSection />
-        <FinalCta />
+        <FinalCta enrollmentOpenDate={formatSeasonMonthYear(season.openDate)} />
       </main>
       <Footer />
     </>

@@ -9,7 +9,7 @@ export function CurriculumBridge() {
     <section className={styles.bridge} aria-label="Explore the full curriculum">
       <div className={styles.inner}>
         <span className={styles.label}>THE SIX-STAGE FRAMEWORK</span>
-        <Button as={Link} href="/curriculum" variant="ghost" className={styles.btn}>
+        <Button as={Link} href="/curriculum" className={styles.btn}>
           See the full curriculum
         </Button>
       </div>
