@@ -10,12 +10,12 @@ const FIT_ITEMS = [
   {
     kicker: "HOW YOU WORK",
     title: "Solo or with a team",
-    body: "Students can work independently or collaborate with a team. Teammates don't need to attend the same school to register together.",
+    body: "Students can work independently or collaborate with a team. Teammates can register together even if they attend different schools.",
   },
   {
     kicker: "WHAT YOU BUILD",
     title: "Your problem. Your innovation.",
-    body: "I³ League does not assign a topic. Students choose a real problem they care about and apply the full innovation process to it.",
+    body: "Students choose their own topic, a real problem they care about, and apply the full innovation process to it.",
   },
 ];
 

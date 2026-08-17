@@ -99,7 +99,7 @@ export default function DesignSystemPage() {
                 textTransform: "uppercase",
               }}
             >
-              01 / Insight — National Student Innovation League
+              01 / Insight: National Student Innovation League
             </span>
           </p>
         </section>
@@ -125,12 +125,12 @@ export default function DesignSystemPage() {
           <div className={styles.panelGrid}>
             <Panel variant="standard">
               <p style={{ color: "var(--muted)" }}>
-                Standard panel — paper background, hairline border, no shadow.
+                Standard panel: paper background, hairline border, no shadow.
               </p>
             </Panel>
             <Panel variant="selected" prominent>
               <p style={{ color: "var(--ink-2)" }}>
-                Selected panel — blue-pale fill, cobalt left rule, hard offset
+                Selected panel: blue-pale fill, cobalt left rule, hard offset
                 shadow for real prominence.
               </p>
             </Panel>
@@ -139,7 +139,7 @@ export default function DesignSystemPage() {
 
         <section className={styles.section}>
           <Eyebrow variant="label">
-            Cube — the signature six-faced journey visual
+            Cube: the signature six-faced journey visual
           </Eyebrow>
           <div className={styles.cubeRow}>
             <Cube size={200} />

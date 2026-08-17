@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ResetPasswordForm } from "./ResetPasswordForm";
 
 export const metadata = {
-  title: "Set New Password — I³ League",
+  title: "Set New Password | I³ League",
 };
 
 // Requires BOTH a valid session AND the recovery-flow cookie /auth/callback

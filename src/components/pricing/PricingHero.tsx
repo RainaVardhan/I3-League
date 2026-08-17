@@ -3,7 +3,6 @@ import styles from "./PricingHero.module.css";
 
 type PricingHeroProps = {
   price: number;
-  maxTeamSize: number;
   enrollmentOpenDate: string;
 };
 
@@ -13,7 +12,7 @@ type PricingHeroProps = {
 // used before. The right-slot card follows PageHero's .statBox "family"
 // (see FrameworkCard.module.css's comment) so all three hero widgets read
 // as the same component type.
-export function PricingHero({ price, maxTeamSize, enrollmentOpenDate }: PricingHeroProps) {
+export function PricingHero({ price, enrollmentOpenDate }: PricingHeroProps) {
   return (
     <SplitHero
       className={styles.hero}
@@ -22,10 +21,10 @@ export function PricingHero({ price, maxTeamSize, enrollmentOpenDate }: PricingH
         <>
           Priced per student.
           <br />
-          Not per team.
+          Built for teams.
         </>
       }
-      lede={`Every student pays their own $${price.toFixed(0)}. A team of ${maxTeamSize} simply pays that ${maxTeamSize} times over. The project can be shared; the learning and certification never are.`}
+      lede={`Every student pays their own $${price.toFixed(0)}. The project can be shared, and the learning and certification always stay individual.`}
       rightSlot={
         <div className={styles.statBox}>
           <span className={styles.label}>REGISTRATION PRICE</span>

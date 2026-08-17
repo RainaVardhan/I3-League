@@ -1,0 +1,20 @@
+/* Everything but padding lives in the shared
+   src/components/design-system/SplitHero.module.css. Bottom padding is
+   generous on purpose — a clear gap between the hero and ContactChannels
+   below, since this hero has no side widget to visually anchor the
+   transition. */
+.hero {
+  padding: 88px var(--gutter) 132px;
+}
+
+@media (max-width: 820px) {
+  .hero {
+    padding: 66px var(--gutter) 88px;
+  }
+}
+
+@media (max-width: 460px) {
+  .hero {
+    padding-top: 52px;
+  }
+}

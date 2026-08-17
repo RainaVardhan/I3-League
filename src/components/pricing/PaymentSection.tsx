@@ -29,9 +29,9 @@ export function PaymentSection() {
           </div>
 
           <p className={styles.verification}>
-            An admin verifies each student&apos;s payment individually. One teammate&apos;s
-            payment being unverified never blocks another teammate&apos;s dashboard,
-            curriculum, or certification track.
+            An admin verifies each student&apos;s payment individually, so your dashboard,
+            curriculum, and certification track stay fully accessible to you, independent of
+            any teammate&apos;s payment status.
           </p>
         </div>
       </div>

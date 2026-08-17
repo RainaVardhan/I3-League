@@ -9,7 +9,7 @@ import { logoutAction } from "./actions";
 import styles from "./page.module.css";
 
 export const metadata = {
-  title: "Dashboard — I³ League",
+  title: "Dashboard | I³ League",
 };
 
 // This page's only job right now is proving the identity chain resolves
@@ -47,17 +47,17 @@ export default async function DashboardPage() {
                 </h1>
                 {appUser.role === "STUDENT" && !appUser.student && (
                   <p className={styles.notice}>
-                    Registration incomplete — profile details coming in a later step.
+                    Registration incomplete, profile details coming in a later step.
                   </p>
                 )}
                 {appUser.role === "PARENT" && !appUser.parent && (
                   <p className={styles.notice}>
-                    Registration incomplete — profile details coming in a later step.
+                    Registration incomplete, profile details coming in a later step.
                   </p>
                 )}
                 {appUser.role === "COACH" && !appUser.coach && (
                   <p className={styles.notice}>
-                    Registration incomplete — profile details coming in a later step.
+                    Registration incomplete, profile details coming in a later step.
                   </p>
                 )}
               </>

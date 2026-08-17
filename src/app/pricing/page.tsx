@@ -9,7 +9,7 @@ import { getActiveSeason, formatSeasonDate } from "@/lib/season";
 
 export const metadata = {
   title: "Pricing | I³ League",
-  description: "I³ League registration is priced per participant, not per team.",
+  description: "I³ League registration is priced per participant, fair for every team size.",
 };
 
 export default async function PricingPage() {
@@ -24,11 +24,7 @@ export default async function PricingPage() {
       <GridBackground />
       <Header />
       <main id="main">
-        <PricingHero
-          price={price}
-          maxTeamSize={season.maxTeamSize}
-          enrollmentOpenDate={formatSeasonDate(season.openDate)}
-        />
+        <PricingHero price={price} enrollmentOpenDate={formatSeasonDate(season.openDate)} />
 
         {/* "Who can register" (grade divisions, solo-or-team, choose-your-
             own-problem) used to live here — removed per the site owner's
