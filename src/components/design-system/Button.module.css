@@ -55,3 +55,20 @@
   border-color: rgba(54, 91, 214, 0.55);
   color: var(--blue-dark);
 }
+
+/* A ghost button with the same visual weight/press motion as .primary,
+   for when a secondary action needs to read as equally prominent — e.g.
+   paired next to a primary CTA, the way "See How It Works" sits next to
+   "Register Today" on the homepage. Pass as an extra className alongside
+   variant="ghost"; comes after .ghost above so it wins on box-shadow. */
+.ghostStrong {
+  box-shadow: 0 5px 0 var(--dim);
+}
+.ghostStrong:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 0 var(--dim);
+}
+.ghostStrong:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 var(--dim);
+}

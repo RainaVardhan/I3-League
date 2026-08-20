@@ -1,0 +1,20 @@
+.option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  cursor: pointer;
+}
+
+.input {
+  flex-shrink: 0;
+  margin-top: 3px;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--blue);
+}
+
+.label {
+  font-family: var(--font-body), sans-serif;
+  font-size: var(--text-body);
+  color: var(--ink);
+}

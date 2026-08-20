@@ -1,0 +1,25 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.mediaSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--canvas);
+  border-radius: 0;
+}
+
+.mediaHint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.link {
+  color: var(--blue);
+  font-weight: 600;
+}

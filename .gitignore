@@ -41,3 +41,7 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
+
+# local mock file storage — stand-in for Cloudflare R2 until that's wired up
+# (see CLAUDE.md tech stack); payment screenshots land here in dev
+/public/uploads

@@ -159,6 +159,9 @@ model Student {
   state          String
   country        String
   interests      String[]      // innovation fields of interest, e.g. ["Technology","Environment"]
+  guardianEmail  String        // parent/guardian's email, captured at registration; matched
+                                // case-insensitively against a Parent's User.email once that
+                                // parent completes their own profile, to create StudentParent
 
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
@@ -182,12 +185,28 @@ model Student {
 /// Many-to-many: a student can have more than one parent/guardian on file,
 /// and (rare, but the schema should allow it) a parent can have more than
 /// one child enrolled.
+///
+/// SECURITY: a row here is created the moment a Student's self-reported
+/// guardianEmail matches an existing Parent account (or vice versa) — see
+/// the auto-link logic in src/app/register/actions.ts. That match alone
+/// does NOT prove the Parent account actually belongs to this student's
+/// real guardian (a student could register a second account of their own
+/// as "parent" and self-approve their own required consent). verifiedAt
+/// is therefore a real authorization gate, not metadata: every consent
+/// read/write path (src/app/consent/[studentId]/) must additionally
+/// require verifiedAt != null, not just that the row exists. Same
+/// pending -> admin-approved pattern as Payment.verifiedAt/verifiedByAdminId
+/// below — until the Sprint 6 admin UI exists, verifying is a direct DB
+/// update, same as payment verification is today.
 model StudentParent {
   student      Student  @relation(fields: [studentId], references: [id])
   studentId    String
   parent       Parent   @relation(fields: [parentId], references: [id])
   parentId     String
   relationship String   // e.g. "Mother", "Legal Guardian"
+
+  verifiedAt        DateTime? // null = pending admin review, not yet consent-eligible
+  verifiedByAdminId String?
 
   createdAt    DateTime @default(now())
 
@@ -283,6 +302,13 @@ model Season {
   maxTeamSize            Int      @default(4)
   curriculumVersion      String
 
+  // Static manual-payment contact info shown on /register/payment — see
+  // CLAUDE.md "Payment flow & pricing model." Nullable so a new Season can
+  // exist before these are configured; admin editing of these is Sprint 6.
+  paypalLink             String?
+  venmoHandle            String?
+  zelleInfo              String?
+
   isActive               Boolean  @default(true)
 
   createdAt DateTime @default(now())
@@ -349,6 +375,7 @@ model Payment {
 model Team {
   id        String   @id @default(uuid())
   name      String
+  joinCode  String   @unique // short code teammates enter at /register to join self-serve
   season    Season   @relation(fields: [seasonId], references: [id])
   seasonId  String
   coach     Coach?   @relation(fields: [coachId], references: [id])

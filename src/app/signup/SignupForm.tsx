@@ -4,10 +4,10 @@ import Script from "next/script";
 import { useActionState } from "react";
 import { Button } from "@/components/design-system/Button";
 import { Input } from "@/components/design-system/Input";
+import { RadioGroup } from "@/components/design-system/RadioGroup";
 import { useTurnstile } from "@/lib/useTurnstile";
 import authFormStyles from "@/components/auth/AuthForm.module.css";
 import { signupAction, type SignupState } from "./actions";
-import styles from "./SignupForm.module.css";
 
 const ROLE_OPTIONS = [
   { value: "STUDENT", label: "Student" },
@@ -23,23 +23,13 @@ export function SignupForm() {
 
   return (
     <form className={authFormStyles.form} action={formAction}>
-      <fieldset className={styles.roleGroup}>
-        <legend className={styles.label}>I am a...</legend>
-        <div className={styles.roleOptions}>
-          {ROLE_OPTIONS.map((option, index) => (
-            <label key={option.value} className={styles.roleOption}>
-              <input
-                type="radio"
-                name="role"
-                value={option.value}
-                defaultChecked={index === 0}
-                required
-              />
-              {option.label}
-            </label>
-          ))}
-        </div>
-      </fieldset>
+      <RadioGroup
+        legend="I am a..."
+        name="role"
+        options={ROLE_OPTIONS}
+        defaultValue={ROLE_OPTIONS[0].value}
+        required
+      />
 
       <Input
         label="Email"
@@ -80,7 +70,7 @@ export function SignupForm() {
         </p>
       )}
 
-      <Button type="submit" disabled={pending}>
+      <Button type="submit" disabled={pending} className={authFormStyles.submitButton}>
         {pending ? "Creating account…" : "Create account"}
       </Button>
     </form>

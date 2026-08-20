@@ -62,7 +62,7 @@ export function LoginForm() {
         </p>
       )}
 
-      <Button type="submit" disabled={pending}>
+      <Button type="submit" disabled={pending} className={authFormStyles.submitButton}>
         {pending ? "Logging in…" : "Log in"}
       </Button>
     </form>
