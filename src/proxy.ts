@@ -12,7 +12,11 @@ export async function proxy(request: NextRequest) {
   const { response, user } = await updateSession(request);
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith("/dashboard") && !user) {
+  const requiresAuth =
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/register") ||
+    pathname.startsWith("/consent");
+  if (requiresAuth && !user) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 

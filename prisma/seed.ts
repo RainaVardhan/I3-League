@@ -47,6 +47,9 @@ async function main() {
       maxTeamSize: 4,
       curriculumVersion: 'v1',
       isActive: true,
+      paypalLink: 'https://paypal.me/i3league',
+      venmoHandle: '@i3League',
+      zelleInfo: 'payments@i3league.org',
     },
   });
 
@@ -156,7 +159,9 @@ async function main() {
   }) {
     const studentUser = await prisma.user.upsert({
       where: { email: opts.email },
-      update: {},
+      update: {
+        student: { update: { guardianEmail: opts.parentEmail } },
+      },
       create: {
         supabaseUid: `seed-${opts.email}`,
         email: opts.email,
@@ -174,6 +179,7 @@ async function main() {
             state: 'VA',
             country: 'USA',
             interests: opts.interests,
+            guardianEmail: opts.parentEmail,
           },
         },
       },
@@ -195,7 +201,12 @@ async function main() {
     await prisma.studentParent.upsert({
       where: { studentId_parentId: { studentId: student.id, parentId: parent.id } },
       update: {},
-      create: { studentId: student.id, parentId: parent.id, relationship: 'Parent' },
+      // Seed data represents already-established, legitimate relationships
+      // (not the self-reported-email-match flow real registration goes
+      // through), and this seed already gives each of these pairs real
+      // Consent rows below — so mark them pre-verified rather than landing
+      // in the same "pending admin review" state a real new signup would.
+      create: { studentId: student.id, parentId: parent.id, relationship: 'Parent', verifiedAt: new Date() },
     });
 
     await prisma.consent.create({
@@ -337,8 +348,10 @@ async function main() {
   // --------------------------------------------------------------------
   // Students 2 & 3: Jordan + Priya — team, early journey
   // --------------------------------------------------------------------
-  const team = await prisma.team.create({
-    data: { name: 'Team Circuit Breakers', seasonId: season.id, coachId: coach.id },
+  const team = await prisma.team.upsert({
+    where: { joinCode: 'CIRCBR' },
+    update: {},
+    create: { name: 'Team Circuit Breakers', joinCode: 'CIRCBR', seasonId: season.id, coachId: coach.id },
   });
 
   const jordan = await createStudentWithParent({

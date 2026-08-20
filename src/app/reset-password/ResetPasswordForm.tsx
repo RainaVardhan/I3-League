@@ -43,7 +43,7 @@ export function ResetPasswordForm() {
         </p>
       )}
 
-      <Button type="submit" disabled={pending}>
+      <Button type="submit" disabled={pending} className={styles.submitButton}>
         {pending ? "Saving…" : "Set new password"}
       </Button>
     </form>

@@ -16,3 +16,12 @@
   font-size: 14px;
   color: var(--coral);
 }
+
+/* .form has no align-items, so its default "stretch" makes every direct
+   child fill the width — right for Input/RadioGroup, wrong for the submit
+   Button, which should size to its own content and sit left-aligned like
+   the homepage's "Register Today" / "See How It Works" buttons rather than
+   stretch into a full-width bar. */
+.submitButton {
+  align-self: flex-start;
+}

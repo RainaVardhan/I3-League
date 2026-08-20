@@ -29,3 +29,49 @@
 .logoutForm {
   margin-top: var(--space-2);
 }
+
+.actionsRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.actionsRow .logoutForm {
+  margin-top: 0;
+}
+
+.studentList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+  margin-bottom: var(--space-6);
+}
+
+.studentRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: var(--canvas);
+  border-radius: 0;
+}
+
+.studentName {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.consentDone {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.consentLink {
+  color: var(--blue);
+  font-weight: 600;
+  font-size: 13px;
+}

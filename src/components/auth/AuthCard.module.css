@@ -15,6 +15,10 @@
   max-width: 440px;
 }
 
+.wide {
+  max-width: 680px;
+}
+
 .heading {
   font-size: 28px;
   margin-bottom: var(--space-2);

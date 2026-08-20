@@ -41,7 +41,7 @@ export function ForgotPasswordForm() {
         </p>
       )}
 
-      <Button type="submit" disabled={pending}>
+      <Button type="submit" disabled={pending} className={styles.submitButton}>
         {pending ? "Sending…" : "Send reset link"}
       </Button>
     </form>

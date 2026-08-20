@@ -1,0 +1,62 @@
+.contactIntro {
+  margin: 0 0 var(--space-4);
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.methodList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.methodRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 0;
+  text-decoration: none;
+  transition: border-color 0.16s ease, background 0.16s ease;
+}
+
+a.methodRow {
+  cursor: pointer;
+}
+
+a.methodRow:hover,
+a.methodRow:focus-visible {
+  border-color: var(--blue);
+  background: var(--blue-pale);
+}
+
+.methodText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.methodName {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.methodDetail {
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.rejection {
+  margin: 0 0 var(--space-5);
+  padding: var(--space-4);
+  background: var(--coral-soft);
+  border-radius: 0;
+  color: var(--ink);
+  font-size: var(--text-body);
+}
