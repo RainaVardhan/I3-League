@@ -1,0 +1,555 @@
+/* Shared authenticated-Student chrome: a dark-navy left sidebar (doubling
+   as the six-stage journey rail) + a light sticky topbar + content area.
+
+   NOTE: the dark sidebar is a deliberate, owner-approved departure from
+   design-system Section 18 rule 1 (start from paper, not a dark shell).
+
+   RESTING STATE: a thin icon rail, always on screen. The rail's top holds
+   a menu button (no logo). Pressing it opens the flyout: .shellOpen widens
+   the sidebar to a full panel that floats ON TOP of the page (position:
+   fixed, above a dimming scrim) and reveals the logo + labels. The grid's
+   first column stays the rail width in both states, so opening the flyout
+   never moves the page. */
+
+.shell {
+  --rail-w: 72px;
+  --topbar-h: 68px;
+  --panel-w: 268px;
+  --side-line: rgba(255, 255, 255, 0.09);
+  --side-muted: rgba(255, 255, 255, 0.62);
+  --side-dim: rgba(255, 255, 255, 0.4);
+  --side-active: rgba(255, 255, 255, 0.1);
+  --side-hover: rgba(255, 255, 255, 0.06);
+  display: grid;
+  grid-template-columns: var(--rail-w) minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+/* ---- Sidebar: resting = icon rail ---- */
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: var(--rail-w);
+  height: 100vh;
+  height: 100dvh;
+  background: var(--ink);
+  border-right: 1px solid var(--side-line);
+  display: flex;
+  flex-direction: column;
+  z-index: 50;
+  overflow: hidden;
+  transition: width 0.2s ease;
+}
+
+.brandRow {
+  flex: 0 0 auto;
+  height: var(--topbar-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-2);
+  border-bottom: 1px solid var(--side-line);
+}
+
+/* The logo is hidden in the rail; it appears only when the flyout is open. */
+.brandRow > a {
+  display: none;
+  min-width: 0;
+}
+
+.menuToggle {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 1px solid var(--side-line);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.menuToggle:hover {
+  background: var(--side-hover);
+}
+
+.menuBar {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: var(--paper);
+  transition:
+    transform 0.18s ease,
+    opacity 0.18s ease;
+}
+
+.menuToggle[aria-expanded="true"] .menuBar:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+.menuToggle[aria-expanded="true"] .menuBar:nth-child(2) {
+  opacity: 0;
+}
+.menuToggle[aria-expanded="true"] .menuBar:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+.workspaceTag {
+  display: none;
+  padding: var(--space-5) var(--space-5) var(--space-1);
+  color: var(--side-dim);
+  font: 600 10px var(--font-mono), monospace;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.nav {
+  flex: 1 1 0;
+  min-height: 0;
+  padding: var(--space-3) var(--space-2) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Rail: every nav row is a centred 44px target showing only its icon /
+   stage number. */
+.navItem,
+.stageRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  width: 44px;
+  height: 44px;
+  margin: 0 auto;
+  padding: 0;
+  border-radius: var(--radius-sm);
+  border-left: 0 solid transparent;
+  color: var(--side-muted);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.navItem:hover,
+.stageRow:not(.stageRowLocked):hover {
+  background: var(--side-hover);
+  color: var(--paper);
+}
+
+.navItem[aria-current="page"],
+.stageRowActive {
+  background: var(--side-active);
+  color: var(--paper);
+}
+
+.navText,
+.navLabel,
+.stageName,
+.stageState,
+.studentText {
+  display: none;
+}
+
+.navIcon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+
+.navIcon svg {
+  width: 19px;
+  height: 19px;
+}
+
+.navLabel {
+  margin: var(--space-5) 0 var(--space-2);
+  padding: 0 var(--space-3);
+  color: var(--side-dim);
+  font: 600 9px var(--font-mono), monospace;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Rail: a hairline between the Dashboard item and the stage numbers,
+   standing in for the hidden "Your journey" label. */
+.stageList {
+  list-style: none;
+  margin: var(--space-2) var(--space-2) 0;
+  padding: var(--space-2) 0 0;
+  border-top: 1px solid var(--side-line);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stageNum {
+  font: 700 12px var(--font-mono), monospace;
+  letter-spacing: 0.04em;
+  color: var(--side-dim);
+  text-align: center;
+}
+
+.stageName {
+  font-size: 13.5px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stageState {
+  font: 600 8px var(--font-mono), monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--side-dim);
+}
+
+.stageRowDone .stageNum,
+.stageRowDone .stageState {
+  color: #a9bdf2;
+}
+
+.stageRowCurrent .stageNum,
+.stageRowCurrent .stageState {
+  color: var(--coral);
+}
+
+.stageRowCurrent .stageState {
+  font-weight: 700;
+}
+
+.stageRowCurrent .stageName {
+  color: var(--paper);
+}
+
+.stageRowLocked {
+  cursor: default;
+  color: var(--side-dim);
+}
+
+.stageRowActive .stageName {
+  color: var(--paper);
+}
+
+.sidebarBottom {
+  flex: 0 0 auto;
+  margin-top: auto;
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--side-line);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* The profile bar is now a button that toggles the Logout section below. */
+.studentChip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.studentChip:hover {
+  background: var(--side-hover);
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--blue);
+  color: var(--white);
+  font: 700 13px var(--font-mono), monospace;
+  flex: 0 0 auto;
+}
+
+.studentText {
+  min-width: 0;
+}
+
+.studentText b {
+  display: block;
+  color: var(--paper);
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.studentText span {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--side-dim);
+}
+
+.chipChevron {
+  display: none;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  color: var(--side-dim);
+  transition: transform 0.18s ease;
+}
+
+.studentChip[aria-expanded="true"] .chipChevron {
+  transform: rotate(180deg);
+  color: var(--side-muted);
+}
+
+/* The revealed Logout section. */
+.profileMenu {
+  margin: 0;
+}
+
+.logoutRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  width: 44px;
+  height: 44px;
+  margin: var(--space-2) auto 0;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: var(--side-muted);
+  font: 600 13.5px var(--font-body), sans-serif;
+  cursor: pointer;
+}
+
+.logoutRow:hover {
+  background: var(--side-hover);
+  color: var(--paper);
+}
+
+.logoutIcon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+
+.logoutIcon svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ---- Flyout: sidebar widens to a full panel, floating over the page ---- */
+.shellOpen .sidebar {
+  width: var(--panel-w);
+  z-index: 60;
+  box-shadow: 20px 0 50px rgba(16, 33, 61, 0.32);
+}
+
+.shellOpen .brandRow {
+  justify-content: space-between;
+  padding: 0 var(--space-4);
+}
+
+.shellOpen .brandRow > a {
+  display: inline-flex;
+}
+
+.shellOpen .workspaceTag {
+  display: block;
+}
+
+.shellOpen .nav {
+  padding: var(--space-3) var(--space-3) var(--space-4);
+}
+
+.shellOpen .navItem {
+  justify-content: flex-start;
+  gap: var(--space-3);
+  width: 100%;
+  height: auto;
+  margin: 0;
+  padding: 12px var(--space-3);
+  border-left: 3px solid transparent;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.shellOpen .navItem[aria-current="page"] {
+  border-left-color: var(--paper);
+}
+
+.shellOpen .navText,
+.shellOpen .navLabel,
+.shellOpen .stageName,
+.shellOpen .stageState,
+.shellOpen .studentText {
+  display: block;
+}
+
+.shellOpen .stageList {
+  margin: 0;
+  padding: 0;
+  border-top: 0;
+  gap: 2px;
+}
+
+.shellOpen .stageRow {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  justify-content: initial;
+  gap: var(--space-3);
+  width: 100%;
+  height: auto;
+  margin: 0;
+  padding: 10px var(--space-3);
+  border-left: 3px solid transparent;
+}
+
+.shellOpen .stageRowActive {
+  border-left-color: var(--paper);
+}
+
+.shellOpen .stageNum {
+  text-align: left;
+}
+
+.shellOpen .sidebarBottom {
+  align-items: stretch;
+  padding: var(--space-4);
+}
+
+.shellOpen .studentChip {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 16px;
+  justify-content: initial;
+  gap: var(--space-3);
+  width: 100%;
+  height: auto;
+  padding: var(--space-2);
+}
+
+.shellOpen .chipChevron {
+  display: block;
+}
+
+.shellOpen .profileMenu {
+  margin: var(--space-2) 0 0;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--side-line);
+}
+
+.shellOpen .logoutRow {
+  justify-content: flex-start;
+  gap: var(--space-3);
+  width: 100%;
+  height: auto;
+  margin: 0;
+  padding: 11px var(--space-2);
+}
+
+/* ---- Scrim ---- */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  background: rgba(16, 33, 61, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.overlayShow {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ---- Main column ---- */
+.main {
+  grid-column: 2;
+  min-width: 0;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  height: var(--topbar-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-8);
+  background: rgba(255, 253, 248, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+
+.breadcrumb {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font: 600 11px var(--font-mono), monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.helpLink {
+  flex: 0 0 auto;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  color: var(--ink-2);
+  font-weight: 700;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.helpLink:hover {
+  background: var(--blue-pale);
+}
+
+@media (max-width: 600px) {
+  .shell {
+    --rail-w: 64px;
+    --panel-w: 262px;
+  }
+  .topbar {
+    padding: 0 var(--space-4);
+  }
+  .helpLink {
+    padding: 0 var(--space-3);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar,
+  .overlay,
+  .menuBar,
+  .menuToggle {
+    transition: none;
+  }
+}

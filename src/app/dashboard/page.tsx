@@ -1,13 +1,24 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
+import type { Season, Student } from "@prisma/client";
 import { Button } from "@/components/design-system/Button";
 import buttonStyles from "@/components/design-system/Button.module.css";
 import { GridBackground } from "@/components/design-system/GridBackground";
 import { Logo } from "@/components/design-system/Logo";
 import { Panel } from "@/components/design-system/Panel";
+import { AppShell } from "@/components/app/AppShell";
+import { DashboardHero } from "@/components/dashboard/DashboardHero";
+import { StageNodeTrack } from "@/components/dashboard/StageNodeTrack";
+import { NextActionCard } from "@/components/dashboard/NextActionCard";
+import { StageProgressPanel } from "@/components/dashboard/StageProgressPanel";
+import { DeadlineCard } from "@/components/dashboard/DeadlineCard";
+import hubStyles from "@/components/dashboard/DashboardHub.module.css";
 import { prisma } from "@/lib/prisma";
 import { getActiveSeason, formatSeasonDate } from "@/lib/season";
+import { getJourney, STAGE_NUMBERS } from "@/lib/stage-progress";
+import { getStageCopy } from "@/lib/stage-copy";
+import { getStageChecklist } from "@/lib/stage-checklist";
 import { createClient } from "@/lib/supabase/server";
 import { logoutAction } from "./actions";
 import styles from "./page.module.css";
@@ -18,9 +29,11 @@ export const metadata = {
 
 // Sprint 3 turned this from a pure identity-chain proof into the real
 // "what's my next step" hub for Student/Parent, reading state off which
-// rows exist rather than a status enum. Real per-role dashboard content
-// (the six-stage journey, etc.) is still later-sprint work — this only
-// covers registration/consent/payment status.
+// rows exist rather than a status enum. Sprint 4 added the real six-stage
+// journey for a fully-enrolled Student (StudentHub below) — every other
+// state (registration incomplete, payment pending, Parent/Coach) still
+// uses the original narrow centered-card layout, since none of those have
+// enough real content yet to fill a full-width hub.
 export default async function DashboardPage() {
   const supabase = await createClient();
   const {
@@ -37,6 +50,17 @@ export default async function DashboardPage() {
     where: { supabaseUid: user.id },
     include: { student: true, parent: true, coach: true },
   });
+
+  if (appUser?.role === "STUDENT" && appUser.student) {
+    const season = await getActiveSeason();
+    const enrollment = await prisma.enrollment.findUnique({
+      where: { studentId_seasonId: { studentId: appUser.student.id, seasonId: season.id } },
+      include: { payment: true },
+    });
+    if (enrollment?.payment?.status === "VERIFIED") {
+      return <StudentHub student={appUser.student} season={season} />;
+    }
+  }
 
   // Built once and threaded into each status branch below so the "next
   // step" action button (Complete registration, Submit payment, etc.) and
@@ -102,6 +126,135 @@ export default async function DashboardPage() {
   );
 }
 
+// The authenticated dashboard for a Student whose payment is VERIFIED.
+// One job: answer "what do I need to do next?" — in this order:
+//   Where am I?   → the hero + the current-stage block + six-stage track
+//   What next?    → the Next action block (the most prominent thing)
+//   What's left?  → Finish {stage}: the auto-checking requirements list
+//   Can I submit? → the Submission block: artifact, count, gate status
+//   When is it due? → the Deadline block: date + days remaining
+// Nothing else goes here — badges, activity, journal, rubrics, stats, and
+// full stage explanations all live on their own pages. Chrome (the dark
+// sidebar + topbar) comes from the shared AppShell.
+async function StudentHub({ student, season }: { student: Student; season: Season }) {
+  const [journey, teamMemberships, individualProject] = await Promise.all([
+    getJourney(student.id),
+    prisma.teamMembership.findMany({
+      where: { studentId: student.id },
+      include: { team: { include: { project: true } } },
+    }),
+    prisma.project.findUnique({ where: { individualStudentId: student.id } }),
+  ]);
+
+  const team = teamMemberships[0]?.team;
+  const project = individualProject ?? team?.project ?? null;
+
+  const currentItem = journey.find((item) => item.status === "CURRENT");
+  const stagesCleared = journey.filter((item) => item.status === "COMPLETE").length;
+  const stagesLeft = journey.length - stagesCleared;
+
+  // Project identity — for teams, the name + member first names.
+  let teamInfo: { name: string; members: string[] } | null = null;
+  if (team) {
+    const members = await prisma.teamMembership.findMany({
+      where: { teamId: team.id },
+      include: { student: { select: { firstName: true } } },
+      orderBy: { joinedAt: "asc" },
+    });
+    teamInfo = { name: team.name, members: members.map((m) => m.student.firstName) };
+  }
+
+  const innovation =
+    project && project.title !== "Untitled project"
+      ? project.title
+      : "not named yet; you'll title it in Insight";
+  const participation = teamInfo ? `Team of ${teamInfo.members.length}` : "Individual";
+
+  const checklist = currentItem
+    ? await getStageChecklist(student.id, currentItem.stage, project?.id ?? null)
+    : null;
+
+  // The one qualification deadline that still applies, plus days remaining.
+  const now = new Date();
+  const deadline =
+    now < season.springQualifyDeadline
+      ? season.springQualifyDeadline
+      : season.summerQualifyDeadline;
+  const daysLeft = Math.max(0, Math.ceil((deadline.getTime() - now.getTime()) / 86_400_000));
+
+  return (
+    <>
+      <GridBackground />
+      <AppShell
+        studentName={student.displayName ?? student.firstName}
+        studentMeta={`Grade ${student.grade} · ${participation}`}
+        journey={journey}
+        breadcrumb="Dashboard"
+      >
+        <DashboardHero
+          firstName={student.firstName}
+          innovation={innovation}
+          team={teamInfo}
+          currentStage={currentItem?.stage ?? null}
+        />
+
+        {/* Navy Pattern-D band, directly under the hero. */}
+        <DeadlineCard deadline={deadline} daysLeft={daysLeft} />
+
+        {/* Where am I? — white section, the six stages as plain boxes. */}
+        <section className={hubStyles.sectionPaper}>
+          <div className={hubStyles.inner}>
+            <p className={hubStyles.eyebrow}>Current stage</p>
+            {currentItem ? (
+              <>
+                <h2 className={hubStyles.heading}>
+                  {STAGE_NUMBERS[currentItem.stage]} · {getStageCopy(currentItem.stage).name}
+                </h2>
+                <p className={hubStyles.lead}>{getStageCopy(currentItem.stage).coreQuestion}</p>
+              </>
+            ) : (
+              <h2 className={hubStyles.heading}>All six stages cleared</h2>
+            )}
+            <StageNodeTrack items={journey} />
+            <p className={hubStyles.trackNote}>
+              {stagesCleared} done · {stagesLeft} left
+            </p>
+          </div>
+        </section>
+
+        {currentItem && checklist && (
+          <>
+            {/* What's left? — light-blue section, checklist + submission merged. */}
+            <section className={hubStyles.sectionBlue}>
+              <div className={hubStyles.inner}>
+                <p className={hubStyles.eyebrow}>What&apos;s left</p>
+                <h2 className={hubStyles.heading}>Finish {getStageCopy(currentItem.stage).name}</h2>
+                <StageProgressPanel
+                  stage={currentItem.stage}
+                  slug={currentItem.slug}
+                  checklist={checklist}
+                />
+              </div>
+            </section>
+
+            {/* What do I do next? — white section, final-CTA-style card. */}
+            <section className={hubStyles.sectionPaper}>
+              <div className={hubStyles.inner}>
+                <NextActionCard
+                  stageName={currentItem.stage}
+                  slug={currentItem.slug}
+                  checklist={checklist}
+                  reviewFeedback={null}
+                />
+              </div>
+            </section>
+          </>
+        )}
+      </AppShell>
+    </>
+  );
+}
+
 async function StudentStatus({
   studentId,
   logoutButton,
@@ -143,18 +296,8 @@ async function StudentStatus({
     );
   }
 
-  if (enrollment.payment.status === "VERIFIED") {
-    return (
-      <>
-        <p className={styles.notice}>
-          You&apos;re enrolled for {season.label}. Your six-stage learning path will unlock here
-          once it&apos;s built.
-        </p>
-        {logoutButton}
-      </>
-    );
-  }
-
+  // VERIFIED is handled by StudentHub above, before this component is ever
+  // reached — this function only still needs the pre-enrollment states.
   if (enrollment.payment.status === "REJECTED") {
     return (
       <>

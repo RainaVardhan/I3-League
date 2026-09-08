@@ -1,0 +1,50 @@
+/* Everything but padding and the right-slot widget below lives in the
+   shared src/components/design-system/SplitHero.module.css, so this hero
+   lines up with How It Works / Curriculum / Pricing exactly — same
+   checkerboard band, --container width, two-column grid, and
+   eyebrow/h1/lede type scale. Padding matches PricingHero.module.css. */
+.hero {
+  padding: 88px var(--gutter) 82px;
+}
+
+/* Same treatment as the homepage hero lede (JourneyHero.module.css .sub) —
+   #53627a, regular weight, --text-lede / 1.65 — so this line reads exactly
+   like "Choose a real problem. Build evidence…" on the home page. */
+.innovation {
+  display: block;
+  max-width: 485px;
+  color: #53627a;
+  font-weight: 400;
+  font-size: var(--text-lede);
+  line-height: 1.65;
+}
+
+.team {
+  display: block;
+  margin-top: 8px;
+  color: #53627a;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Layout-only wrapper. StageCard owns its own surface (paper / hairline
+   border / hard blue-soft offset shadow — the same widget family as
+   Curriculum's FrameworkCard and Pricing's .statBox). */
+.visual {
+  position: relative;
+  z-index: 1;
+  width: min(392px, 100%);
+  margin-left: auto;
+}
+
+@media (max-width: 820px) {
+  .hero {
+    padding: 60px var(--gutter) 68px;
+  }
+  /* Hero drops to one column at this width (SplitHero.module.css); centre
+     the card instead of pinning it right. */
+  .visual {
+    width: min(360px, 100%);
+    margin: 0 auto;
+  }
+}

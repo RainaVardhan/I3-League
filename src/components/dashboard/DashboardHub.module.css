@@ -1,0 +1,520 @@
+/* The /dashboard hub, rendered inside AppShell's <main>. It is built from
+   the same pieces as the marketing pages: full-bleed sections that
+   alternate warm paper and pale blue, each with a --container-width inner
+   column, mono cobalt kickers over Chakra Petch headings on the --text-stage
+   scale, and the two homepage "band" patterns — the navy Pattern-D bar
+   (CurriculumBridge) for the deadline and the Pattern-E card (FinalCta) for
+   the next action. */
+
+/* ---- Section bands ---- */
+.sectionPaper,
+.sectionBlue {
+  padding: clamp(48px, 6vw, 72px) var(--gutter);
+  border-bottom: 1px solid var(--line);
+}
+
+.sectionPaper {
+  background: var(--paper);
+}
+
+.sectionBlue {
+  background: var(--blue-pale);
+}
+
+.inner {
+  max-width: var(--container);
+  margin: 0 auto;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--blue);
+  font: 650 10px var(--font-mono), monospace;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.heading {
+  margin: 10px 0 0;
+  font: 700 var(--text-stage) / 1.08 var(--font-display), sans-serif;
+  letter-spacing: -0.032em;
+  color: var(--ink);
+}
+
+.lead {
+  margin: 14px 0 0;
+  max-width: 570px;
+  color: var(--muted);
+  font-size: var(--text-body);
+  line-height: 1.7;
+}
+
+/* ---- #2 Deadline: navy Pattern-D band, like CurriculumBridge ---- */
+.deadlineBand {
+  position: relative;
+  z-index: 1;
+  padding: 24px var(--gutter);
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: 0 14px 30px rgba(16, 33, 61, 0.14);
+}
+
+.deadlineInner {
+  max-width: var(--container);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+}
+
+.deadlineMain {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.deadlineLabel {
+  font: 600 10px var(--font-mono), monospace;
+  letter-spacing: 0.17em;
+  color: #bbc8e9;
+}
+
+.deadlineDate {
+  font: 700 clamp(20px, 2.4vw, 26px) / 1 var(--font-display), sans-serif;
+  letter-spacing: -0.02em;
+  color: var(--white);
+}
+
+.deadlineDays {
+  flex: 0 0 auto;
+  font: 600 12px var(--font-mono), monospace;
+  color: #c6d0df;
+  white-space: nowrap;
+}
+
+/* ---- #4 Six-stage track: numbered circles on one connector line,
+   inside a straight-edged panel so the row reads as its own block ---- */
+.track {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  margin-top: var(--space-8);
+  padding: var(--space-8) var(--space-6) var(--space-6);
+  /* Same paper as the section it sits on — the box reads only through its
+     border + offset shadow, like How It Works' WhoItsFor grid. */
+  background: var(--paper);
+  border: 1px solid rgba(16, 33, 61, 0.15);
+  border-radius: 0;
+  box-shadow:
+    20px 22px 0 var(--blue-soft),
+    0 38px 68px rgba(16, 33, 61, 0.12);
+}
+
+.trackLine {
+  position: absolute;
+  z-index: 0;
+  top: calc(var(--space-8) + 22px);
+  left: 12%;
+  right: 12%;
+  height: 2px;
+  background: var(--line-strong);
+}
+
+.node {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 0 var(--space-2);
+  text-align: center;
+  text-decoration: none;
+  color: inherit;
+  scroll-snap-align: center;
+}
+
+.nodeDot {
+  position: relative;
+  z-index: 1;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  /* Solid fill (matches the box) so the connector line never shows through. */
+  background: var(--paper);
+  border: 2px solid var(--line-strong);
+  font: 700 12px var(--font-mono), monospace;
+  color: var(--dim);
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.node:not(.nodeLocked):hover .nodeDot {
+  transform: translateY(-2px);
+}
+
+.nodeDone .nodeDot {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: var(--white);
+}
+
+.nodeCurrent .nodeDot {
+  background: var(--coral);
+  border-color: var(--coral);
+  color: var(--white);
+  box-shadow: 0 0 0 6px var(--coral-soft);
+}
+
+.nodeName {
+  font: 700 12px / 1.25 var(--font-display), sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--ink);
+}
+
+.nodeLocked {
+  cursor: default;
+}
+
+.nodeLocked .nodeDot {
+  background: var(--paper);
+  border-color: var(--line);
+  color: var(--dim);
+}
+
+.nodeLocked .nodeName {
+  color: var(--dim);
+}
+
+.nodeCurrent .nodeName {
+  color: var(--coral);
+}
+
+.trackNote {
+  /* Clears the .track box's 22px offset shadow so the text never sits on it. */
+  margin: 44px 0 0;
+  color: var(--dim);
+  font: 600 11px var(--font-mono), monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ---- #5 What's-left panel: checklist + submission, boxed, one column ---- */
+/* Straight-edged rectangle — no rounding — with its own hard offset
+   shadow, the same Pattern-C treatment the marketing proof grids use. */
+.progressPanel {
+  margin-top: var(--space-8);
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 0;
+  /* Same offset-plane colour as the homepage "Why I³ League" proof grid
+     (ProofSection .grid) so the two boxed planes read as one family. */
+  box-shadow:
+    20px 22px 0 rgba(49, 88, 216, 0.1),
+    0 38px 68px rgba(16, 33, 61, 0.12);
+  padding: 32px 34px;
+}
+
+.progressTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding-bottom: var(--space-6);
+  border-bottom: 1px solid var(--line);
+}
+
+.progressMeter {
+  min-width: 0;
+  flex: 1;
+}
+
+.progressCount {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13.5px;
+}
+
+.progressCount strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.progressBar {
+  display: block;
+  margin-top: 10px;
+  max-width: 320px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--blue-pale);
+  overflow: hidden;
+}
+
+.progressFill {
+  display: block;
+  height: 100%;
+  background: var(--blue);
+  transition: width 0.2s ease;
+}
+
+.progressStatus {
+  flex: 0 0 auto;
+  padding: 7px 13px;
+  border-radius: 0;
+  font: 700 12px var(--font-display), sans-serif;
+  white-space: nowrap;
+}
+
+.statusMuted {
+  background: var(--paper-warm);
+  color: var(--muted);
+}
+
+.statusReady,
+.statusInfo {
+  background: var(--blue-pale);
+  color: var(--blue-dark);
+}
+
+.statusWarn {
+  background: var(--coral-soft);
+  color: var(--coral);
+}
+
+.statusDone {
+  background: var(--blue);
+  color: var(--white);
+}
+
+.progressNote {
+  margin: var(--space-5) 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.progressList {
+  list-style: none;
+  margin: var(--space-4) 0 0;
+  padding: 0;
+}
+
+.progressItem {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-4);
+  /* Negative inline margin + matching padding so the hover highlight
+     bleeds to the panel's inner edges, like How It Works' .step:hover. */
+  margin: 0 -14px;
+  padding: 14px 14px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+  text-decoration: none;
+  transition:
+    background 0.16s ease,
+    color 0.15s ease;
+}
+
+.progressList li:first-child .progressItem {
+  border-top: 0;
+}
+
+/* Highlight the whole row on hover — the same subtle fill How It Works'
+   path steps use (ProcessSection .step:hover). */
+.progressItem:hover {
+  background: var(--blue-pale);
+  color: var(--ink);
+}
+
+.progressBox {
+  width: 22px;
+  height: 22px;
+  border-radius: 0;
+  border: 1.6px solid var(--line-strong);
+  display: grid;
+  place-items: center;
+  color: var(--white);
+}
+
+.progressBox svg {
+  width: 12px;
+  height: 12px;
+}
+
+.progressItemDone {
+  color: var(--ink);
+}
+
+.progressItemDone .progressBox {
+  background: var(--blue);
+  border-color: var(--blue);
+}
+
+/* ---- #6 Next action: Pattern-E ink card, like FinalCta ---- */
+.nextAction {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 46px;
+  padding: 48px 52px;
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow:
+    24px 26px 0 #c8d7f7,
+    0 38px 70px rgba(16, 33, 61, 0.17);
+  overflow: hidden;
+}
+
+.nextAction::before {
+  content: "I³";
+  position: absolute;
+  /* Anchored top-LEFT, behind the eyebrow/headline, so it never sits under
+     the Continue button (far right on desktop, bottom on mobile). */
+  left: 40px;
+  top: 20px;
+  color: rgba(255, 255, 255, 0.05);
+  font: 700 92px / 1 var(--font-display), sans-serif;
+  letter-spacing: -0.06em;
+  pointer-events: none;
+}
+
+.nextAction > * {
+  position: relative;
+  z-index: 1;
+}
+
+.nextActionRevision {
+  box-shadow:
+    24px 26px 0 var(--coral-soft),
+    0 38px 70px rgba(16, 33, 61, 0.17);
+}
+
+.nextActionEyebrow {
+  display: block;
+  color: #b8c8f8;
+  font: 600 10px var(--font-mono), monospace;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.nextActionRevision .nextActionEyebrow {
+  color: #f0b6ab;
+}
+
+.nextActionTitle {
+  margin: 12px 0 10px;
+  max-width: 30ch;
+  color: var(--white);
+  font: 700 clamp(26px, 3vw, 36px) / 1.08 var(--font-display), sans-serif;
+  letter-spacing: -0.03em;
+}
+
+.nextActionHint {
+  margin: 0;
+  max-width: 52ch;
+  color: #c6d0df;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.nextActionBtn {
+  flex: 0 0 auto;
+  background: var(--paper) !important;
+  border-color: var(--paper) !important;
+  color: var(--ink) !important;
+  box-shadow: 0 5px 0 var(--dim) !important;
+}
+
+.nextActionBtn:hover {
+  background: var(--white) !important;
+  border-color: var(--white) !important;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 720px) {
+  /* Circles + connector line don't reflow into a grid — scroll them
+     horizontally instead, same as the original track. */
+  .track {
+    overflow-x: auto;
+    grid-template-columns: repeat(6, 116px);
+    scroll-snap-type: x proximity;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .trackLine {
+    left: 82px;
+    right: auto;
+    width: 570px;
+  }
+}
+
+@media (max-width: 820px) {
+  .sectionPaper,
+  .sectionBlue {
+    padding: 44px var(--gutter);
+  }
+  .deadlineBand {
+    padding: 22px var(--gutter);
+  }
+  .track {
+    box-shadow: 9px 11px 0 var(--blue-soft);
+  }
+  .progressPanel {
+    padding: 26px 22px;
+    box-shadow: 9px 11px 0 rgba(49, 88, 216, 0.07);
+  }
+  .nextAction {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 28px;
+    padding: 36px 28px;
+    box-shadow: 10px 12px 0 #c8d7f7;
+  }
+  .nextAction::before {
+    font-size: 64px;
+    top: 14px;
+    left: 24px;
+  }
+  .nextActionRevision {
+    box-shadow: 10px 12px 0 var(--coral-soft);
+  }
+}
+
+@media (max-width: 620px) {
+  .deadlineInner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+  .progressTop {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .track {
+    grid-template-columns: repeat(6, 104px);
+  }
+  .trackLine {
+    left: 76px;
+    width: 510px;
+  }
+  .progressPanel {
+    padding: 22px 18px;
+  }
+  .progressItem {
+    grid-template-columns: 22px minmax(0, 1fr);
+    gap: var(--space-3);
+    font-size: 13.5px;
+  }
+}
