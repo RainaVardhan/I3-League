@@ -34,8 +34,8 @@ export default function PrivacyPage() {
       <h2>3. How we use this data</h2>
       <p>
         Data is used to run the program: unlocking curriculum stages, tracking progress,
-        verifying payment and enrollment, supporting safety and IP review, and issuing
-        certificates and credentials. We don&apos;t sell participant data.
+        verifying payment and enrollment, supporting safety review, and issuing certificates and
+        credentials. We don&apos;t sell participant data.
       </p>
 
       <h2>4. Who can see what</h2>
@@ -43,8 +43,7 @@ export default function PrivacyPage() {
         Access is restricted by role. A parent can see their own child&apos;s information, not
         another family&apos;s. A coach has read-only visibility into their own roster, with no
         ability to edit submissions or grades. A project stays confidential, hidden from any
-        public-facing view, unless a student explicitly makes it public at or after the IP
-        Checkpoint.
+        public-facing view.
       </p>
 
       <h2>5. Where data lives</h2>

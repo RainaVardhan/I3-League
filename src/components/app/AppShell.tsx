@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Logo } from "@/components/design-system/Logo";
 import { STAGE_NUMBERS, type JourneyItem } from "@/lib/stage-progress";
 import { getStageCopy } from "@/lib/stage-copy";
 import { logoutAction } from "@/app/dashboard/actions";
+import { StageNavContext } from "./StageNavContext";
 import styles from "./AppShell.module.css";
 
 type AppShellProps = {
@@ -59,6 +60,11 @@ export function AppShell({ studentName, studentMeta, journey, breadcrumb, childr
     setProfileOpen(false);
   }, []);
 
+  // DOM slot under the current stage's sidebar row. The stage page's section
+  // section links (StageSections) portal themselves into it; see StageNavContext.
+  const [stageNavSlot, setStageNavSlot] = useState<HTMLElement | null>(null);
+  const stageNav = useMemo(() => ({ slot: stageNavSlot, closeMenu }), [stageNavSlot, closeMenu]);
+
   // Toggling the rail open/closed always collapses the Logout section too,
   // so a collapsed rail never shows the logout control (it only exists
   // inside the open flyout, revealed by clicking the profile bar).
@@ -92,6 +98,7 @@ export function AppShell({ studentName, studentMeta, journey, breadcrumb, childr
   }, [menuOpen, closeMenu]);
 
   return (
+    <StageNavContext.Provider value={stageNav}>
     <div className={`${styles.shell} ${menuOpen ? styles.shellOpen : ""}`}>
       <aside className={styles.sidebar} aria-label="Student workspace">
         <div className={styles.brandRow}>
@@ -167,6 +174,7 @@ export function AppShell({ studentName, studentMeta, journey, breadcrumb, childr
                       {inner}
                     </Link>
                   )}
+                  {isActive && <div ref={setStageNavSlot} className={styles.subNavSlot} />}
                 </li>
               );
             })}
@@ -236,5 +244,6 @@ export function AppShell({ studentName, studentMeta, journey, breadcrumb, childr
         <main>{children}</main>
       </div>
     </div>
+    </StageNavContext.Provider>
   );
 }

@@ -1,11 +1,10 @@
-import { CURRICULUM_STAGES, CURRICULUM_TIMELINE } from "./stages";
+import { CURRICULUM_STAGES } from "./stages";
 import styles from "./FrameworkCard.module.css";
 
-// The hero's visual: a clean, numbered list of the whole journey — six
-// stages plus the IP Checkpoint gate — with a large faint stage-count
-// watermark and a solid offset cobalt plane behind the card, the same
-// "hard offset shadow" depth language used across the site (docs/design-
-// system.md Section 7B) rather than a second literal element.
+// The hero's visual: a clean, numbered list of the six stages, with a large
+// faint stage-count watermark and a solid offset cobalt plane behind the
+// card, the same "hard offset shadow" depth language used across the site
+// (docs/design-system.md Section 7B) rather than a second literal element.
 export function FrameworkCard() {
   return (
     <div className={styles.card}>
@@ -14,14 +13,10 @@ export function FrameworkCard() {
       </span>
       <span className={styles.eyebrow}>THE FRAMEWORK</span>
       <ol className={styles.list}>
-        {CURRICULUM_TIMELINE.map((entry) => (
+        {CURRICULUM_STAGES.map((entry) => (
           <li key={entry.name} className={styles.row}>
-            <span className={entry.isGate ? styles.numberGate : styles.number}>
-              {entry.number}
-            </span>
-            <span className={entry.isGate ? styles.nameGate : styles.name}>
-              {entry.isGate ? "Checkpoint" : entry.name}
-            </span>
+            <span className={styles.number}>{entry.number}</span>
+            <span className={styles.name}>{entry.name}</span>
           </li>
         ))}
       </ol>

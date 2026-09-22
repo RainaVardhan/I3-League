@@ -52,19 +52,13 @@
      see the individual tier comments below for their (now much smaller)
      right-edge-only overrides. */
   --split-x: 49vw;
-  /* Left edge of the text column (.stagePanel and — see the IP Checkpoint
-     split further down — .stageGate's title/body). Unchanged formula from
-     .stagePanel's own original hardcoded `left`, just promoted to a shared
-     variable so .stageGate can position itself identically without a
-     second copy of the same expression. */
+  /* Left edge of the text column (.stagePanel's title/body). Unchanged
+     formula from .stagePanel's own original hardcoded `left`, just
+     promoted to a shared variable. */
   --text-col-left: max(30px, calc((100vw - var(--container)) / 2 + 90px));
-  /* Single source of truth for the cube's horizontal anchor, so
-     .hexBadge/.stageGate::before (see the IP Checkpoint split below) can
-     compute their own position from the same value .cubeSceneWrapper uses
-     instead of a second hardcoded copy that can drift out of sync. This is
-     the midpoint between --split-x and this tier's right inset (4.2vw);
-     re-declared (not just read) at the 1500px/900px tiers below, wherever
-     that right inset changes. */
+  /* Single source of truth for the cube's horizontal anchor — re-declared
+     (not just read) at the 1500px/900px tiers below, wherever the right
+     inset changes. */
   --cube-left: 72.4vw;
 }
 
@@ -305,100 +299,6 @@
   line-height: 1.7;
 }
 
-/* ---- IP Checkpoint gate ----
-   Split in two, same as every other stage: the badge + "IP CHECKPOINT"
-   label sit on the cube's own anchor point (replacing it — the cube fades
-   to opacity 0 whenever the gate is showing, see JourneyHero.tsx), while
-   the title/body sit in the same text column .stagePanel uses, instead of
-   the whole gate bundled into one block centered on the cube. The "bigger,
-   rarer moment" treatment (see CLAUDE.md's note that coral is "reserved
-   for action + the IP Checkpoint only") lives entirely in the badge/label
-   pair above — .stageGate h3/p below deliberately match .stagePanel h3/
-   p:last-child's font/size/color/spacing exactly, so the text in the copy
-   column outside the card reads as part of the same sequence as every
-   other stage instead of visually breaking rhythm. */
-
-.stageGate {
-  --gate-scale: 1;
-  /* Single source of truth for the badge's size, so the "IP CHECKPOINT"
-     label's offset below can be computed from it instead of a hardcoded px
-     guess that silently drifts out of sync (and starts overlapping the
-     badge) whenever the badge size changes. Bigger than the 72px it used
-     to be — badge + label are meant to be the "bigger, rarer moment"
-     element inside the card (see the section comment above), and 72px
-     wasn't reading that way next to a 248px cube. */
-  --gate-badge-size: 112px;
-  position: absolute;
-  z-index: 4;
-  left: var(--text-col-left);
-  top: 50%;
-  width: min(
-    430px,
-    35vw,
-    calc(var(--split-x) - var(--text-col-left) - 40px)
-  );
-  transform: translateY(-50%) translateX(var(--slide, 0px)) scale(var(--gate-scale));
-  text-align: left;
-  opacity: 0;
-  pointer-events: none;
-  will-change: opacity, transform;
-}
-/* Positioned relative to .stageGate's own box (its nearest positioned
-   ancestor) rather than in normal flow, landing on --cube-left regardless
-   of .stageGate's own (much narrower, left-column) width. translateY(-100%)
-   makes `top` the label's *bottom* edge, so it sits a fixed 14px above
-   .hexBadge regardless of --gate-badge-size. */
-.stageGate::before {
-  content: "IP CHECKPOINT";
-  position: absolute;
-  left: calc(var(--cube-left) - var(--text-col-left));
-  top: calc(50% - (var(--gate-badge-size) / 2) - 14px);
-  margin-bottom: 0;
-  color: var(--coral);
-  font: 650 16px var(--font-mono), monospace;
-  letter-spacing: 0.16em;
-  /* Without an explicit width, an absolutely positioned element still
-     shrink-to-fits within the *available* space rather than always sizing
-     to its single-line content — at some widths that's narrower than "IP
-     CHECKPOINT" needs, wrapping it onto two lines. Force one line. */
-  white-space: nowrap;
-  transform: translateX(-50%) translateY(-100%);
-}
-.hexBadge {
-  position: absolute;
-  left: calc(var(--cube-left) - var(--text-col-left));
-  top: 50%;
-  transform: translate(-50%, -50%);
-  display: grid;
-  place-items: center;
-  width: var(--gate-badge-size);
-  height: var(--gate-badge-size);
-  margin: 0;
-  color: var(--coral);
-  background: var(--coral-soft);
-  border: 1px solid rgba(227, 94, 73, 0.32);
-  box-shadow:
-    0 10px 22px rgba(16, 33, 61, 0.09),
-    6px 7px 0 rgba(227, 94, 73, 0.1);
-}
-.hexBadge svg {
-  width: 52px;
-  height: 52px;
-}
-.stageGate h3 {
-  margin: 0 0 7px;
-  color: var(--ink);
-  font: 700 clamp(29px, 2.8vw, 39px) / 1.08 var(--font-display), sans-serif;
-  letter-spacing: -0.032em;
-}
-.stageGate p {
-  margin: 0;
-  max-width: 410px;
-  color: #53627a;
-  font-size: 15px;
-  line-height: 1.7;
-}
-
 /* ---- Journey masthead / watermark / progress ---- */
 
 .journeyMasthead {
@@ -480,10 +380,6 @@
 .jwName {
   display: none;
 }
-.journeyWatermark.isGate .jwNum {
-  color: rgba(227, 94, 73, 0.105);
-}
-
 /* The progress bar doubles as the journey nav now — it replaces the old
    .stageRail list. Visually it's a single plain bar (track + fill), no
    dots — the .jpStops layer still holds one invisible button per stage
@@ -581,12 +477,6 @@
       calc(var(--split-x) - var(--text-col-left) - 40px)
     );
   }
-  .stageGate {
-    width: min(
-      35vw,
-      calc(var(--split-x) - var(--text-col-left) - 40px)
-    );
-  }
   .journeyMasthead {
     left: calc(var(--split-x) + 30px);
     right: calc(2.5vw + 20px);
@@ -625,8 +515,7 @@
   .heroText h1 {
     font-size: clamp(52px, 5.8vw, 64px);
   }
-  .stagePanel,
-  .stageGate {
+  .stagePanel {
     left: 40px;
     width: 36vw;
   }
@@ -745,7 +634,7 @@
   /* Card sits right at the top of this box (--top-inset is just a small
      shadow/breathing margin, not a reserved text zone) so it follows
      directly under "Scroll through the journey" with no gap. The stage
-     copy (.stagePanel/.stageGate) now lives *below* the card instead of
+     copy (.stagePanel) now lives *below* the card instead of
      above it — --card-bottom marks where the card's own visual box ends;
      everything from there to the bottom of this box is that text zone.
      --card-h is sized to give the card real height (the "longer card"
@@ -766,13 +655,6 @@
     --top-inset: 18px;
     --card-bottom: 398px;
     --card-h: min(760px, calc(100svh - var(--header-h) - 40px));
-    /* Where the IP Checkpoint badge sits, expressed relative to .stageGate's
-       own top edge (var(--card-bottom) + 56px — see .stageGate below) since
-       that's the containing block .hexBadge/.stageGate::before are
-       absolutely positioned against. Algebraically this is just the cube's
-       own center (see .cubeSceneWrapper) minus .stageGate's top, so the
-       badge lands exactly on the cube's anchor point inside the card. */
-    --gate-icon-offset: calc((var(--top-inset) - var(--card-bottom)) / 2 - 56px);
     height: var(--card-h);
     min-height: 0;
     top: calc(var(--header-h) + 20px);
@@ -798,9 +680,7 @@
     clip-path: inset(var(--top-inset) 7vw calc(var(--card-h) - var(--card-bottom)) 7vw);
   }
   /* Centered within the card box itself: the midpoint between --top-inset
-     and --card-bottom. Safe from the stage-copy text below: the IP
-     Checkpoint gate fades the cube out entirely while it's on screen (see
-     .stageGate below), so nothing ever overlaps a centered cube here. */
+     and --card-bottom. */
   .cubeSceneWrapper {
     left: 50%;
     top: calc((var(--top-inset) + var(--card-bottom)) / 2);
@@ -831,79 +711,6 @@
     font-size: 15px;
   }
   .stagePanel p:last-child {
-    max-width: 400px;
-    margin: 0 auto;
-    font-size: 16px;
-    line-height: 1.55;
-  }
-  /* .stageGate itself stays positioned below the card — same spot as
-     .stagePanel above — and now holds *only* the title/body copy in
-     normal flow. The badge + "IP CHECKPOINT" label are pulled back out of
-     that flow with their own position:absolute (below) so they land on
-     the cube's own anchor point inside the card instead — matching how
-     every other stage shows its cube face on the card and its
-     description underneath, rather than dumping the whole gate visual
-     into the text zone. */
-  .stageGate {
-    left: 50%;
-    top: calc(var(--card-bottom) + 56px);
-    width: min(420px, calc(100vw - 20px));
-    transform: translate(-50%, 0) scale(var(--gate-scale));
-    /* .stagePanel centers its text at this tier (see above) — .stageGate
-       inherited the base rule's text-align: left instead, so the IP
-       Checkpoint's heading/body read left-aligned while every other
-       stage's copy is centered underneath the card. */
-    text-align: center;
-    /* Single source of truth for the badge's size, so the label's offset
-       below can be computed from it instead of a hardcoded px guess that
-       silently drifts out of sync (and starts overlapping the badge)
-       whenever the badge size changes — which is exactly what happened
-       here when the badge grew from 60px to its current size. */
-    --gate-badge-size: 96px;
-  }
-  /* Positioned relative to .stageGate's own box (its nearest positioned
-     ancestor) via --gate-icon-offset, which already accounts for that —
-     see the comment on .stageScrollSticky above. translateY(-100%) makes
-     `top` the label's *bottom* edge, so it sits a fixed 10px above
-     .hexBadge regardless of the badge's own size (via --gate-badge-size,
-     declared on .stageGate above). */
-  .stageGate::before {
-    position: absolute;
-    left: 50%;
-    top: calc(var(--gate-icon-offset) - (var(--gate-badge-size) / 2) - 10px);
-    margin-bottom: 0;
-    /* Bigger than the other stages' small mono captions — the badge/label
-       pair inside the card is the "bigger, rarer moment" element, not the
-       heading below (see .stageGate h3 above). */
-    font-size: 18px;
-    letter-spacing: 0.14em;
-    transform: translateX(-50%) translateY(-100%);
-  }
-  .hexBadge {
-    position: absolute;
-    left: 50%;
-    top: var(--gate-icon-offset);
-    /* Bigger than even the desktop badge (72px) — the IP Checkpoint is
-       meant to read as the deliberately larger, rarer moment (see the
-       comment at the top of this "IP Checkpoint gate" section), and at
-       60px that distinction was getting lost at this tier. */
-    width: var(--gate-badge-size);
-    height: var(--gate-badge-size);
-    margin: 0;
-    transform: translate(-50%, -50%);
-  }
-  .hexBadge svg {
-    width: 54px;
-    height: 54px;
-  }
-  .stageGate h3 {
-    /* Same size as every other stage's heading (.stagePanel h3) — the
-       "bigger, rarer moment" treatment belongs to the badge/label inside
-       the card above, not the text in the copy zone below it. */
-    font-size: clamp(26px, 7.5vw, 34px);
-    margin-bottom: 8px;
-  }
-  .stageGate p {
     max-width: 400px;
     margin: 0 auto;
     font-size: 16px;
@@ -954,9 +761,6 @@
     font-size: clamp(46px, 13vw, 64px);
     color: rgba(49, 88, 216, 0.32);
   }
-  .journeyWatermark.isGate .jwNum {
-    color: rgba(227, 94, 73, 0.28);
-  }
   /* Spans from just clear of the watermark digit's right edge over to the
      card's own right edge — padded on both sides — rather than a narrow
      bar docked only to the right. */
@@ -1000,19 +804,16 @@
   }
   /* Same approach as the 820px tier, just smaller — overriding the custom
      properties here is enough to reflow .cubeClip, .cubeSceneWrapper,
-     .stagePanel/.stageGate (now below the card) and the
-     watermark/progress bar (anchored to the card's own bottom edge) all
-     automatically, since they're all expressed in terms of
-     --top-inset/--card-bottom/--card-h — no need to repeat them. */
+     .stagePanel (now below the card) and the watermark/progress bar
+     (anchored to the card's own bottom edge) all automatically, since
+     they're all expressed in terms of --top-inset/--card-bottom/--card-h
+     — no need to repeat them. */
   .stageScrollSticky {
     --top-inset: 16px;
     --card-bottom: 336px;
     --card-h: min(660px, calc(100svh - var(--header-h) - 36px));
   }
   .stagePanel {
-    width: calc(100vw - 30px);
-  }
-  .stageGate {
     width: calc(100vw - 30px);
   }
   .jmCount {
@@ -1030,9 +831,6 @@
   .jwNum {
     font-size: 44px;
     color: rgba(49, 88, 216, 0.34);
-  }
-  .journeyWatermark.isGate .jwNum {
-    color: rgba(227, 94, 73, 0.3);
   }
   .journeyProgress {
     left: calc(7vw + 74px);
@@ -1074,8 +872,7 @@
   .heroText,
   .cubeClip,
   .cubeSceneWrapper,
-  .stagePanel,
-  .stageGate {
+  .stagePanel {
     position: static;
     opacity: 1 !important;
     pointer-events: auto !important;
@@ -1100,19 +897,10 @@
     grid-row: 1;
     margin: auto;
   }
-  .stagePanel,
-  .stageGate {
+  .stagePanel {
     grid-column: 1 / -1;
     padding: 28px 0;
     border-top: 1px solid var(--line);
-  }
-  .hexBadge {
-    margin: 0 0 16px;
-  }
-  .stageGate h3,
-  .stageGate p {
-    margin-left: 0;
-    margin-right: 0;
   }
   .scrollCue {
     display: none;

@@ -66,7 +66,6 @@ enum StageName {
   INSIGHT
   INVESTIGATE
   IMAGINE
-  IP_CHECKPOINT
   ITERATE
   IMPACT
   INFLUENCE
@@ -622,16 +621,17 @@ model Project {
   team                Team?        @relation(fields: [teamId], references: [id])
   teamId              String?      @unique
 
+  // IP Checkpoint (the gate that used to let a student request PUBLIC) has
+  // been removed — there is currently no path that ever sets this to
+  // PUBLIC. It stays CONFIDENTIAL-only at the schema level as a fail-safe;
+  // revisit if a future phase adds a real public-visibility flow.
   visibility     ProjectVisibility @default(CONFIDENTIAL)
-  visibilitySetAt     DateTime?
-  visibilitySetByStudent Boolean   @default(false) // true only if the student explicitly requested PUBLIC
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   submissions       Submission[]
   safetyReview      SafetyReview?
-  ipReview          IPReview?
   contributions     TeamContribution[]
   studentLinks      StudentProject[]
   qualificationPackage QualificationPackage? // Phase 2
@@ -697,22 +697,6 @@ model SafetyReview {
   reviewedByAdminId String?
   reviewedAt         DateTime?
   reviewNotes         String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model IPReview {
-  id                String       @id @default(uuid())
-  project           Project      @relation(fields: [projectId], references: [id])
-  projectId         String       @unique
-
-  answers           Json         // prior-art search, prior public disclosure, etc.
-  requestedVisibility ProjectVisibility @default(CONFIDENTIAL) // what the student asked for
-  status            ReviewStatus @default(NOT_REQUIRED)
-
-  reviewedByAdminId String?
-  reviewedAt         DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

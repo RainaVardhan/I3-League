@@ -11,10 +11,19 @@ function formatBytes(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+type ScreenshotUploadProps = {
+  /** Form field name/id — defaults to the original payment-screenshot use. */
+  name?: string;
+  /** Small label above the dropzone. */
+  label?: string;
+};
+
 // Custom drag-and-drop dropzone in front of a real <input type="file">, so
 // the field still posts as normal FormData on submit — this only replaces
 // the look of the control, not how the form actually carries the file.
-export function ScreenshotUpload() {
+// name/label are parameterized so Sprint 4's INSIGHT photo upload can reuse
+// this instead of duplicating it (same 5MB image-only rules apply there).
+export function ScreenshotUpload({ name = "screenshot", label = "Screenshot (optional)" }: ScreenshotUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -23,7 +32,7 @@ export function ScreenshotUpload() {
   function acceptFile(candidate: File | undefined) {
     if (!candidate) return;
     if (candidate.size > MAX_BYTES) {
-      setError("That file is over 5MB — please choose a smaller screenshot.");
+      setError("That file is over 5MB. Please choose a smaller screenshot.");
       return;
     }
     if (!["image/png", "image/jpeg", "image/webp"].includes(candidate.type)) {
@@ -56,7 +65,7 @@ export function ScreenshotUpload() {
 
   return (
     <div>
-      <span className={styles.label}>Screenshot (optional)</span>
+      <span className={styles.label}>{label}</span>
       <div
         className={isDragging ? `${styles.dropzone} ${styles.dropzoneActive}` : styles.dropzone}
         onDragOver={(event) => {
@@ -74,8 +83,8 @@ export function ScreenshotUpload() {
       >
         <input
           ref={inputRef}
-          id="screenshot"
-          name="screenshot"
+          id={name}
+          name={name}
           type="file"
           accept={ACCEPT}
           className={styles.hiddenInput}

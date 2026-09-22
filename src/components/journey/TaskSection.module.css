@@ -1,0 +1,96 @@
+/* What sits inside a topic's bands. The bands and their rail headings are in
+   StageBand.module.css; this is the Show band's "Must include" list. */
+
+.showRail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.mustIncludeList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  /* One column, like everything else in the Show band. */
+  gap: var(--space-3);
+}
+
+.mustIncludeList li {
+  position: relative;
+  padding-left: 24px;
+  color: var(--ink-2);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.mustIncludeList li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--blue);
+  font-weight: 700;
+}
+
+/* A second group under the Show heading (the reviewer checks, or a note such
+   as the minimum evidence standard), with a small mono label. */
+.railGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 760px;
+}
+
+.railLabel {
+  margin: 0;
+  color: var(--muted);
+  font: 650 var(--text-label) var(--font-mono), monospace;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* The reviewer checks are questions, so plain square bullets rather than the
+   Must include check marks (same treatment as the Review page's lists). */
+.checksList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.checksList li {
+  position: relative;
+  padding-left: 20px;
+  color: var(--ink-2);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.checksList li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 0.55em;
+  width: 6px;
+  height: 6px;
+  background: var(--blue);
+}
+
+/* Same text as the Must include items beside it. */
+.railNote {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* One-line italic footer at the end of the Do band: the worksheet is not
+   submitted. */
+.doFooter {
+  margin: var(--space-6) 0 0;
+  color: var(--muted);
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.5;
+}

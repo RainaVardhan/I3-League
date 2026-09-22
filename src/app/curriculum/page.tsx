@@ -9,7 +9,7 @@ import { ThreePhases } from "@/components/curriculum/ThreePhases";
 export const metadata = {
   title: "Curriculum | I³ League",
   description:
-    "The six-stage I³ League curriculum: Insight, Investigate, Imagine, the IP Checkpoint, Iterate, Impact, and Influence.",
+    "The six-stage I³ League curriculum: Insight, Investigate, Imagine, Iterate, Impact, and Influence.",
 };
 
 export default function CurriculumPage() {

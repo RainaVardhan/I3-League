@@ -36,7 +36,7 @@ export default function DesignSystemPage() {
           <p className={styles.lede}>
             Light innovation-lab / editorial system: cool mineral canvas, warm
             paper, ink-navy type, cobalt for progress, coral reserved for
-            action + the IP Checkpoint. Source of truth:{" "}
+            action and rare contrast moments. Source of truth:{" "}
             <code>docs/design-system.md</code>.
           </p>
         </section>

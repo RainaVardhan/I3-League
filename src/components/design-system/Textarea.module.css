@@ -1,0 +1,47 @@
+.label {
+  display: block;
+  margin-bottom: var(--space-2);
+  font-family: var(--font-mono), monospace;
+  font-size: var(--text-label);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Instructions live here, above the box, never inside it. */
+.hint {
+  margin: calc(-1 * var(--space-1)) 0 var(--space-2);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.textarea {
+  display: block;
+  width: 100%;
+  min-height: 110px;
+  padding: var(--space-3) var(--space-4);
+  background: var(--paper);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body), sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--ink);
+  resize: vertical;
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.textarea::placeholder {
+  color: var(--dim);
+}
+
+.textarea:focus-visible {
+  outline: none;
+  border-color: var(--blue);
+  border-width: 2px;
+  padding: calc(var(--space-3) - 1px) calc(var(--space-4) - 1px);
+  box-shadow: 0 0 0 3px var(--blue-pale);
+}

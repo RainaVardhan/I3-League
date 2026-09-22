@@ -4,9 +4,9 @@
    Source of truth: docs/design-system.md. This is a light "innovation-lab /
    competition editorial" system — cool mineral canvas, warm paper surfaces,
    ink-navy typography, collegiate cobalt for progress/navigation, coral
-   reserved for action + the IP Checkpoint. Do not add purple, neon cyan,
-   glow, or gradients — see docs/design-system.md Section 19 ("Anti-'AI
-   Slop' Guardrails").
+   reserved for action, warnings, and rare contrast moments. Do not add
+   purple, neon cyan, glow, or gradients — see docs/design-system.md
+   Section 19 ("Anti-'AI Slop' Guardrails").
 
    This REPLACES the earlier dark "Blueprint" token set — that palette/font
    choice was an interim exploration, not the approved system.
@@ -34,8 +34,8 @@
   --blue-soft: #d8e3fb; /* offset planes, information bands, selected surfaces */
   --blue-pale: #edf2fc; /* subtle hover/selection fills */
 
-  --coral: #e35e49; /* action accent, enrollment indicator, IP Checkpoint — rare, meaningful */
-  --coral-soft: #fbe6e0; /* IP/warning support surface */
+  --coral: #e35e49; /* action accent, enrollment indicator, warnings — rare, meaningful */
+  --coral-soft: #fbe6e0; /* warning/error support surface */
 
   --white: #ffffff;
 
@@ -183,4 +183,17 @@ pre {
 }
 .skip-link:focus {
   top: 16px;
+}
+
+/* A fragment link that targets a specific form field (the dashboard's
+   "Finish Insight" checklist links straight to the box a requirement is
+   answered in) would otherwise scroll that field under the app's sticky
+   topbar. 68px is AppShell's --topbar-h, plus room to breathe. Set on the
+   controls themselves rather than on :target, because the scroll is done by
+   the router rather than by native fragment navigation. */
+input[id],
+textarea[id],
+select[id],
+fieldset[id] {
+  scroll-margin-top: 100px;
 }

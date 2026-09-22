@@ -1,0 +1,129 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* Wrapper for a form whose children are full-bleed StageBands: a plain block
+   so bands sit flush, unlike .form's flex column with gaps. */
+.bands {
+  display: block;
+}
+
+/* A short lead-in above a group of Show fields (the safety screening), in
+   the muted body style the lesson text uses. */
+.intro {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-body);
+  line-height: 1.75;
+}
+
+.formError {
+  margin: 0;
+  font-family: var(--font-body), sans-serif;
+  font-size: 14px;
+  color: var(--coral);
+}
+
+.buttonRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.sectionLabel {
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: var(--text-label);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-top: 1px solid var(--line-strong);
+  padding-top: var(--space-5);
+}
+
+.sectionLabelFirst {
+  composes: sectionLabel;
+  border-top: none;
+  padding-top: 0;
+}
+
+/* A group of checkboxes that answer one question (Investigate's evidence
+   types): no border or padding of its own, just the legend over the boxes. */
+.fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* The group's question, styled like every other field label (Input.module.css). */
+.fieldLegend {
+  margin-bottom: var(--space-3);
+  padding: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: var(--text-label);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Show fields are always one column: side-by-side fields and checkboxes are
+   stacked, so each one gets the full width. */
+.row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+.checklistGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+}
+
+.hint {
+  margin: calc(-1 * var(--space-3)) 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+/* A screening waiting on (or refused by) an admin: one warm box, the same
+   coral recipe as the AI-use disclosure (coral-soft fill, coral hairline,
+   hard coral offset plane, square), not nested in a blue panel. */
+.highRiskNotice {
+  margin: 0;
+  padding: var(--space-5) var(--space-6);
+  background: var(--coral-soft);
+  border: 1px solid rgba(227, 94, 73, 0.24);
+  box-shadow: 8px 9px 0 rgba(227, 94, 73, 0.11);
+  color: var(--ink);
+  font-size: var(--text-body);
+  line-height: 1.6;
+}
+
+.clearedNotice {
+  margin: 0;
+  padding: var(--space-4);
+  background: var(--blue-pale);
+  color: var(--ink);
+  font-size: var(--text-body);
+}
+
+/* Submit and Save draft match the Back / Next buttons' width on wider screens. */
+@media (min-width: 601px) {
+  .buttonRow button {
+    min-width: 220px;
+  }
+}
+
+/* The safety screening's link target: clears the sticky topbar when the
+   hub's Next action or checklist row scrolls it to the top. */
+.safetyAnchor {
+  scroll-margin-top: 100px;
+}

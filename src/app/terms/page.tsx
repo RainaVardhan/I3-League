@@ -53,10 +53,9 @@ export default async function TermsPage() {
 
       <h2>4. Project ownership & confidentiality</h2>
       <p>
-        Every project a student creates is confidential by default. It only becomes public if a
-        student explicitly chooses that, at or after the IP Checkpoint stage of the curriculum.
-        Students retain ownership of their own work; participating in I³ League does not transfer
-        ownership of a student&apos;s innovation to I³ League.
+        Every project a student creates is confidential and stays that way. Students retain
+        ownership of their own work; participating in I³ League does not transfer ownership of a
+        student&apos;s innovation to I³ League.
       </p>
 
       <h2>5. Conduct</h2>

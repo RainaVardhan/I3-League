@@ -1,0 +1,99 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.tally {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.tallyCount {
+  font: 700 13px var(--font-display), sans-serif;
+  color: var(--ink);
+}
+
+.tallyLeft {
+  font: 600 9px var(--font-mono), monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--blue-dark);
+}
+
+.bar {
+  height: 6px;
+  background: var(--blue-pale);
+}
+
+.barFill {
+  display: block;
+  height: 100%;
+  background: var(--blue);
+  transition: width 0.16s ease;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2px var(--space-6);
+}
+
+.item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: start;
+  padding: 6px 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.item input {
+  margin: 2px 0 0;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--blue);
+  cursor: pointer;
+}
+
+.item input:checked + span {
+  color: var(--dim);
+  text-decoration: line-through;
+}
+
+/* ---- dark variant — the Show tab's ink "artifact card" ---- */
+.dark .tallyCount {
+  color: var(--paper);
+}
+
+.dark .tallyLeft {
+  color: #b8c8f8; /* eyebrow on ink, Section 21.8 */
+}
+
+.dark .bar {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.dark .barFill {
+  background: var(--blue-soft);
+}
+
+.dark .item {
+  color: #c6d0df; /* body text on ink, Section 21.8 */
+}
+
+.dark .item input {
+  accent-color: var(--blue-soft);
+}
+
+.dark .item input:checked + span {
+  color: rgba(255, 255, 255, 0.4);
+}

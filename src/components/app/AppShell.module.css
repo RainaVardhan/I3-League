@@ -358,6 +358,63 @@
   height: 16px;
 }
 
+/* ---- Stage sections: listed under the current stage's row ----
+   Rail: small numbered buttons (labels hidden), a step under the stage
+   number. Open flyout: indented rows with labels, hung off a hairline. */
+.subNavSlot {
+  margin-top: 2px;
+}
+
+.subList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.subItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--side-muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.subItem:not(:disabled):hover {
+  background: var(--side-hover);
+  color: var(--paper);
+}
+
+.subItemActive {
+  background: var(--side-active);
+  color: var(--paper);
+}
+
+.subItemLocked {
+  cursor: default;
+  color: var(--side-dim);
+}
+
+.subNum {
+  font: 700 10px var(--font-mono), monospace;
+  letter-spacing: 0.04em;
+}
+
+.subLabel,
+.subLock {
+  display: none;
+}
+
 /* ---- Flyout: sidebar widens to a full panel, floating over the page ---- */
 .shellOpen .sidebar {
   width: var(--panel-w);
@@ -431,6 +488,45 @@
 
 .shellOpen .stageNum {
   text-align: left;
+}
+
+.shellOpen .subNavSlot {
+  margin: 2px 0 6px 21px;
+  padding-left: var(--space-3);
+  border-left: 1px solid var(--side-line);
+}
+
+.shellOpen .subList {
+  align-items: stretch;
+}
+
+.shellOpen .subItem {
+  justify-content: flex-start;
+  gap: var(--space-3);
+  width: 100%;
+  height: auto;
+  padding: 8px var(--space-3);
+  text-align: left;
+}
+
+.shellOpen .subLabel {
+  display: block;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.shellOpen .subLock {
+  display: flex;
+  flex: 0 0 auto;
+}
+
+.shellOpen .subItemActive .subNum {
+  color: var(--coral);
 }
 
 .shellOpen .sidebarBottom {

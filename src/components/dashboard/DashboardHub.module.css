@@ -292,6 +292,18 @@
   color: var(--white);
 }
 
+/* Marks a row that is part of the submission but does not gate Submit. */
+.progressOptional {
+  margin-left: 8px;
+  padding: 1px 6px;
+  border: 1px solid var(--line);
+  color: var(--dim);
+  font: 650 10px var(--font-mono), monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 .progressNote {
   margin: var(--space-5) 0 0;
   color: var(--muted);
@@ -333,6 +345,30 @@
 .progressItem:hover {
   background: var(--blue-pale);
   color: var(--ink);
+}
+
+.progressText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+/* The stage page the item belongs to, so the list reads in page order. */
+.progressGroup {
+  color: var(--dim);
+  font: 650 10px var(--font-mono), monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* The requirement itself, and the OPTIONAL tag inline after it when there is
+   one. This rule was missing since the panel was first built, so the element
+   rendered with class="undefined" and only inherited the row's styling. */
+.progressLabel {
+  display: block;
+  min-width: 0;
+  color: inherit;
 }
 
 .progressBox {
@@ -378,12 +414,12 @@
 .nextAction::before {
   content: "I³";
   position: absolute;
-  /* Anchored top-LEFT, behind the eyebrow/headline, so it never sits under
-     the Continue button (far right on desktop, bottom on mobile). */
-  left: 40px;
+  /* Anchored top-right, above the Continue button with room to spare so it
+     never touches it (button sits bottom-right in the flex row). */
+  right: 40px;
   top: 20px;
   color: rgba(255, 255, 255, 0.05);
-  font: 700 92px / 1 var(--font-display), sans-serif;
+  font: 700 56px / 1 var(--font-display), sans-serif;
   letter-spacing: -0.06em;
   pointer-events: none;
 }

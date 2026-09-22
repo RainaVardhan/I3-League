@@ -1,0 +1,87 @@
+.band {
+  /* Room for the sticky topbar when a sidebar link scrolls to this band. */
+  scroll-margin-top: 60px;
+  padding: clamp(48px, 6vw, 72px) var(--gutter);
+  border-bottom: 1px solid var(--line);
+}
+
+/* Section edge treatments from docs/design-system.md Section 21.1. */
+.paper {
+  background: var(--paper);
+  box-shadow: inset 0 18px 34px rgba(16, 33, 61, 0.035), 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.canvas {
+  background: var(--canvas);
+  box-shadow: inset 0 18px 36px rgba(16, 33, 61, 0.035);
+}
+
+.inner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+.innerWide {
+  max-width: var(--container);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+/* Stacked section, like How It Works: the heading (kicker + title, and for
+   Show the "Must include" list) sits on top, left-aligned, and the content
+   runs full container width beneath it. */
+.split {
+  max-width: var(--container);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(28px, 4vw, 44px);
+}
+
+.rail {
+  min-width: 0;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+.railHeading {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.railKicker {
+  color: var(--blue);
+  font: 650 var(--text-label) var(--font-mono), monospace;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* One size for every section title: the stage heading size the marketing
+   pages use for their section heads. */
+.railTitle {
+  margin: 0;
+  color: var(--ink);
+  font: 700 var(--text-stage) / 1.08 var(--font-display), sans-serif;
+  letter-spacing: -0.03em;
+}
+
+@media (max-width: 820px) {
+  .band {
+    padding-top: 48px;
+    padding-bottom: 56px;
+  }
+}

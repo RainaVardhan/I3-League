@@ -72,3 +72,18 @@
   transform: translateY(3px);
   box-shadow: 0 2px 0 var(--dim);
 }
+
+/* A button that looks unavailable but still answers a click (e.g. a Submit
+   that opens a "what's left" list instead of submitting). Native :disabled is
+   left alone because it blocks the click entirely. */
+.button[aria-disabled="true"],
+.button[aria-disabled="true"]:hover,
+.button[aria-disabled="true"]:active {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 2px 0 #07142a;
+}
+.button[aria-disabled="true"]:hover svg {
+  transform: none;
+}

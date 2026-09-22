@@ -43,11 +43,10 @@ export default async function CompetitionPoliciesPage() {
 
       <h2>4. Intellectual property & confidentiality</h2>
       <p>
-        Every project defaults to confidential. At the IP Checkpoint, students choose whether
-        their project stays confidential or becomes public. Confidential projects stay private,
-        visible only within the platform to the student, their team, and authorized reviewers,
-        and kept out of any public gallery, marketing material, or public-facing judge view.
-        Students retain ownership of their own work throughout.
+        Every project is confidential. Projects stay private, visible only within the platform to
+        the student, their team, and authorized reviewers, and kept out of any public gallery,
+        marketing material, or public-facing judge view. Students retain ownership of their own
+        work throughout.
       </p>
 
       <h2>5. Academic integrity & AI use</h2>

@@ -10,7 +10,12 @@ export default defineConfig({
     path: "prisma/migrations",
     // package.json#prisma.seed is deprecated in this Prisma version and gets
     // overridden by this file, so the seed command has to live here too.
-    seed: "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts",
+    // `-r tsconfig-paths/register` added in Sprint 4 — seed.ts now imports
+    // src/lib/stage-progress.ts, which (like every other src/lib file) uses
+    // the `@/*` tsconfig path alias; ts-node doesn't apply tsconfig `paths`
+    // on its own, so without this the alias resolves fine everywhere the
+    // app actually runs (Next's bundler understands it) but fails here.
+    seed: "ts-node -r tsconfig-paths/register --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts",
   },
   engine: "classic",
   datasource: {

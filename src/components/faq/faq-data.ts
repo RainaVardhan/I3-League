@@ -63,7 +63,7 @@ export function buildFaqSections(params: {
       items: [
         {
           question: "What does the curriculum actually cover?",
-          answer: `The ${curriculumVersion} curriculum is six stages (Insight, Investigate, Imagine, Iterate, Impact, and Influence) plus the IP Checkpoint gate between Imagine and Iterate. Each stage builds a skill and applies it directly to your project.`,
+          answer: `The ${curriculumVersion} curriculum is six stages: Insight, Investigate, Imagine, Iterate, Impact, and Influence. Each stage builds a skill and applies it directly to your project.`,
         },
         {
           question: "Can I skip ahead to a later stage?",
@@ -78,7 +78,7 @@ export function buildFaqSections(params: {
         {
           question: "Is my project public or private?",
           answer:
-            "Every project starts confidential by default. It only becomes public if a student explicitly chooses that at or after the IP Checkpoint, roughly midway through the curriculum. If that step is skipped or left ambiguous, the project stays confidential.",
+            "Every project is confidential. It's never made public, and never appears in any public gallery, marketing material, or public-facing judge view.",
         },
       ],
     },

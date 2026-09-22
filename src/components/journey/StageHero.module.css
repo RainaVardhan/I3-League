@@ -1,0 +1,94 @@
+/* Everything but padding and the right-slot widget below lives in the
+   shared src/components/design-system/SplitHero.module.css, so this hero
+   lines up with How It Works / Curriculum / Pricing exactly. Padding matches
+   PricingHero.module.css (docs/design-system.md Section 21.1). */
+.hero {
+  padding: 88px var(--gutter) 82px;
+}
+
+/* The core question leads the lede: same face as the lede, just ink and
+   heavier, on its own line. */
+.question {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--ink-2);
+  font-weight: 600;
+}
+
+.questionLabel {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--blue);
+  font: 650 var(--text-label) var(--font-mono), monospace;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* Same paper / hairline / hard offset shadow as PricingHero's .statBox
+   (Section 21.2). */
+.statBox {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  padding: var(--space-6) var(--space-8);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  box-shadow: 8px 9px 0 var(--blue-soft);
+}
+
+/* Cobalt numeral, as on How It Works' stat box. */
+.bigNumber {
+  display: block;
+  margin-bottom: 14px;
+  color: var(--blue);
+  font: 700 clamp(72px, 8vw, 118px) / 0.8 var(--font-display), sans-serif;
+  letter-spacing: -0.07em;
+}
+
+.label {
+  margin: 0;
+  color: var(--ink);
+  font: 700 24px / 1.15 var(--font-display), sans-serif;
+  letter-spacing: -0.025em;
+}
+
+.sub {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+
+.rule {
+  display: block;
+  width: 64px;
+  height: 4px;
+  margin-top: 26px;
+  background: var(--blue);
+}
+
+.caption {
+  display: block;
+  margin-top: 18px;
+  color: var(--dim);
+  font: 600 11px var(--font-mono), monospace;
+  letter-spacing: 0.06em;
+}
+
+@media (max-width: 820px) {
+  .hero {
+    padding: 66px var(--gutter) 74px;
+  }
+  .bigNumber {
+    font-size: 72px;
+  }
+}
+
+@media (max-width: 460px) {
+  .hero {
+    padding-top: 52px;
+  }
+  .label {
+    font-size: 20px;
+  }
+}

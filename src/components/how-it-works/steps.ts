@@ -30,7 +30,7 @@ export const STEPS: Step[] = [
     copy: "Complete the six innovation stages.",
     meta: "Build the skills",
     detail:
-      "Work through Insight, Investigate, Imagine, the IP Checkpoint, Iterate, Impact, and Influence, the same six-stage foundation every innovator builds on.",
+      "Work through Insight, Investigate, Imagine, Iterate, Impact, and Influence, the same six-stage foundation every innovator builds on.",
   },
   {
     number: "03",

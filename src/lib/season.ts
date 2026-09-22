@@ -14,7 +14,7 @@ export async function getActiveSeason() {
   // visitor should ever see) — fail loudly instead of rendering a page with
   // silently-wrong pricing/deadlines.
   if (!season) {
-    throw new Error("No active Season found — seed or activate a Season before rendering this page.");
+    throw new Error("No active Season found. Seed or activate a Season before rendering this page.");
   }
 
   return season;

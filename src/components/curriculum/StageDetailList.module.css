@@ -54,42 +54,24 @@
 .tabActive:hover {
   background: var(--ink);
 }
-.tabActiveGate,
-.tabActiveGate:hover {
-  background: var(--coral);
-}
 
-.tabNumber,
-.tabNumberGate {
+.tabNumber {
   flex: none;
   width: 22px;
   font: 700 11px var(--font-mono), monospace;
   letter-spacing: 0.02em;
   color: var(--blue);
 }
-.tabNumberGate {
-  color: var(--coral);
-}
-.tabActive .tabNumber,
-.tabActive .tabNumberGate,
-.tabActiveGate .tabNumberGate {
+.tabActive .tabNumber {
   color: var(--white);
 }
 
-.tabName,
-.tabNameGate {
+.tabName {
   font: 600 15.5px var(--font-display), sans-serif;
   letter-spacing: -0.01em;
-}
-.tabName {
   color: var(--ink);
 }
-.tabNameGate {
-  color: var(--coral);
-}
-.tabActive .tabName,
-.tabActive .tabNameGate,
-.tabActiveGate .tabNameGate {
+.tabActive .tabName {
   color: var(--white);
   font-weight: 700;
 }
@@ -123,10 +105,6 @@
   pointer-events: none;
   user-select: none;
 }
-.panelHeaderGate .panelWatermark {
-  color: var(--coral-soft);
-}
-
 .panelName {
   position: relative;
   z-index: 1;
@@ -135,10 +113,6 @@
   font: 700 clamp(28px, 3vw, 38px) / 1.05 var(--font-display), sans-serif;
   letter-spacing: -0.03em;
 }
-.panelHeaderGate .panelName {
-  color: var(--coral);
-}
-
 .panelBody {
   padding: var(--space-8);
 }
@@ -201,8 +175,7 @@
   .tabs .tab:last-child {
     border-right: 0;
   }
-  .tabName,
-  .tabNameGate {
+  .tabName {
     display: none;
   }
   .panel {

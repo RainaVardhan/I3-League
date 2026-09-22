@@ -1,0 +1,172 @@
+/* The navy page bar under the hero: the Section 21.5 "Pattern D" ink band
+   (full width, ink fill, soft grounding shadow) used as a navigation row.
+   Each page is the shared white ghost button (the home hero's "See How It
+   Works"); the open page is marked with a cobalt border and blue-pale fill. */
+.bar {
+  position: relative;
+  z-index: 1;
+  /* Room for the sticky topbar when Back / Next scrolls here. */
+  scroll-margin-top: 60px;
+  padding: 18px var(--gutter);
+  background: var(--ink);
+  box-shadow: 0 14px 30px rgba(16, 33, 61, 0.14);
+}
+
+/* Every page sits on one line. Each button is sized to its own text (a
+   short "Sources" is narrower than "Stakeholders & Gap") and the buttons
+   share out any spare room so the row ends flush. The row uses the full
+   width of the page, not the 1160px container, and the buttons are a little
+   tighter than the shared ghost button, so Investigate's nine pages fit on a
+   laptop screen (measured: about 1175px with the numbers). On a narrower screen the row
+   scrolls sideways rather than wrapping. */
+.barList {
+  margin: 0;
+  /* Bottom room so the buttons' 5px offset shadow isn't clipped by the
+     scroll container. */
+  padding: 0 0 6px;
+  list-style: none;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.barList > li {
+  flex: 1 1 auto;
+}
+
+/* Doubled selector so these win over the shared .button padding and size
+   whatever order the stylesheets load in. */
+.barList .barButton {
+  width: 100%;
+  gap: 6px;
+  min-height: 42px;
+  padding: 0 10px;
+  font-size: 12.5px;
+}
+
+.barNum {
+  font: 650 10px var(--font-mono), monospace;
+  letter-spacing: 0.06em;
+  color: var(--blue);
+}
+
+/* The shared ghost fill is 72% opaque, which reads grey over the navy. A
+   solid paper fill makes these the same white as the home hero's button.
+   (Declared before the open-page rule below so that one still wins.) */
+.barList .barButton {
+  background: var(--paper);
+}
+
+.barButton:disabled,
+.barButton:disabled:hover,
+.barButton:disabled:active {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 5px 0 var(--dim);
+}
+
+/* The open page. Doubled selector so it wins over the shared ghost hover. */
+.barButton.barButtonActive,
+.barButton.barButtonActive:hover {
+  background: var(--blue-pale);
+  border-color: var(--blue);
+  color: var(--ink);
+}
+
+/* Room for the sticky topbar when a sidebar link or Next scrolls to a page. */
+.panel {
+  scroll-margin-top: 60px;
+}
+
+/* The Back / status / Next row sits in its own canvas band under the page.
+   A three-column grid (1fr auto 1fr) so the status is centered on the row
+   whatever the widths of Back and Next. */
+.pager {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.pager > :first-child {
+  justify-self: start;
+}
+
+.pager > :last-child {
+  justify-self: end;
+}
+
+/* The Review page's Submit button, in Next's slot. */
+.pagerAction {
+  justify-self: end;
+}
+
+/* Autosave status, centered. */
+.pagerNote {
+  text-align: center;
+  color: var(--dim);
+  font: 600 11px var(--font-mono), monospace;
+  letter-spacing: 0.06em;
+}
+
+.pagerNotePending {
+  color: var(--ink-2);
+}
+
+.pagerNoteError {
+  color: var(--coral);
+}
+
+.emptyNote {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-body);
+  line-height: 1.7;
+}
+
+/* Back and Next are the same width as each other (and as Submit, see
+   StageForm.module.css). Under 600px they share the row instead. */
+@media (min-width: 601px) {
+  .pager button {
+    min-width: 220px;
+  }
+}
+
+@media (max-width: 600px) {
+  /* One column on phones: Back, Next (each full width, so a long label like
+     "Next: Problem Scope" can never push the page wider than the screen), then
+     the save status centered underneath. */
+  .pager {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pager > :first-child {
+    order: 1;
+    justify-self: stretch;
+  }
+  .pager > :last-child {
+    order: 2;
+    justify-self: stretch;
+  }
+  .pagerAction {
+    order: 2;
+    justify-self: stretch;
+  }
+  .pager button {
+    width: 100%;
+    min-width: 0;
+  }
+  .pagerNote {
+    order: 3;
+  }
+}
+
+/* The shared Button nudges its icon 2px sideways on hover. Back's hover
+   should only lift up and press down, like the home hero's ghost button, so
+   the chevron stays put. (`button.` raises specificity over Button.module.css's
+   `.button:hover svg` regardless of stylesheet order.) */
+button.backButton:hover svg {
+  transform: none;
+}

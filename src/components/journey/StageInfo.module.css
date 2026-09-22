@@ -1,0 +1,327 @@
+/* Body content of the Review page's bands (StageReviewNote,
+   StageRubricDetail, StageClosingReflection). The bands, and
+   the headings in their rails, come from StageReviewPage / StageBand; these
+   pieces are laid out as labeled groups with generous space between them, with
+   the rubric disclosures as the one boxed surface (the FAQ accordion recipe,
+   docs/design-system.md Section 21.5). */
+
+/* A small mono label over a block of text. */
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.label {
+  margin: 0;
+  color: var(--muted);
+  font: 650 var(--text-label) var(--font-mono), monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.text {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: var(--text-body);
+  line-height: 1.75;
+}
+
+/* Two labeled blocks side by side. */
+.twoUp {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-6) var(--space-8);
+}
+
+/* Required artifact / submission format: the same connected grid box as the
+   Do band's worksheet strip (paper, hairline, blue-soft offset plane, hairline
+   dividers, --blue-pale hover, cobalt underline accent). */
+.metaStrip {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  background: var(--paper);
+  border: 1px solid rgba(16, 33, 61, 0.15);
+  box-shadow:
+    20px 22px 0 var(--blue-soft),
+    0 38px 68px rgba(16, 33, 61, 0.12);
+}
+
+.metaStrip > div {
+  position: relative;
+  padding: 28px 28px 56px;
+  transition: background-color 0.16s ease;
+}
+
+.metaStrip > div:hover {
+  background: var(--blue-pale);
+}
+
+.metaStrip > div + div {
+  border-left: 1px solid rgba(16, 33, 61, 0.12);
+}
+
+.metaStrip > div::after {
+  content: "";
+  position: absolute;
+  left: 28px;
+  bottom: 26px;
+  width: 34px;
+  height: 3px;
+  background: var(--blue);
+}
+
+.metaStrip dt {
+  margin: 0 0 8px;
+  color: var(--blue);
+  font: 650 var(--text-label) var(--font-mono), monospace;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.metaStrip dd {
+  margin: 0;
+  color: var(--ink);
+  font: 700 18px / 1.3 var(--font-display), sans-serif;
+  letter-spacing: -0.02em;
+}
+
+/* ---- Review dimensions: plain inline mono text, not chip boxes ---- */
+.chips {
+  margin: 0;
+  color: var(--ink-2);
+  font: 500 13px var(--font-mono), monospace;
+  letter-spacing: 0.01em;
+  line-height: 1.8;
+}
+
+.footnote {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14.5px;
+  line-height: 1.65;
+}
+
+/* The closing reflection, set as a larger lede. */
+.reflectionText {
+  margin: 0;
+  color: var(--ink);
+  font: 600 clamp(18px, 2vw, 22px) / 1.55 var(--font-body), sans-serif;
+  letter-spacing: -0.01em;
+}
+
+/* ---- StageRubricDetail: one <details> per dimension inside a single paper
+   list with the stat-box shadow, like the FAQ accordion ---- */
+.rubricList {
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  box-shadow: 8px 9px 0 var(--blue-soft);
+}
+
+.rubricItem {
+  border-bottom: 1px solid var(--line);
+}
+
+.rubricItem:last-child {
+  border-bottom: none;
+}
+
+.rubricSummary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: 20px var(--space-6);
+  cursor: pointer;
+  list-style: none;
+  font: 600 16.5px var(--font-body), sans-serif;
+  color: var(--ink);
+  transition: background-color 0.16s ease;
+}
+
+.rubricSummary:hover {
+  background: var(--blue-pale);
+}
+
+.rubricSummary::-webkit-details-marker {
+  display: none;
+}
+
+/* Plus drawn from two cobalt bars; the vertical one turns to make a minus. */
+.rubricIcon {
+  position: relative;
+  flex: none;
+  width: 18px;
+  height: 18px;
+}
+
+.rubricIcon::before,
+.rubricIcon::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background: var(--blue);
+  transform: translate(-50%, -50%);
+}
+
+.rubricIcon::before {
+  width: 14px;
+  height: 2px;
+}
+
+.rubricIcon::after {
+  width: 2px;
+  height: 14px;
+  transition: transform 150ms ease;
+}
+
+.rubricItem[open] .rubricIcon::after {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.rubricBody {
+  padding: 4px var(--space-6) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* What a reviewer asks: plain dotted bullets, no rules between them. */
+.asks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.asks li {
+  position: relative;
+  padding-left: 18px;
+  color: var(--ink-2);
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+
+.asks li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 0.62em;
+  width: 5px;
+  height: 5px;
+  background: var(--blue);
+}
+
+/* Long lists run in two columns. */
+.asksTwo {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--space-8);
+}
+
+.rubricNote {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+/* The three non-negotiables as one line under the intro. */
+.mustHave {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  color: var(--ink);
+  font-size: var(--text-body);
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+/* "See the four levels": a quiet text toggle, not another box. */
+.levelsSummary {
+  display: inline-block;
+  cursor: pointer;
+  list-style: none;
+  color: var(--blue);
+  font: 650 var(--text-label) var(--font-mono), monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.levelsSummary::-webkit-details-marker {
+  display: none;
+}
+
+.levelsSummary::after {
+  content: " +";
+}
+
+.levelsToggle[open] > .levelsSummary::after {
+  content: " \2212";
+}
+
+.levelsSummary:hover {
+  color: var(--blue-dark);
+}
+
+.levels {
+  margin: var(--space-4) 0 0;
+  display: grid;
+  gap: var(--space-4);
+}
+
+.levels > div {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  gap: var(--space-4);
+}
+
+.levels dt {
+  font: 650 var(--text-label) var(--font-mono), monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--blue-dark);
+  line-height: 1.6;
+}
+
+.levels dd {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+@media (max-width: 720px) {
+  .asksTwo {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .levels > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+  .metaStrip {
+    box-shadow:
+      9px 11px 0 var(--blue-soft),
+      0 24px 44px rgba(16, 33, 61, 0.09);
+  }
+  .metaStrip > div + div {
+    border-left: none;
+    border-top: 1px solid rgba(16, 33, 61, 0.12);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .metaStrip > div,
+  .rubricSummary,
+  .rubricIcon::after {
+    transition: none;
+  }
+}

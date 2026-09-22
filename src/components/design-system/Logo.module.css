@@ -7,6 +7,17 @@
   width: max-content;
 }
 
+/* On a dark surface: the wordmark inherits this colour, and the mark's
+   frame is lifted so the square reads against the navy. The "I³" glyph
+   colours (soft blue + coral) already work on dark and are untouched. */
+.brandOnDark {
+  color: var(--paper);
+}
+
+.brandOnDark .mark {
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
 .mark {
   position: relative;
   width: 38px;

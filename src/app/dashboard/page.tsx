@@ -164,10 +164,18 @@ async function StudentHub({ student, season }: { student: Student; season: Seaso
     teamInfo = { name: team.name, members: members.map((m) => m.student.firstName) };
   }
 
+  // The project is titled on Insight's Problem Scope page, so pointing there is
+  // only right while Insight is still open. A normal submit requires a title,
+  // but a stage can also be completed by an admin override, and a finished
+  // Insight is read-only; telling that student to "title it in Insight" would
+  // send them to a page where they cannot.
+  const insightComplete = journey.find((item) => item.stage === "INSIGHT")?.status === "COMPLETE";
   const innovation =
     project && project.title !== "Untitled project"
       ? project.title
-      : "not named yet; you'll title it in Insight";
+      : insightComplete
+        ? "not named yet"
+        : "not named yet; you'll title it in Insight";
   const participation = teamInfo ? `Team of ${teamInfo.members.length}` : "Individual";
 
   const checklist = currentItem

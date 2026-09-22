@@ -39,7 +39,7 @@
 }
 
 /* flex:1 + space-evenly fills whatever height the square card's aspect
-   ratio leaves after the eyebrow, spreading the 7 rows to use it evenly —
+   ratio leaves after the eyebrow, spreading the 6 rows to use it evenly —
    more robust than hand-tuned padding, since it self-adjusts at every
    breakpoint the card's width (and so its height) changes at. */
 .list {
@@ -67,34 +67,18 @@
   border-bottom: 0;
 }
 
-.number,
-.numberGate {
+.number {
   flex: none;
   width: 24px;
   font: 700 11px var(--font-mono), monospace;
   letter-spacing: 0.02em;
-}
-
-.number {
   color: var(--blue);
 }
 
-.numberGate {
-  color: var(--coral);
-}
-
-.name,
-.nameGate {
+.name {
   font: 700 21px var(--font-display), sans-serif;
   letter-spacing: -0.02em;
-}
-
-.name {
   color: var(--ink);
-}
-
-.nameGate {
-  color: var(--coral);
 }
 
 @media (max-width: 900px) {
@@ -128,8 +112,7 @@
     top: 10px;
     right: 18px;
   }
-  .name,
-  .nameGate {
+  .name {
     font-size: 19px;
   }
 }
@@ -141,8 +124,7 @@
   .watermark {
     display: none;
   }
-  .name,
-  .nameGate {
+  .name {
     font-size: 17px;
   }
 }

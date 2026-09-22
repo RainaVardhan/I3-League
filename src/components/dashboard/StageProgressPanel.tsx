@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { StageName } from "@prisma/client";
 import { getStageCopy } from "@/lib/stage-copy";
-import { SUBMISSION_STATUS_LABEL, type StageChecklist } from "@/lib/stage-checklist";
+import { SUBMISSION_STATUS_LABEL, checklistItemHref, type StageChecklist } from "@/lib/stage-checklist";
 import styles from "./DashboardHub.module.css";
 
 type StageProgressPanelProps = {
@@ -24,11 +24,9 @@ export function StageProgressPanel({ stage, slug, checklist }: StageProgressPane
   const { items, doneCount, total, workspacePending, submissionStatus } = checklist;
   const pct = total > 0 ? Math.round((doneCount / total) * 100) : 0;
 
-  // "if it has one" — built stages (with a real form) deep-link to the
-  // form; the not-yet-built stages point at the brief that describes the
-  // work instead.
-  const anchor = workspacePending ? "stage-brief" : "stage-work";
-  const itemHref = `/dashboard/${slug}#${anchor}`;
+  // Built stages deep-link to the exact page and field the item is answered
+  // on; stages without a workspace yet point at the brief.
+  const hrefFor = (item: { page?: string; anchor?: string }) => checklistItemHref(slug, item, workspacePending);
 
   const statusTone =
     submissionStatus === "ready"
@@ -71,7 +69,7 @@ export function StageProgressPanel({ stage, slug, checklist }: StageProgressPane
         {items.map((item) => (
           <li key={item.label}>
             <Link
-              href={itemHref}
+              href={hrefFor(item)}
               className={`${styles.progressItem} ${item.done ? styles.progressItemDone : ""}`}
             >
               <span className={styles.progressBox} aria-hidden="true">
@@ -81,11 +79,25 @@ export function StageProgressPanel({ stage, slug, checklist }: StageProgressPane
                   </svg>
                 )}
               </span>
-              <span className={styles.progressLabel}>{item.label}</span>
+              <span className={styles.progressText}>
+                {item.group && <span className={styles.progressGroup}>{item.group}</span>}
+                <span className={styles.progressLabel}>
+                  {item.label}
+                  {item.optional && <span className={styles.progressOptional}>Optional</span>}
+                </span>
+              </span>
             </Link>
           </li>
         ))}
       </ul>
+
+      {/* Not derivable from saved data: the AI-use disclosure is only written
+          when the stage is submitted, so it is stated rather than ticked. */}
+      {!workspacePending && (
+        <p className={styles.progressNote}>
+          You will also declare whether you used AI when you submit.
+        </p>
+      )}
     </div>
   );
 }

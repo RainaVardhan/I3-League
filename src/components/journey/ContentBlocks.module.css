@@ -1,0 +1,265 @@
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.itemTitle {
+  margin: 0;
+  font: 700 22px / 1.2 var(--font-display), sans-serif;
+  letter-spacing: -0.024em;
+  color: var(--ink);
+}
+
+/* ---- A fully-authored lesson (docs/curriculum/01_LEARN), inside a Learn
+   band's content column. The whole lesson is one connected plane in the
+   Section 21.5 format (paper, hairline border, hard blue-soft offset plane and
+   a soft grounding shadow, the same as the Do boxes), and each part of the
+   lesson is a numbered row in it, divided by hairlines, with a --blue-pale
+   fill on hover. ---- */
+.lessonBody {
+  display: flex;
+  flex-direction: column;
+  counter-reset: lesson;
+  background: var(--paper);
+  border: 1px solid rgba(16, 33, 61, 0.15);
+  box-shadow:
+    20px 22px 0 var(--blue-soft),
+    0 38px 68px rgba(16, 33, 61, 0.12);
+}
+
+/* One labeled part of a lesson: a numbered mono subheading, then its text. */
+.lessonSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: 30px 34px 32px;
+  border-top: 1px solid rgba(16, 33, 61, 0.12);
+  counter-increment: lesson;
+  transition: background-color 0.16s ease;
+}
+
+.lessonSection:first-child {
+  border-top: 0;
+}
+
+.lessonSection:hover {
+  background: var(--blue-pale);
+}
+
+.blockLabel {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  color: var(--muted);
+  font: 650 var(--text-label) var(--font-mono), monospace;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* The row number, in cobalt (same mono treatment as the page-bar numbers). */
+.blockLabel::before {
+  content: counter(lesson, decimal-leading-zero);
+  color: var(--blue);
+}
+
+/* The definition leads the lesson, the same size as the other lesson text. It is highlighted like a
+   marker pen: a solid --paper-warm background (the same warm tan as the
+   dashboard's "Not ready to submit" badge), no gradient, ink text, the defined
+   term in bold. box-decoration-break keeps the padding on every wrapped line. */
+.definitionLede {
+  margin: 0;
+  color: var(--ink);
+  font-size: var(--text-body);
+  line-height: 1.75;
+}
+
+.definition {
+  padding: 3px 6px;
+  background: var(--paper-warm);
+  color: var(--ink);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.term {
+  font-weight: 700;
+}
+
+.lede {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-body);
+  line-height: 1.75;
+}
+
+/* A lesson row written over several lines (Citation's credible-sources quick
+   reference), one line per item, each opening with its own bold label. */
+.lessonList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-3);
+  color: var(--muted);
+  font-size: var(--text-body);
+  line-height: 1.75;
+}
+
+.lessonList strong {
+  color: var(--ink);
+}
+
+.actionText {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: var(--text-body);
+  line-height: 1.7;
+}
+
+/* The key takeaway: the same row as the others; only the statement itself is
+   set in the display face so it still reads as the lesson's main point. */
+.takeaway {
+  margin: 0;
+  color: var(--ink);
+  font: 700 clamp(22px, 2.4vw, 28px) / 1.2 var(--font-display), sans-serif;
+  letter-spacing: -0.03em;
+}
+
+.reflect {
+  margin: 0;
+  color: var(--muted);
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.itemBody p {
+  margin: 0 0 var(--space-4);
+  color: var(--muted);
+  font-size: var(--text-body);
+  line-height: 1.75;
+}
+
+.itemBody p:last-child {
+  margin-bottom: 0;
+}
+
+.instructions {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-body);
+  line-height: 1.75;
+}
+
+/* ---- Activity (Do): the description, then worksheet / output / artifact
+   contribution as one connected strip (Section 21.5 connected grid: paper
+   cells, hairline border and dividers). ---- */
+.activityDescription {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: var(--text-lede);
+  line-height: 1.7;
+}
+
+.activityMeta {
+  margin: var(--space-4) 0 0;
+  display: grid;
+  /* Two cells (worksheet, output); auto columns so it never needs 3. */
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  /* The connected grid box format (docs/design-system.md Section 21.5):
+     paper, hairline border, hard blue-soft offset plane and a soft grounding
+     shadow, cells divided by hairlines, --blue-pale on hover, and the small
+     cobalt underline accent in each cell. */
+  background: var(--paper);
+  border: 1px solid rgba(16, 33, 61, 0.15);
+  box-shadow:
+    20px 22px 0 var(--blue-soft),
+    0 38px 68px rgba(16, 33, 61, 0.12);
+}
+
+.activityMeta > div {
+  position: relative;
+  padding: 28px 28px 56px;
+  transition: background-color 0.16s ease;
+}
+
+.activityMeta > div:hover {
+  background: var(--blue-pale);
+}
+
+.activityMeta > div + div {
+  border-left: 1px solid rgba(16, 33, 61, 0.12);
+}
+
+.activityMeta > div::after {
+  content: "";
+  position: absolute;
+  left: 28px;
+  bottom: 26px;
+  width: 34px;
+  height: 3px;
+  background: var(--blue);
+}
+
+.activityMeta dt {
+  margin: 0 0 8px;
+  color: var(--blue);
+  font: 650 var(--text-label) var(--font-mono), monospace;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.activityMeta dd {
+  margin: 0;
+  color: var(--ink);
+  font: 700 18px / 1.3 var(--font-display), sans-serif;
+  letter-spacing: -0.02em;
+}
+
+@media (max-width: 820px) {
+  .activityMeta {
+    grid-auto-flow: row;
+    grid-template-columns: 1fr;
+    box-shadow:
+      9px 11px 0 var(--blue-soft),
+      0 24px 44px rgba(16, 33, 61, 0.09);
+  }
+  .activityMeta > div {
+    padding: 24px 24px 50px;
+  }
+  .activityMeta > div + div {
+    border-left: none;
+    border-top: 1px solid rgba(16, 33, 61, 0.12);
+  }
+  .activityMeta > div::after {
+    left: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .activityMeta > div {
+    transition: none;
+  }
+}
+
+@media (max-width: 820px) {
+  .lessonBody {
+    box-shadow:
+      9px 11px 0 var(--blue-soft),
+      0 24px 44px rgba(16, 33, 61, 0.09);
+  }
+  .lessonSection {
+    padding: 24px 22px 26px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lessonSection {
+    transition: none;
+  }
+}

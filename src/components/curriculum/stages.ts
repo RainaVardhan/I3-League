@@ -40,7 +40,7 @@ export const CURRICULUM_STAGES: CurriculumStage[] = [
     description: [
       "Imagine is the only stage built around volume, not judgment. Students generate as many possible solutions to their researched problem as they reasonably can, deliberately withholding judgment about which ones are \"good\" until there's a real set of options to compare.",
       "Once a reasonable set of ideas exists, students evaluate them against real constraints: feasibility (can this actually be built with the time, materials, and skills available), impact (does it address the root problem from Investigate, not just a symptom of it), and safety.",
-      "The stage ends with a single committed direction, not a menu of options. That decision is what the student carries into the IP Checkpoint and then Iterate; everything from here on assumes the idea has already been chosen.",
+      "The stage ends with a single committed direction, not a menu of options. That decision is what the student carries into Iterate; everything from here on assumes the idea has already been chosen.",
     ],
   },
   {
@@ -70,34 +70,8 @@ export const CURRICULUM_STAGES: CurriculumStage[] = [
     description: [
       "Influence is the closing stage, where a student has to explain and defend everything the previous five stages produced, not just present it. It brings together a speaking submission, the Character Challenge, the Ethics Challenge, and a final AI-use disclosure into one finished package.",
       "The AI-use disclosure at this stage isn't unique to Influence, it's required at the submission step of every stage, including this one, whether or not a student used AI at all. The point is a consistent, honest record, not a one-time confession.",
-      "Everything from Insight through Influence, the journal entries, the safety review, the IP Checkpoint decision, the prototype, the impact evidence, and this closing package, compiles into the student's finished Innovation Portfolio: the artifact that follows them through certification and, if they qualify, into the National Finals.",
+      "Everything from Insight through Influence, the journal entries, the safety review, the prototype, the impact evidence, and this closing package, compiles into the student's finished Innovation Portfolio: the artifact that follows them through certification and, if they qualify, into the National Finals.",
     ],
   },
 ];
 
-// The gate between Imagine and Iterate — not a numbered stage (no
-// assessment, per prisma/seed.ts), so it's kept separate and spliced into
-// CURRICULUM_TIMELINE at the right position instead of living in the array
-// above.
-export const IP_CHECKPOINT: CurriculumStage = {
-  number: "IP",
-  name: "IP Checkpoint",
-  headline: "Protect before you publish.",
-  description: [
-    "The IP Checkpoint is a deliberate pause between choosing a direction (Imagine) and building it (Iterate). Its only job is to get a student to make one specific decision on purpose: should this project be visible to the public, or should it stay confidential?",
-    "Every project is Confidential from the moment it's created, that's the default at the database level, not just a form default, and it stays that way unless a student explicitly asks for it to be made Public, at or after this checkpoint. If a student skips this step, abandons it partway through, or answers ambiguously, the project simply stays Confidential. There's no path by which a project becomes public automatically.",
-    "This matters because a Public project can eventually appear in galleries, marketing materials, or in front of judges outside the student's own team; a Confidential one never does. Students building something they consider sensitive, personal, or not yet ready to share always have the safer default working in their favor.",
-  ],
-};
-
-export type TimelineEntry = CurriculumStage & { isGate?: boolean };
-
-// The full ordered sequence a student moves through, stages and the gate
-// together — the single source both the hero's framework card and the
-// stage-by-stage detail list render from, so the two can never drift out
-// of order with each other.
-export const CURRICULUM_TIMELINE: TimelineEntry[] = [
-  ...CURRICULUM_STAGES.slice(0, 3),
-  { ...IP_CHECKPOINT, isGate: true },
-  ...CURRICULUM_STAGES.slice(3),
-];

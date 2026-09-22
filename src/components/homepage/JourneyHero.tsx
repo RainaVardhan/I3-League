@@ -9,7 +9,7 @@ import { Eyebrow } from "@/components/design-system/Eyebrow";
 import { Checkerboard } from "./Checkerboard";
 import styles from "./JourneyHero.module.css";
 
-type RailItem = { num: string; label: string; isGate?: boolean };
+type RailItem = { num: string; label: string };
 
 // Canonical journey sequence — see docs/design-system.md Section 11.
 // Shared between the journey rail, the masthead/watermark readout, and the
@@ -18,7 +18,6 @@ const RAIL_ITEMS: RailItem[] = [
   { num: "01", label: "Insight" },
   { num: "02", label: "Investigate" },
   { num: "03", label: "Imagine" },
-  { num: "IP", label: "Checkpoint", isGate: true },
   { num: "04", label: "Iterate" },
   { num: "05", label: "Impact" },
   { num: "06", label: "Influence" },
@@ -71,17 +70,16 @@ const STAGE_PANELS: StagePanel[] = [
 ];
 
 // u = "beat" position along the scroll timeline (BEATS[i].u), rx/ry = the
-// cube's rotation at that beat. checkpoint marks the IP Checkpoint beat.
+// cube's rotation at that beat — one beat per RAIL_ITEMS/STAGE_PANELS entry.
 const BEATS = [
   { u: 1.0, rx: 0, ry: 0 },
   { u: 2.05, rx: 0, ry: -90 },
   { u: 3.1, rx: 0, ry: -180 },
-  { u: 4.15, rx: 0, ry: -180, checkpoint: true },
-  { u: 5.2, rx: 0, ry: -270 },
-  { u: 6.25, rx: -90, ry: -360 },
-  { u: 7.3, rx: 90, ry: -360 },
+  { u: 4.15, rx: 0, ry: -270 },
+  { u: 5.2, rx: -90, ry: -360 },
+  { u: 6.25, rx: 90, ry: -360 },
 ];
-const TOTAL = 7.85;
+const TOTAL = 6.8;
 const BASE_RX = -14;
 const BASE_RY = 24;
 
@@ -361,13 +359,10 @@ export function JourneyHero() {
       const rot = rotationAt(Math.max(u, BEATS[0].u));
       cube.style.transform = `rotateX(${BASE_RX + rot.rx}deg) rotateY(${BASE_RY + idleContribution + rot.ry}deg)`;
 
-      const ip = panelOpacity(u, 3);
-      const presence = 1 - smooth(clamp((ip - 0.04) / 0.82, 0, 1));
-      const presenceScale = 0.88 + 0.12 * presence;
-      scene.style.opacity = String(presence);
-      scene.style.setProperty("--sceneScale", (heroScale * presenceScale).toFixed(3));
-      scene.style.pointerEvents = ip > 0.58 ? "none" : "auto";
-      scene.setAttribute("aria-hidden", presence < 0.05 ? "true" : "false");
+      scene.style.opacity = "1";
+      scene.style.setProperty("--sceneScale", heroScale.toFixed(3));
+      scene.style.pointerEvents = "auto";
+      scene.setAttribute("aria-hidden", "false");
 
       const active = u < 0.58 ? -1 : closestBeat(u);
 
@@ -382,23 +377,14 @@ export function JourneyHero() {
           journeyWatermarkNameRef.current.textContent = "Innovation journey";
         if (journeyProgressLabelRef.current)
           journeyProgressLabelRef.current.textContent = "Scroll to begin";
-        journeyWatermarkRef.current?.classList.remove(styles.isGate);
       } else {
         const display = RAIL_ITEMS[active];
-        // Six real stages are numbered 01-06; the IP Checkpoint sits between
-        // Imagine and Iterate but isn't one of them, so it gets no number.
-        if (journeyCountRef.current)
-          journeyCountRef.current.textContent = display.isGate
-            ? "INFORMATION PROTECTION CHECKPOINT"
-            : `${display.num} / 06`;
+        if (journeyCountRef.current) journeyCountRef.current.textContent = `${display.num} / 06`;
         if (journeyWatermarkNumRef.current) journeyWatermarkNumRef.current.textContent = display.num;
         if (journeyWatermarkNameRef.current)
           journeyWatermarkNameRef.current.textContent = display.label;
         if (journeyProgressLabelRef.current)
-          journeyProgressLabelRef.current.textContent = display.isGate
-            ? "Information Protection Checkpoint"
-            : `${display.num} · ${display.label}`;
-        journeyWatermarkRef.current?.classList.toggle(styles.isGate, !!display.isGate);
+          journeyProgressLabelRef.current.textContent = `${display.num} · ${display.label}`;
       }
 
       panelRefs.current.forEach((panel, i) => {
@@ -408,7 +394,6 @@ export function JourneyHero() {
         panel.style.pointerEvents = opacity > 0.55 ? "auto" : "none";
         panel.style.setProperty("--slide", `${(1 - opacity) * 10}px`);
         panel.setAttribute("aria-hidden", opacity > 0.55 ? "false" : "true");
-        if (i === 3) panel.style.setProperty("--gate-scale", (0.94 + 0.06 * smooth(opacity)).toFixed(3));
       });
 
       navRefs.current.forEach((item, i) => {
@@ -565,7 +550,7 @@ export function JourneyHero() {
                       left: `${TRACK_ZONES[index + 1].left}%`,
                       width: `${TRACK_ZONES[index + 1].width}%`,
                     }}
-                    aria-label={item.isGate ? `Information Protection Checkpoint` : `${item.num} ${item.label}`}
+                    aria-label={`${item.num} ${item.label}`}
                     onClick={() => scrollToBeat(index)}
                     onKeyDown={(event) => handleStopKeyDown(event, index)}
                   />
@@ -596,63 +581,11 @@ export function JourneyHero() {
           </div>
         </div>
 
-        {STAGE_PANELS.slice(0, 3).map((panel, i) => (
+        {STAGE_PANELS.map((panel, i) => (
           <div
             key={panel.num}
             ref={(el) => {
               panelRefs.current[i] = el;
-            }}
-            className={styles.stagePanel}
-          >
-            <span className={styles.panelNum}>{panel.num}</span>
-            <h3>{panel.title}</h3>
-            <p className={styles.icant}>{panel.icant}</p>
-            <p>{panel.body}</p>
-          </div>
-        ))}
-
-        <div
-          ref={(el) => {
-            panelRefs.current[3] = el;
-          }}
-          className={styles.stageGate}
-        >
-          <span className={styles.hexBadge}>
-            {/* width/height here are just an SSR/no-CSS fallback — the
-                actual rendered size is fully owned by .hexBadge svg in
-                JourneyHero.module.css (52px, 54px at the small tier), which
-                unconditionally overrides these attributes at every
-                breakpoint. Kept in sync with that base value so this isn't
-                a second, silently-wrong source of truth. */}
-            <svg
-              viewBox="0 0 24 24"
-              width="52"
-              height="52"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.6"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
-              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
-          </span>
-          <h3>Information Protection Checkpoint</h3>
-          <p>
-            A mandatory pause before you go public. Have you searched for prior art? Every project is
-            marked Public or Confidential, and stays that way until you say otherwise.
-          </p>
-        </div>
-
-        {/* Iterate, Impact, Influence occupy beats 4-6 — beat 3 is the IP
-            Checkpoint gate rendered above. */}
-        {STAGE_PANELS.slice(3).map((panel, i) => (
-          <div
-            key={panel.num}
-            ref={(el) => {
-              panelRefs.current[i + 4] = el;
             }}
             className={styles.stagePanel}
           >

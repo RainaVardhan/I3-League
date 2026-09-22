@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Eyebrow } from "@/components/design-system/Eyebrow";
-import { CURRICULUM_TIMELINE } from "./stages";
+import { CURRICULUM_STAGES } from "./stages";
 import styles from "./StageDetailList.module.css";
 
 // Tab-and-panel, not an accordion: a compact list of stage names on the
@@ -13,7 +13,7 @@ import styles from "./StageDetailList.module.css";
 // accordion would.
 export function StageDetailList() {
   const [activeIndex, setActiveIndex] = useState(0);
-  const active = CURRICULUM_TIMELINE[activeIndex];
+  const active = CURRICULUM_STAGES[activeIndex];
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   // Standard ARIA tabs keyboard pattern: only the active tab sits in the
@@ -21,7 +21,7 @@ export function StageDetailList() {
   // user reaches the other tabs at all — without this, everything past the
   // active one is unreachable without a mouse.
   function focusTab(index: number) {
-    const wrapped = (index + CURRICULUM_TIMELINE.length) % CURRICULUM_TIMELINE.length;
+    const wrapped = (index + CURRICULUM_STAGES.length) % CURRICULUM_STAGES.length;
     setActiveIndex(wrapped);
     tabRefs.current[wrapped]?.focus();
   }
@@ -42,7 +42,7 @@ export function StageDetailList() {
         break;
       case "End":
         event.preventDefault();
-        focusTab(CURRICULUM_TIMELINE.length - 1);
+        focusTab(CURRICULUM_STAGES.length - 1);
         break;
     }
   }
@@ -62,15 +62,9 @@ export function StageDetailList() {
 
         <div className={styles.layout}>
           <div role="tablist" aria-label="Curriculum stages" className={styles.tabs}>
-            {CURRICULUM_TIMELINE.map((entry, index) => {
+            {CURRICULUM_STAGES.map((entry, index) => {
               const isActive = index === activeIndex;
-              const tabClass = [
-                styles.tab,
-                isActive ? styles.tabActive : "",
-                isActive && entry.isGate ? styles.tabActiveGate : "",
-              ]
-                .filter(Boolean)
-                .join(" ");
+              const tabClass = [styles.tab, isActive ? styles.tabActive : ""].filter(Boolean).join(" ");
               return (
                 <button
                   key={entry.name}
@@ -87,12 +81,8 @@ export function StageDetailList() {
                   onKeyDown={(event) => handleTabKeyDown(event, index)}
                   className={tabClass}
                 >
-                  <span className={entry.isGate ? styles.tabNumberGate : styles.tabNumber}>
-                    {entry.number}
-                  </span>
-                  <span className={entry.isGate ? styles.tabNameGate : styles.tabName}>
-                    {entry.name}
-                  </span>
+                  <span className={styles.tabNumber}>{entry.number}</span>
+                  <span className={styles.tabName}>{entry.name}</span>
                 </button>
               );
             })}
@@ -105,13 +95,11 @@ export function StageDetailList() {
             aria-labelledby={`stage-tab-${active.number}`}
             className={styles.panel}
           >
-            <div className={active.isGate ? `${styles.panelHeader} ${styles.panelHeaderGate}` : styles.panelHeader}>
+            <div className={styles.panelHeader}>
               <span className={styles.panelWatermark} aria-hidden="true">
                 {active.number}
               </span>
-              <h3 className={styles.panelName}>
-                {active.isGate ? "Information Protection Checkpoint" : active.name}
-              </h3>
+              <h3 className={styles.panelName}>{active.name}</h3>
             </div>
             <div className={styles.panelBody}>
               <p className={styles.panelHeadline}>{active.headline}</p>

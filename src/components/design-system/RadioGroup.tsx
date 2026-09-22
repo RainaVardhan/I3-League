@@ -7,6 +7,8 @@ type RadioOption = {
 
 type RadioGroupProps = {
   legend: string;
+  /** Put on the <fieldset>, so a "jump to this field" link can target it. */
+  id?: string;
   name: string;
   options: readonly RadioOption[];
   defaultValue?: string;
@@ -20,9 +22,9 @@ type RadioGroupProps = {
 // previously duplicated inline in SignupForm.tsx — this sprint's forms
 // (schooling type, participation type, team create/join, payment method)
 // need the same pattern several more times.
-export function RadioGroup({ legend, name, options, defaultValue, required, onChange }: RadioGroupProps) {
+export function RadioGroup({ legend, id, name, options, defaultValue, required, onChange }: RadioGroupProps) {
   return (
-    <fieldset className={styles.group}>
+    <fieldset id={id} className={styles.group}>
       <legend className={styles.legend}>{legend}</legend>
       <div className={styles.options}>
         {options.map((option) => (
