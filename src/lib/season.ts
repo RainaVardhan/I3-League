@@ -1,3 +1,4 @@
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { databaseUrl, prisma } from "@/lib/prisma";
 
 export * from "@/lib/season-format";
@@ -25,7 +26,18 @@ export async function getActiveSeason() {
       host = "DATABASE_URL is not a valid URL";
     }
     const e = err as { name?: string; message?: string; code?: string; cause?: unknown };
-    console.error("DB_DIAG", JSON.stringify({ host, name: e.name, message: e.message, code: e.code, cause: String(e.cause) }));
+    // Names only, never values: shows which variables the Worker really has.
+    let names: string[] = [];
+    let dbUrlLength = -1;
+    try {
+      const bindings = getCloudflareContext().env as unknown as Record<string, unknown>;
+      names = Object.keys(bindings);
+      const bound = bindings.DATABASE_URL;
+      dbUrlLength = typeof bound === "string" ? bound.length : -1;
+    } catch {
+      names = ["(no cloudflare context)"];
+    }
+    console.error("DB_DIAG", JSON.stringify({ names, dbUrlLength, host, name: e.name, message: e.message, code: e.code, cause: String(e.cause) }));
     throw err;
   }
 
