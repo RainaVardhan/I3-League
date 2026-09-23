@@ -22,7 +22,7 @@ import { isHighSchoolGrade } from "@/lib/investigate-requirements";
 import { getStageChecklist } from "@/lib/stage-checklist";
 import { getOrCreateStudentProject } from "@/lib/project";
 import { createClient } from "@/lib/supabase/server";
-import { isPlatformOpen } from "@/lib/launch";
+import { isAccountLocked } from "@/lib/launch";
 import { logoutAction } from "./actions";
 import styles from "./page.module.css";
 
@@ -54,9 +54,11 @@ export default async function DashboardPage() {
     include: { student: true, parent: true, coach: true },
   });
 
-  const comingSoon = !isPlatformOpen() && appUser?.role !== "ADMIN";
+  // Pre-launch (src/lib/launch.ts): only approved accounts see their real
+  // dashboard. Everyone else gets the "coming soon" card below.
+  const comingSoon = appUser !== null && (await isAccountLocked(appUser));
 
-  if (!comingSoon && appUser?.role === "STUDENT" && appUser.student) {
+  if (appUser?.role === "STUDENT" && appUser.student) {
     const season = await getActiveSeason();
     const enrollment = await prisma.enrollment.findUnique({
       where: { studentId_seasonId: { studentId: appUser.student.id, seasonId: season.id } },

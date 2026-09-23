@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import type { PaymentMethod } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getCurrentAppUser } from "@/lib/auth";
+import { isAccountLocked } from "@/lib/launch";
 import { getActiveSeason } from "@/lib/season";
 import { saveUploadedFile } from "@/lib/storage";
 import { PAYMENT_REFERENCE_MAX_LENGTH } from "@/lib/account-field-limits";
@@ -20,6 +21,8 @@ export async function submitPaymentAction(
   if (!appUser || appUser.role !== "STUDENT") {
     redirect("/login");
   }
+  // Pre-launch: only approved accounts get in (see launch.ts).
+  if (await isAccountLocked(appUser)) redirect("/dashboard");
 
   const student = await prisma.student.findUnique({
     where: { userId: appUser.id },

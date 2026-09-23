@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { AuthCard } from "@/components/auth/AuthCard";
 import { prisma } from "@/lib/prisma";
 import { getCurrentAppUser } from "@/lib/auth";
+import { isAccountLocked } from "@/lib/launch";
 import { ParentProfileForm } from "./ParentProfileForm";
 import { StudentRegistrationForm } from "./StudentRegistrationForm";
 
@@ -19,6 +20,9 @@ export default async function RegisterPage() {
   if (!appUser) {
     redirect("/login");
   }
+
+  // Pre-launch: only approved accounts get in (see launch.ts).
+  if (await isAccountLocked(appUser)) redirect("/dashboard");
 
   if (appUser.role === "STUDENT") {
     const student = await prisma.student.findUnique({ where: { userId: appUser.id } });
