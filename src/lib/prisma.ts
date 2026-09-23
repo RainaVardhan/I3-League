@@ -23,22 +23,9 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 // The client talks to Postgres through a driver adapter (schema.prisma sets
 // engineType = "client"), because Workers cannot load Prisma's native engine.
 
-// On Workers, read the connection string from the Worker's own bindings (what
-// you set under Settings > Variables and Secrets), and only then from
-// process.env, which is what local development uses.
-export function databaseUrl(): string | undefined {
-  try {
-    const bound = (getCloudflareContext().env as unknown as Record<string, unknown>).DATABASE_URL;
-    if (typeof bound === "string" && bound) return bound;
-  } catch {
-    // not running on Cloudflare
-  }
-  return process.env.DATABASE_URL || undefined;
-}
-
 function createClient(): PrismaClient {
   const adapter = new PrismaPg({
-    connectionString: databaseUrl(),
+    connectionString: process.env.DATABASE_URL,
     // A request only ever needs a few connections at once; keep it small so a
     // burst of visitors cannot exhaust Supabase's pooler.
     max: 3,
