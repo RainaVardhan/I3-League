@@ -26,8 +26,8 @@ export default async function CompetitionPoliciesPage() {
       <h2>2. Teams</h2>
       <p>
         A project can be shared across a team, and the learning and certification always remain
-        individual. Each student on a team completes their own curriculum, assessments,
-        Innovation Journal, and challenges, and is evaluated on their own individual contribution
+        individual. Each student on a team completes their own curriculum, stage
+        submissions, and Innovation Journal, and is evaluated on their own individual contribution
         and understanding, alongside the team&apos;s output.
       </p>
 

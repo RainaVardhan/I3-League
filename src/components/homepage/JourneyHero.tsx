@@ -35,37 +35,37 @@ const STAGE_PANELS: StagePanel[] = [
     num: "01 / INSIGHT",
     title: "I Can Think",
     icant: "Critical thinking & problem discovery",
-    body: "Every innovation starts with a real problem, not an assignment. Name what's broken, who it hurts, and why it matters, backed by evidence, not a hunch.",
+    body: "Every innovation starts with a real problem, not an assignment. Observe, interview the people affected, and write a specific problem statement backed by firsthand evidence, not a hunch.",
   },
   {
     num: "02 / INVESTIGATE",
     title: "I Can Discover Truth",
     icant: "Research & evidence",
-    body: "Before you build anything, you dig. Credible sources, real interviews, and one hard question to answer: What did you learn that was different from what you originally believed?",
+    body: "Before you build anything, you dig. Use more than one type of evidence, cross-check your sources, find the root cause, and show the gap in what already exists. Good research can change your mind.",
   },
   {
     num: "03 / IMAGINE",
     title: "I Can Create",
     icant: "Creativity & solution design",
-    body: "One idea is a guess. Imagine asks for three: Solution A, B, and C, weighed on impact, feasibility, and safety before you commit to a direction.",
+    body: "One idea is a guess. Develop three or more concepts, weigh them in a decision matrix, check for risk, ethics, and originality, then name the one assumption you must test first.",
   },
   {
     num: "04 / ITERATE",
     title: "I Can Test, Fail, Learn & Improve",
     icant: "Build, test & improve",
-    body: "Version 1 is never the answer. Build, test against real criteria, and write the failure report nobody wants to skip: what broke, why, and what changed.",
+    body: "Version 1 is never the answer. Build only enough to learn something, run a real test, log what broke and why, revise, then retest the revised version.",
   },
   {
     num: "05 / IMPACT",
     title: "I Can Create Value",
-    icant: "Entrepreneurship & real-world value",
-    body: "A working prototype isn't the finish line. Who benefits, how does it reach them, and what would a real pilot cost, take, and prove?",
+    icant: "Measurable results & honest evidence",
+    body: "A working prototype isn't the finish line. Choose a meaningful metric, compare the result to a baseline, and report honestly what changed, what it cost, and what you did not prove.",
   },
   {
     num: "06 / INFLUENCE",
     title: "I Can Communicate & Lead",
     icant: "Communication & leadership",
-    body: "An innovation only matters if you can defend it. A final portfolio, a live presentation, and one question every finalist answers: how are you different now?",
+    body: "An innovation only matters if you can defend it. Tell the story, defend the evidence, answer hard questions, lay out a realistic path forward, and make a clear ask.",
   },
 ];
 
@@ -157,7 +157,7 @@ function getCubeSize(width: number) {
 // Shared between the two hero-copy renderings below (the desktop/midsized
 // pinned-overlay version and the small-tier normal-flow version) so the
 // copy itself only lives in one place.
-function HeroCopy() {
+function HeroCopy({ enrollmentOpenDate }: { enrollmentOpenDate: string }) {
   return (
     <>
       <div className={styles.eyebrowWrap}>
@@ -187,7 +187,7 @@ function HeroCopy() {
           See How It Works
         </Button>
       </div>
-      <p className={styles.enrollNote}>Enrollment opens September 2026</p>
+      <p className={styles.enrollNote}>Enrollment opens {enrollmentOpenDate}</p>
       <span className={styles.scrollCue}>
         Scroll through the journey
         <svg
@@ -208,7 +208,7 @@ function HeroCopy() {
   );
 }
 
-export function JourneyHero() {
+export function JourneyHero({ enrollmentOpenDate }: { enrollmentOpenDate: string }) {
   const sectionRef = useRef<HTMLElement>(null);
   const stickyElRef = useRef<HTMLDivElement>(null);
   const introRef = useRef<HTMLDivElement>(null);
@@ -488,7 +488,7 @@ export function JourneyHero() {
           a visible seam between them. */}
       <div ref={introRef} className={styles.mobileIntro}>
         <Checkerboard fadeEdge="top" />
-        <HeroCopy />
+        <HeroCopy enrollmentOpenDate={enrollmentOpenDate} />
       </div>
 
       <div ref={stickyElRef} className={styles.stageScrollSticky}>
@@ -563,7 +563,7 @@ export function JourneyHero() {
         {/* Desktop/midsized-only: overlaid on the card. Hidden at/below
             820px, where .mobileIntro above is used instead. */}
         <div ref={heroRef} className={styles.heroText}>
-          <HeroCopy />
+          <HeroCopy enrollmentOpenDate={enrollmentOpenDate} />
         </div>
 
         {/* Clips the cube to the box's exact rectangle (clip-path values

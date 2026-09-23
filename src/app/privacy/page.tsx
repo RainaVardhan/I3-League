@@ -12,8 +12,8 @@ export default function PrivacyPage() {
       <ul>
         <li>Account information: name, email, role, and school (where applicable).</li>
         <li>
-          Program work: curriculum submissions, assessment results, Innovation Journal entries,
-          and challenge submissions.
+          Program work: curriculum submissions, stage review feedback, and Innovation Journal
+          entries.
         </li>
         <li>
           Payment confirmation details: payment method, transaction reference, and an optional

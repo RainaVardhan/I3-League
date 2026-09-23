@@ -195,8 +195,13 @@ model Student {
 /// read/write path (src/app/consent/[studentId]/) must additionally
 /// require verifiedAt != null, not just that the row exists. Same
 /// pending -> admin-approved pattern as Payment.verifiedAt/verifiedByAdminId
-/// below — until the Sprint 6 admin UI exists, verifying is a direct DB
-/// update, same as payment verification is today.
+/// below — the Sprint 6 admin UI (src/app/admin/parent-links/) is what
+/// verifies/rejects it now.
+///
+/// A reject used to delete the row outright; it now sets rejectedAt instead
+/// (same shape as Payment's REJECTED state) so the admin queue can show a
+/// rejected/approved history, not just what's currently pending. Pending =
+/// verifiedAt AND rejectedAt both null.
 model StudentParent {
   student      Student  @relation(fields: [studentId], references: [id])
   studentId    String
@@ -206,6 +211,10 @@ model StudentParent {
 
   verifiedAt        DateTime? // null = pending admin review, not yet consent-eligible
   verifiedByAdminId String?
+
+  rejectedAt        DateTime?
+  rejectedByAdminId String?
+  rejectionReason   String?
 
   createdAt    DateTime @default(now())
 

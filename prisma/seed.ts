@@ -41,7 +41,7 @@ async function main() {
     update: {},
     create: {
       label: '2026-2027',
-      openDate: new Date('2026-09-01'),
+      openDate: new Date('2026-10-01'),
       springQualifyDeadline: new Date('2027-04-30'),
       summerQualifyDeadline: new Date('2027-07-30'),
       nationalFinalsDate: new Date('2027-08-15'),

@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
+import { isPlatformOpen } from "@/lib/launch";
 
 // Proves "logged in vs not" end to end, plus (as of Sprint 4) one role
 // check for the stage routes below — everything else is still deliberately
@@ -16,12 +17,29 @@ export async function proxy(request: NextRequest) {
   const requiresAuth =
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/register") ||
-    pathname.startsWith("/consent");
+    pathname.startsWith("/consent") ||
+    pathname.startsWith("/admin");
   if (requiresAuth && !user) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
   if ((pathname === "/login" || pathname === "/signup") && user) {
+    const dest = user.user_metadata?.role === "ADMIN" ? "/admin" : "/dashboard";
+    return NextResponse.redirect(new URL(dest, request.url));
+  }
+
+  // Pre-launch lockdown (see src/lib/launch.ts): everything past login and
+  // signup is closed to non-admins. This covers server actions too, since
+  // they are POSTed to these same paths. /dashboard itself stays reachable
+  // (it renders the "coming soon" card and the logout action).
+  if (
+    user &&
+    !isPlatformOpen() &&
+    user.user_metadata?.role !== "ADMIN" &&
+    (pathname.startsWith("/register") ||
+      pathname.startsWith("/consent") ||
+      pathname.startsWith("/dashboard/"))
+  ) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
@@ -35,6 +53,14 @@ export async function proxy(request: NextRequest) {
   // regardless (defense in depth, same as every other server action in
   // this codebase).
   if (user && pathname.startsWith("/dashboard/") && user.user_metadata?.role !== "STUDENT") {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
+  // /admin is ADMIN-only. Same edge-level shortcut as the stage-route check
+  // above (trusts the session's own user_metadata, no DB hit) — the real
+  // check is requireAdmin() (src/lib/admin.ts), a live Prisma read re-run on
+  // every admin page and server action.
+  if (user && pathname.startsWith("/admin") && user.user_metadata?.role !== "ADMIN") {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 

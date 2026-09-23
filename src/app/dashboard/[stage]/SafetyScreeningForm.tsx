@@ -1,27 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/design-system/Button";
 import { Checkbox } from "@/components/design-system/Checkbox";
 import { Input } from "@/components/design-system/Input";
+import { Textarea } from "@/components/design-system/Textarea";
 import { TEXT_LIMITS } from "@/lib/stage-field-limits";
 import { Panel } from "@/components/design-system/Panel";
+import { SAFETY_ITEMS, safetyDetailKey, type SafetyItemKey } from "@/lib/safety-screening";
 import styles from "./StageForm.module.css";
-
-// The exact category list from CLAUDE.md "Safety screening": any checked
-// box (or non-empty "other") sets the project to high-risk / PENDING_REVIEW.
-const SAFETY_ITEMS = [
-  { key: "humans", label: "Involves other people (surveys, interviews, testing on them)" },
-  { key: "animals", label: "Involves animals" },
-  { key: "healthInfo", label: "Involves health information" },
-  { key: "chemicals", label: "Involves chemicals" },
-  { key: "biologicalMaterials", label: "Involves biological materials" },
-  { key: "electricity", label: "Involves electricity above a low-voltage battery" },
-  { key: "machinery", label: "Involves machinery or power tools" },
-  { key: "pii", label: "Involves other people's personal data" },
-  { key: "environmentalSampling", label: "Involves environmental sampling (water, soil, air)" },
-  { key: "drones", label: "Involves drones" },
-  { key: "ai", label: "Involves AI making decisions about people" },
-] as const;
 
 // The screening's fields and button. They sit inside the Investigate page's
 // one shared <form> (every page of the stage is part of it, see
@@ -40,15 +27,41 @@ export function SafetyScreeningFields({
   error: string | null;
   pending: boolean;
 }) {
+  // Which categories are currently checked, so a checked one can reveal its
+  // own required detail box right underneath it. The screening is only ever
+  // submitted once (see saveSafetyScreeningAction's existingReview check), so
+  // this never needs to hydrate from a saved answer.
+  const [checked, setChecked] = useState<Partial<Record<SafetyItemKey, boolean>>>({});
+
   return (
     <div className={styles.form}>
       <p className={styles.intro}>
-        Check anything that applies to your project. This isn&apos;t about whether your project is
-        allowed; it&apos;s about making sure an adult reviews it first if it needs one.
+        Check anything that applies to your project, and describe what it actually involves for each
+        one you check. This isn&apos;t about whether your project is allowed; it&apos;s about giving an
+        admin enough detail to review it if it needs one.
       </p>
       <div className={styles.checklistGrid}>
         {SAFETY_ITEMS.map((item) => (
-          <Checkbox key={item.key} id={item.key} name={item.key} label={item.label} form={formId} />
+          <div key={item.key} className={styles.safetyItem}>
+            <Checkbox
+              id={item.key}
+              name={item.key}
+              label={item.label}
+              form={formId}
+              onChange={(event) => setChecked((prev) => ({ ...prev, [item.key]: event.target.checked }))}
+            />
+            {checked[item.key] && (
+              <Textarea
+                label="What does this involve in your project?"
+                id={safetyDetailKey(item.key)}
+                name={safetyDetailKey(item.key)}
+                form={formId}
+                required
+                maxLength={TEXT_LIMITS[safetyDetailKey(item.key)]}
+                className={styles.safetyDetail}
+              />
+            )}
+          </div>
         ))}
       </div>
       <Input

@@ -1,0 +1,45 @@
+/* Compact inline "danger zone" strip at the bottom of the account page —
+   deliberately not its own full-bleed section (the old version repeated the
+   page's own eyebrow/H1/lead pattern just to host one button). A hairline
+   top border and coral-tinted label are enough to mark it as the one
+   destructive action on the page. */
+.dangerZone {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  margin-top: var(--space-8);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--line);
+}
+
+.dangerNote {
+  margin: 0;
+  max-width: 52ch;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+@media (max-width: 560px) {
+  .dangerZone {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* AdminHub.module.css's .formNote assumes it's a direct child of .inner,
+   which already carries the section's own horizontal gutter — everywhere
+   else it's used that way. The stage-progress override note instead sits
+   inside .panel (a Pattern-C connected plane with no padding of its own;
+   .row supplies its own), so without this it ran text edge-to-edge against
+   the panel's border. Matches .row's own horizontal padding and gets the
+   same hairline divider a new row would. */
+.panelNote {
+  margin: 0;
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}

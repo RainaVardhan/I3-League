@@ -45,3 +45,4 @@ next-env.d.ts
 # local mock file storage — stand-in for Cloudflare R2 until that's wired up
 # (see CLAUDE.md tech stack); payment screenshots land here in dev
 /public/uploads
+/private-uploads

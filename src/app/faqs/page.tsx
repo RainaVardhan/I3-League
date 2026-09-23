@@ -19,6 +19,8 @@ export default async function FaqsPage() {
     springQualifyDeadline: formatSeasonDate(season.springQualifyDeadline),
     summerQualifyDeadline: formatSeasonDate(season.summerQualifyDeadline),
     curriculumVersion: season.curriculumVersion,
+    enrollmentOpenDate: formatSeasonDate(season.openDate),
+    nationalFinalsDate: formatSeasonDate(season.nationalFinalsDate),
   });
 
   return (

@@ -10,6 +10,7 @@ import { INNOVATION_FIELDS } from "@/lib/innovation-fields";
 import { isReasonableName, isReasonablePlace } from "@/lib/reasonable-text";
 import { isKnownCountry, isUnitedStates } from "@/lib/countries";
 import { isKnownUsState } from "@/lib/us-states";
+import { toTitleCase } from "@/lib/text-format";
 import { parseGradeNumber } from "@/lib/grade";
 import { sendEmail } from "@/lib/email";
 import {
@@ -45,13 +46,17 @@ export async function studentRegisterAction(
   const dateOfBirthRaw = String(formData.get("dateOfBirth") ?? "");
   const grade = String(formData.get("grade") ?? "").trim();
   const schoolingType = String(formData.get("schoolingType") ?? "");
-  const schoolName = String(formData.get("schoolName") ?? "").trim();
-  const schoolCity = String(formData.get("schoolCity") ?? "").trim();
-  const schoolState = String(formData.get("schoolState") ?? "").trim();
-  const homeschoolName = String(formData.get("homeschoolName") ?? "").trim();
-  const city = String(formData.get("city") ?? "").trim();
-  const state = String(formData.get("state") ?? "").trim();
-  const country = String(formData.get("country") ?? "").trim();
+  // Title-cased at the point they're read — every downstream check
+  // (isReasonablePlace, isKnownCountry, isKnownUsState) is already
+  // case-insensitive, and this way the value that actually gets saved is
+  // Title Case regardless of how the student typed it.
+  const schoolName = toTitleCase(String(formData.get("schoolName") ?? "").trim());
+  const schoolCity = toTitleCase(String(formData.get("schoolCity") ?? "").trim());
+  const schoolState = toTitleCase(String(formData.get("schoolState") ?? "").trim());
+  const homeschoolName = toTitleCase(String(formData.get("homeschoolName") ?? "").trim());
+  const city = toTitleCase(String(formData.get("city") ?? "").trim());
+  const state = toTitleCase(String(formData.get("state") ?? "").trim());
+  const country = toTitleCase(String(formData.get("country") ?? "").trim());
   const guardianEmail = String(formData.get("guardianEmail") ?? "").trim().toLowerCase();
   const interests = formData
     .getAll("interests")

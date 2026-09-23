@@ -1,5 +1,5 @@
 .page {
-  background: var(--canvas);
+  background: var(--paper);
   padding: var(--space-16) var(--gutter) var(--space-20);
 }
 
@@ -49,11 +49,15 @@
 }
 
 .notice {
+  /* Coral box recipe from docs/design-system.md (same as the AI-use
+     disclosure): coral-soft fill, coral hairline, hard coral offset shadow,
+     square corners, no left bar. */
   background: var(--coral-soft);
-  border-left: 6px solid var(--coral);
-  padding: var(--space-4) var(--space-5);
-  margin-bottom: var(--space-10);
-  color: var(--ink-2);
+  border: 1px solid rgba(227, 94, 73, 0.24);
+  box-shadow: 8px 9px 0 rgba(227, 94, 73, 0.11);
+  padding: var(--space-5) var(--space-6);
+  margin-bottom: var(--space-12);
+  color: var(--ink);
   font-size: 14px;
   line-height: 1.6;
 }

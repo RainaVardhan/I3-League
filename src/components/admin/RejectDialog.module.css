@@ -1,0 +1,66 @@
+/* Same recipe as src/components/journey/MissingItemsDialog.module.css: a
+   paper panel, square corners, the hard blue-soft offset shadow. */
+.dialog {
+  width: min(480px, calc(100vw - 32px));
+  margin: auto;
+  padding: 0;
+  overflow: hidden;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid rgba(16, 33, 61, 0.15);
+  border-radius: 0;
+  box-shadow:
+    12px 14px 0 var(--blue-soft),
+    0 38px 68px rgba(16, 33, 61, 0.2);
+}
+
+.dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.dialog::backdrop {
+  background: rgba(16, 33, 61, 0.45);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.head {
+  padding: var(--space-6) var(--space-6) var(--space-4);
+}
+
+.kicker {
+  color: var(--coral);
+  font: 650 var(--text-label) var(--font-mono), monospace;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: var(--space-2) 0 0;
+  font: 700 clamp(20px, 2.6vw, 24px) / 1.2 var(--font-display), sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.lead {
+  margin: var(--space-2) 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.body {
+  padding: 0 var(--space-6) var(--space-4);
+}
+
+.foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6) var(--space-6);
+  border-top: 1px solid var(--line);
+}

@@ -19,7 +19,7 @@ export default async function Home() {
       <GridBackground />
       <Header />
       <main id="main">
-        <JourneyHero />
+        <JourneyHero enrollmentOpenDate={formatSeasonMonthYear(season.openDate)} />
         <CurriculumBridge />
         <ProblemSection />
         <ProofSection />

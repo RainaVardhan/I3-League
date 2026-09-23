@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import { Button } from "@/components/design-system/Button";
 import { Cube } from "@/components/design-system/Cube";
 import { Eyebrow } from "@/components/design-system/Eyebrow";
@@ -26,6 +27,8 @@ const COLOR_SWATCHES = [
 ];
 
 export default function DesignSystemPage() {
+  // Internal style guide: visible while developing, hidden on the live site.
+  if (process.env.NODE_ENV === "production") notFound();
   return (
     <div className={styles.page}>
       <GridBackground />

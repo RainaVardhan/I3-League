@@ -290,7 +290,11 @@ export function StageSections({
                   </span>
                   {nextOpen ? (
                     <Button type="button" onClick={() => select(next.id)}>
-                      Next: {next.label}
+                      {/* Full "Next: {label}" on a wide enough row; just
+                          "Next" once the pager stops stretching to full
+                          width, so it stays beside Back on one line. */}
+                      <span className={styles.nextLabelFull}>Next: {next.label}</span>
+                      <span className={styles.nextLabelShort}>Next</span>
                     </Button>
                   ) : tab.id === "review" && reviewAction ? (
                     <div className={styles.pagerAction}>{reviewAction}</div>

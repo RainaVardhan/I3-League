@@ -212,38 +212,59 @@
 }
 
 /* Back and Next are the same width as each other (and as Submit, see
-   StageForm.module.css). Under 600px they share the row instead. */
+   StageForm.module.css). */
 @media (min-width: 601px) {
   .pager button {
     min-width: 220px;
   }
 }
 
+/* Full "Next: {label}" by default; swapped for just "Next" below 600px
+   (see the media query below) so the button stays short enough to sit on
+   one line with Back instead of forcing a stack or a wrap. */
+.nextLabelShort {
+  display: none;
+}
+
 @media (max-width: 600px) {
-  /* One column on phones: Back, Next (each full width, so a long label like
-     "Next: Problem Scope" can never push the page wider than the screen), then
-     the save status centered underneath. */
+  /* Back and Next stay side by side on one line, each sized to its own
+     (now short) label rather than stretched full width; the save status
+     drops to its own line underneath instead of squeezing into the row. */
   .pager {
-    grid-template-columns: minmax(0, 1fr);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    row-gap: var(--space-2);
   }
   .pager > :first-child {
     order: 1;
-    justify-self: stretch;
+    justify-self: auto;
+    flex: 0 0 auto;
   }
   .pager > :last-child {
     order: 2;
-    justify-self: stretch;
+    justify-self: auto;
+    flex: 0 0 auto;
   }
   .pagerAction {
     order: 2;
-    justify-self: stretch;
+    justify-self: auto;
   }
   .pager button {
-    width: 100%;
+    width: auto;
     min-width: 0;
+    padding: 0 16px;
   }
   .pagerNote {
     order: 3;
+    flex-basis: 100%;
+  }
+  .nextLabelFull {
+    display: none;
+  }
+  .nextLabelShort {
+    display: inline;
   }
 }
 

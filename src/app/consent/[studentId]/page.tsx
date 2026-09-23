@@ -41,7 +41,20 @@ export default async function ConsentPage({
   // A row existing isn't enough — see the StudentParent model comment in
   // schema.prisma. The link is only consent-eligible once an admin has
   // verified it's a real guardian relationship, not just a self-reported
-  // email match.
+  // email match. A rejected link now persists (rejectedAt set) instead of
+  // being deleted, so it needs its own message distinct from "still
+  // pending" — otherwise a rejected parent sees the same reassuring
+  // "usually happens within a day or two" copy as someone genuinely waiting.
+  if (link.rejectedAt) {
+    return (
+      <AuthCard heading={`Link to ${link.student.firstName} was not approved`} wide>
+        <p>
+          {link.rejectionReason || "An admin reviewed this guardian relationship and could not confirm it."}{" "}
+          If this is a mistake, contact us so it can be looked at again.
+        </p>
+      </AuthCard>
+    );
+  }
   if (!link.verifiedAt) {
     return (
       <AuthCard heading={`Link to ${link.student.firstName} pending review`} wide>

@@ -7,23 +7,23 @@ import styles from "./StageWorkflow.module.css";
 const WORKFLOW_STEPS = [
   {
     number: "01",
-    title: "Research Record",
-    body: "Evidence, sources, interviews, assumptions, and decisions.",
+    title: "Learn",
+    body: "Short student notes for every topic: what it is, why it matters, an example, a common mistake, and a question to think about.",
   },
   {
     number: "02",
-    title: "Innovation Portfolio",
-    body: "The evolution of the problem, ideas, prototypes, tests, and improvements.",
+    title: "Do",
+    body: "Activities and worksheets that turn each topic into something you actually produce for your own project.",
   },
   {
     number: "03",
-    title: "Impact Case",
-    body: "Who the innovation helps, how it creates value, and what a real pilot could prove.",
+    title: "Show",
+    body: "One polished artifact per stage. Worksheets are working tools; the artifact is the evidence package you submit.",
   },
   {
     number: "04",
-    title: "Final Defense",
-    body: "A clear presentation of the innovation, the evidence behind it, and how the student's thinking changed.",
+    title: "Review",
+    body: "A rubric decides whether the work is ready to advance. If not, you get specific feedback, revise, and resubmit. Revision is expected, not penalized.",
   },
 ];
 
@@ -35,14 +35,14 @@ export function StageWorkflow() {
     <section className={styles.section} aria-labelledby="workflow-title">
       <div className={styles.inner}>
         <div className={styles.head}>
-          <Eyebrow>WHAT STUDENTS BUILD</Eyebrow>
+          <Eyebrow>HOW EVERY STAGE WORKS</Eyebrow>
           <h2 id="workflow-title" className={styles.heading}>
-            The curriculum leaves evidence behind.
+            Learn. Do. Show. Review.
           </h2>
           <p className={styles.copy}>
-            By the end of the I³ journey, students don&apos;t just understand innovation, they
-            have a body of work that shows how they think, research, build, improve, and
-            communicate.
+            Every stage follows the same four layers. By the end, the six stage artifacts come
+            together as a Final Innovation Portfolio that shows how you think, research, build,
+            improve, and communicate.
           </p>
         </div>
 

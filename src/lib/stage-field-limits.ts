@@ -62,8 +62,21 @@ export const TEXT_LIMITS = {
   stakeholderInfluencers: 1000,
   existingSolutions: 5000,
   identifiedGap: 2000,
-  // Safety screening.
+  // Safety screening. otherDescription stays optional (the free-text
+  // "anything else" box); every *Detail field is required once its
+  // category is checked (see safetyDetailKey in src/lib/safety-screening.ts).
   otherDescription: 2000,
+  humansDetail: 1000,
+  animalsDetail: 1000,
+  healthInfoDetail: 1000,
+  chemicalsDetail: 1000,
+  biologicalMaterialsDetail: 1000,
+  electricityDetail: 1000,
+  machineryDetail: 1000,
+  piiDetail: 1000,
+  environmentalSamplingDetail: 1000,
+  dronesDetail: 1000,
+  aiDetail: 1000,
   // AI-use disclosure.
   aiToolName: 200,
   aiPurpose: 1000,

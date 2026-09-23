@@ -75,6 +75,31 @@
   box-shadow: 0 2px 0 var(--dim);
 }
 
+/* A destructive action (e.g. rejecting an admin queue row) — solid coral
+   fill, the same recipe as .primary's ink fill (a hand-darkened shade of
+   the fill color for the hard shadow, a lighter shade on hover, same
+   vertical lift/press motion), so Reject reads as a real, equally weighted
+   action next to Verify/Clear rather than a quiet outline. Pass as an extra
+   className alongside variant="ghost" (overrides .ghost's background/border
+   below it in source order). */
+.danger {
+  background: var(--coral);
+  border-color: var(--coral);
+  color: var(--white);
+  box-shadow: 0 5px 0 #a83f2e;
+}
+.danger:hover {
+  background: #d14a35;
+  border-color: #d14a35;
+  color: var(--white);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 0 #a83f2e;
+}
+.danger:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 #a83f2e;
+}
+
 /* A button that looks unavailable but still answers a click (e.g. a Submit
    that opens a "what's left" list instead of submitting). Native :disabled is
    left alone because it blocks the click entirely. */

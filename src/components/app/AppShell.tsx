@@ -347,7 +347,25 @@ export function AppShell({
 
       <div className={styles.main}>
         <header className={styles.topbar}>
-          <span className={styles.breadcrumb}>Workspace / {breadcrumb}</span>
+          <div className={styles.topbarLeft}>
+            {/* Only visible at the smallest widths, where the sidebar is an
+                off-canvas drawer rather than a permanent column (see the
+                480px media query in AppShell.module.css) — this is what
+                opens it there, since the rail's own menu button is hidden
+                along with the rest of the rail until then. */}
+            <button
+              type="button"
+              className={styles.topbarMenuToggle}
+              aria-label={menuOpen ? "Collapse menu" : "Expand menu"}
+              aria-expanded={menuOpen}
+              onClick={toggleMenu}
+            >
+              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                <path d="M4 6h16M4 12h16M4 18h16" strokeLinecap="round" />
+              </svg>
+            </button>
+            <span className={styles.breadcrumb}>Workspace / {breadcrumb}</span>
+          </div>
           <Link href="/contact" className={styles.helpLink}>
             Help
           </Link>

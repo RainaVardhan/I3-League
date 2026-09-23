@@ -38,7 +38,9 @@
   flex-direction: column;
   z-index: 50;
   overflow: hidden;
-  transition: width 0.2s ease;
+  transition:
+    width 0.2s ease,
+    transform 0.2s ease;
 }
 
 .brandRow {
@@ -882,16 +884,68 @@
   background: var(--blue-pale);
 }
 
+.topbarLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+/* Only shown at the smallest widths (see the 600px media query below),
+   where the rail becomes an off-canvas drawer instead of a permanent
+   column: this is what opens it. Hidden everywhere the rail stays
+   docked, so it never duplicates the sidebar's own menu button. */
+.topbarMenuToggle {
+  display: none;
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.topbarMenuToggle:hover {
+  background: var(--blue-pale);
+}
+
+/* Below this, a permanently-docked rail leaves no room for the content
+   column to be visually centered: the rail (plus its own gutter) eats far
+   more of the left edge than the single gutter on the right, so content
+   reads as shoved right (measured on a 375px screen, before this fix: 84px
+   of left inset vs. 20px on the right). Rather than mirroring the rail's
+   width on the right (which would just shrink content to make room for
+   symmetry), the rail becomes an off-canvas drawer here: it stays fully
+   off-screen until opened, .main takes the full width, and a small button
+   in the topbar (.topbarMenuToggle) opens it instead of the rail's own
+   menu button (hidden along with the rest of the rail until then). Tablet
+   and up keep the always-visible rail unchanged. */
 @media (max-width: 600px) {
   .shell {
     --rail-w: 64px;
     --panel-w: 262px;
+    grid-template-columns: 0 minmax(0, 1fr);
+  }
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  .shellOpen .sidebar {
+    transform: translateX(0);
   }
   .topbar {
     padding: 0 var(--space-4);
   }
   .helpLink {
     padding: 0 var(--space-3);
+  }
+  .topbarMenuToggle {
+    display: inline-flex;
   }
 }
 

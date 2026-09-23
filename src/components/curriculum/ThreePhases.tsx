@@ -10,12 +10,12 @@ const PHASE_ITEMS = [
   {
     kicker: "DEVELOPMENT",
     title: "Build",
-    body: "Testing, iteration, failure analysis, value, and real-world use.",
+    body: "Testing, iteration, failure analysis, and measured impact.",
   },
   {
     kicker: "EXPRESSION",
     title: "Lead",
-    body: "Communication, defense, reflection, and confident presentation.",
+    body: "Communication, defense of the evidence, reflection, and a clear ask.",
   },
 ];
 

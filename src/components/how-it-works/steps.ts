@@ -22,7 +22,7 @@ export const STEPS: Step[] = [
     copy: "Create your Innovator Profile.",
     meta: "Get started",
     detail:
-      "Takes just a few minutes: create your account, tell us a bit about yourself, and choose to go it alone or team up with others.",
+      "Create your account, register, and choose to go solo or join a team. A parent or guardian gives consent, each student pays their own share, and an admin verifies each payment individually.",
   },
   {
     number: "02",
@@ -30,7 +30,7 @@ export const STEPS: Step[] = [
     copy: "Complete the six innovation stages.",
     meta: "Build the skills",
     detail:
-      "Work through Insight, Investigate, Imagine, Iterate, Impact, and Influence, the same six-stage foundation every innovator builds on.",
+      "Work through Insight, Investigate, Imagine, Iterate, Impact, and Influence in order. Each stage has notes to learn from, activities to do, and one artifact to submit.",
   },
   {
     number: "03",
@@ -43,10 +43,10 @@ export const STEPS: Step[] = [
   {
     number: "04",
     title: "Pass",
-    copy: "Complete assessments and submissions.",
+    copy: "Pass each stage's review.",
     meta: "Show the work",
     detail:
-      "Each stage wraps with a project submission and a short assessment before the next one unlocks.",
+      "Every stage ends with one artifact, reviewed against a rubric. If it is ready, the next stage unlocks. If not, you get specific feedback, revise, and resubmit. Revision is expected, not penalized.",
   },
   {
     number: "05",
@@ -54,7 +54,7 @@ export const STEPS: Step[] = [
     copy: "Become an I³League Certified Innovator.",
     meta: "Certification",
     detail:
-      "Finish all six stages, their submissions, and their assessments, and you're recognized as an I³League Certified Innovator.",
+      "Complete all six stages and their reviews, and you're recognized as an I³League Certified Innovator.",
   },
   {
     number: "06",
@@ -75,7 +75,7 @@ export const STEPS: Step[] = [
     copy: "Top innovators advance to the Finals.",
     meta: "Go to Finals",
     detail:
-      "The strongest qualifying innovations are invited to represent at the I³League National Innovation Finals.",
+      "Teams that clear all six stages enter Finals selection, where the strongest innovations are compared and invited to the I³League National Innovation Finals.",
   },
   {
     number: "08",

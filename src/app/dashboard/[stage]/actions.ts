@@ -10,8 +10,10 @@ import { getActiveSeason } from "@/lib/season";
 import { INSIGHT_EVIDENCE_TYPES } from "@/lib/insight-requirements";
 import { completeStage } from "@/lib/stage-progress";
 import { saveUploadedFile } from "@/lib/storage";
+import { checkRateLimit } from "@/lib/rate-limit";
 import { INNOVATION_FIELDS } from "@/lib/innovation-fields";
 import { TEXT_LIMITS, type TextField } from "@/lib/stage-field-limits";
+import { safetyDetailKey, type SafetyItemKey } from "@/lib/safety-screening";
 import { containsInappropriateLanguage, INAPPROPRIATE_LANGUAGE_ERROR } from "@/lib/content-filter";
 import {
   EVIDENCE_TYPES,
@@ -153,6 +155,19 @@ const INSIGHT_TEXT_FIELDS = [
 ] as const;
 
 
+// Rate cap for every stage save (autosave, draft, final, safety screening).
+// Autosave fires at most about once per 900ms of typing plus once per blur,
+// so real use peaks around 70 saves a minute; 120 leaves room for retries
+// while stopping a script from hammering the database. Per student, not per
+// team. In-memory (see src/lib/rate-limit.ts), the same stopgap as the Journal.
+const STAGE_WRITE_LIMIT = 120;
+const STAGE_WRITE_WINDOW_MS = 60_000;
+
+function assertStageWriteAllowed(studentId: string): StageFormState | null {
+  if (checkRateLimit(`stage-write:${studentId}`, STAGE_WRITE_LIMIT, STAGE_WRITE_WINDOW_MS)) return null;
+  return { error: "You're saving too quickly. Please wait a moment and try again." };
+}
+
 async function requireCurrentStudent() {
   const appUser = await getCurrentAppUser();
   if (!appUser || appUser.role !== "STUDENT") {
@@ -220,6 +235,8 @@ function readAiDisclosure(formData: FormData) {
 // without reloading the page.
 async function persistInsight(formData: FormData, intent: "draft" | "final"): Promise<StageFormState> {
   const student = await requireCurrentStudent();
+  const limited = assertStageWriteAllowed(student.id);
+  if (limited) return limited;
   await requireCurrentStage(student.id, "INSIGHT");
   const project = await getOrCreateStudentProject(student.id);
 
@@ -455,6 +472,8 @@ export async function saveSafetyScreeningAction(
   formData: FormData
 ): Promise<StageFormState> {
   const student = await requireCurrentStudent();
+  const limited = assertStageWriteAllowed(student.id);
+  if (limited) return limited;
   await requireCurrentStage(student.id, "INVESTIGATE");
   const project = await getOrCreateStudentProject(student.id);
 
@@ -471,9 +490,28 @@ export async function saveSafetyScreeningAction(
   const answers = Object.fromEntries(
     SAFETY_CATEGORIES.map((key) => [key, formData.get(key) === "on"])
   ) as Record<(typeof SAFETY_CATEGORIES)[number], boolean>;
-  const { values: safetyText, error: safetyTooLong } = readTextFields(formData, ["otherDescription"] as const);
+
+  const detailFields = SAFETY_CATEGORIES.map((key) => safetyDetailKey(key as SafetyItemKey));
+  const { values: safetyText, error: safetyTooLong } = readTextFields(formData, [
+    "otherDescription",
+    ...detailFields,
+  ] as const);
   if (safetyTooLong) return { error: safetyTooLong };
   const otherDescription = safetyText.otherDescription;
+
+  // A flagged category needs its own detailed account of what it actually
+  // involves in this project — a checkbox alone tells an admin nothing they
+  // can act on. Re-checked here, not just relied on the box's own `required`,
+  // same defense-in-depth every other server action in this file applies.
+  for (const key of SAFETY_CATEGORIES) {
+    if (answers[key] && !safetyText[safetyDetailKey(key as SafetyItemKey)]) {
+      return { error: "Describe what each checked item involves in your project before saving." };
+    }
+  }
+
+  const details = Object.fromEntries(
+    SAFETY_CATEGORIES.map((key) => [safetyDetailKey(key as SafetyItemKey), safetyText[safetyDetailKey(key as SafetyItemKey)]]),
+  );
 
   const isHighRisk = SAFETY_CATEGORIES.some((key) => answers[key]) || otherDescription.length > 0;
 
@@ -481,7 +519,7 @@ export async function saveSafetyScreeningAction(
     await prisma.safetyReview.create({
       data: {
         projectId: project.id,
-        answers: { ...answers, otherDescription },
+        answers: { ...answers, ...details, otherDescription },
         isHighRisk,
         status: isHighRisk ? "PENDING_REVIEW" : "CLEARED",
       },
@@ -503,6 +541,8 @@ export async function saveSafetyScreeningAction(
 // hub checklist read, so all three agree on what "finished" means.
 async function persistInvestigate(formData: FormData, intent: "draft" | "final"): Promise<StageFormState> {
   const student = await requireCurrentStudent();
+  const limited = assertStageWriteAllowed(student.id);
+  if (limited) return limited;
   await requireCurrentStage(student.id, "INVESTIGATE");
   const project = await getOrCreateStudentProject(student.id);
 
@@ -637,6 +677,8 @@ async function persistGuided(stageName: string, formData: FormData, intent: "dra
   const stage = GUIDED_STAGES[stageName];
 
   const student = await requireCurrentStudent();
+  const limited = assertStageWriteAllowed(student.id);
+  if (limited) return limited;
   await requireCurrentStage(student.id, stageName);
   const project = await getOrCreateStudentProject(student.id);
 

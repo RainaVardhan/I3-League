@@ -15,14 +15,27 @@ export function buildFaqSections(params: {
   springQualifyDeadline: string;
   summerQualifyDeadline: string;
   curriculumVersion: string;
+  enrollmentOpenDate: string;
+  nationalFinalsDate: string;
 }): FaqSection[] {
-  const { price, maxTeamSize, springQualifyDeadline, summerQualifyDeadline, curriculumVersion } =
-    params;
+  const {
+    price,
+    maxTeamSize,
+    springQualifyDeadline,
+    summerQualifyDeadline,
+    curriculumVersion,
+    enrollmentOpenDate,
+    nationalFinalsDate,
+  } = params;
 
   return [
     {
       title: "Registration & pricing",
       items: [
+        {
+          question: "When does enrollment open?",
+          answer: `Enrollment opens ${enrollmentOpenDate}. You can create an account before then, but registration, payment, and the curriculum open on that date.`,
+        },
         {
           question: "How much does I³ League cost?",
           answer: `Registration is $${price.toFixed(0)} per student, priced the same whether you register individually or as part of a team. A team of ${maxTeamSize} students pays $${price.toFixed(0)} each, and every student gets their own account, curriculum access, and certification regardless of team size.`,
@@ -49,7 +62,7 @@ export function buildFaqSections(params: {
         {
           question: "If I work on a team, is everything shared with my teammates?",
           answer:
-            "The project itself can be shared across a team, while the learning always stays individual. Each student completes their own curriculum, assessments, Innovation Journal, and challenges, and earns their own Innovator Profile, badges, and certificate.",
+            "The project itself can be shared across a team, while the learning always stays individual. Each student completes their own curriculum, stage submissions, and Innovation Journal, and earns their own Innovator Profile, badges, and certificate.",
         },
         {
           question: "Do we choose our own problem to work on?",
@@ -63,7 +76,32 @@ export function buildFaqSections(params: {
       items: [
         {
           question: "What does the curriculum actually cover?",
-          answer: `The ${curriculumVersion} curriculum is six stages: Insight, Investigate, Imagine, Iterate, Impact, and Influence. Each stage builds a skill and applies it directly to your project.`,
+          answer: `The ${curriculumVersion} curriculum is six stages, done in order: Insight (is this a real problem?), Investigate (why is it happening, and what does the evidence say?), Imagine (what could solve it, and what must we test first?), Iterate (can we build and test the critical assumption?), Impact (did it make a measurable difference?), and Influence (can we defend it, sustain it, and convince someone to take the next step?). You apply every stage directly to your own project.`,
+        },
+        {
+          question: "What do I actually submit at each stage?",
+          answer:
+            "One artifact per stage: a Validated Problem Statement + Evidence Notes (Insight), a Research Brief (Investigate), a Concept Portfolio (Imagine), a Tested Prototype + Test Plan + Iteration Log (Iterate), an Impact Report (Impact), and a Final Pitch + Innovation Portfolio (Influence). Worksheets are working tools; the artifact is the polished evidence package.",
+        },
+        {
+          question: "How are submissions reviewed?",
+          answer:
+            "Each submission is checked against a rubric with six dimensions: Evidence Quality, Reasoning & Interpretation, Process Rigor, Integrity & Reflection, Completeness, and Communication & Clarity. It is a gate, not a grade: you advance when every required dimension meets the standard. Otherwise you get specific feedback, revise, and resubmit. Needing a revision carries no penalty.",
+        },
+        {
+          question: "Does my solution have to work?",
+          answer:
+            "No. Reviewers judge the quality of your evidence and thinking, not how impressive the final product looks. An unsuccessful solution can still be excellent innovation work if the learning is rigorous and your conclusions match your evidence.",
+        },
+        {
+          question: "Is the curriculum different for middle school and high school?",
+          answer:
+            "No. Everyone follows the same six-stage pathway. Depth increases with grade level: some topics are marked for high school, and some are optional stretch topics for strong or older students.",
+        },
+        {
+          question: "Can I use AI?",
+          answer:
+            "You may, but every stage submission includes a required AI-use disclosure, whether or not you used AI. Imagine also asks you to consider honestly whether your problem needs AI at all.",
         },
         {
           question: "Can I skip ahead to a later stage?",
@@ -89,6 +127,10 @@ export function buildFaqSections(params: {
           question: "Does registering automatically qualify me for the National Finals?",
           answer:
             "No. Registering opens the curriculum for the season. Qualifying for the Finals is a separate, later achievement based on completing the required work by one of the qualification windows.",
+        },
+        {
+          question: "How does the National Finals work?",
+          answer: `The National Finals are scheduled for ${nationalFinalsDate}. Only students and teams that have advanced through all six stages enter Finals selection, where their work is compared to choose among strong teams. The detailed Finals judging framework is still being finalized and will be shared with qualifying students ahead of the event.`,
         },
         {
           question: "When are the qualification windows?",

@@ -22,6 +22,7 @@ import { isHighSchoolGrade } from "@/lib/investigate-requirements";
 import { getStageChecklist } from "@/lib/stage-checklist";
 import { getOrCreateStudentProject } from "@/lib/project";
 import { createClient } from "@/lib/supabase/server";
+import { isPlatformOpen } from "@/lib/launch";
 import { logoutAction } from "./actions";
 import styles from "./page.module.css";
 
@@ -53,7 +54,9 @@ export default async function DashboardPage() {
     include: { student: true, parent: true, coach: true },
   });
 
-  if (appUser?.role === "STUDENT" && appUser.student) {
+  const comingSoon = !isPlatformOpen() && appUser?.role !== "ADMIN";
+
+  if (!comingSoon && appUser?.role === "STUDENT" && appUser.student) {
     const season = await getActiveSeason();
     const enrollment = await prisma.enrollment.findUnique({
       where: { studentId_seasonId: { studentId: appUser.student.id, seasonId: season.id } },
@@ -89,7 +92,19 @@ export default async function DashboardPage() {
         <div className={styles.card}>
           <Logo />
           <Panel variant="standard" prominent>
-            {appUser ? (
+            {comingSoon ? (
+              // Pre-launch (src/lib/launch.ts): no registration, payment or
+              // dashboard yet. Full flow is intact behind PLATFORM_OPEN.
+              <>
+                <h1 className={styles.heading}>Coming soon</h1>
+                <p className={styles.notice}>
+                  Your account is created. Registration and the student
+                  dashboard are not open yet. We will let you know when they
+                  are.
+                </p>
+                {logoutButton}
+              </>
+            ) : appUser ? (
               <>
                 <h1 className={styles.heading}>
                   Logged in as {appUser.email}, role {appUser.role}
@@ -390,7 +405,9 @@ async function ParentStatus({
             <span className={styles.studentName}>
               {link.student.firstName} {link.student.lastName}
             </span>
-            {!link.verifiedAt ? (
+            {link.rejectedAt ? (
+              <span className={styles.consentDone}>Link not approved</span>
+            ) : !link.verifiedAt ? (
               <span className={styles.consentDone}>Link pending admin review</span>
             ) : consentedStudentIds.has(link.studentId) ? (
               <span className={styles.consentDone}>Consent recorded</span>

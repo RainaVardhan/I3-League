@@ -18,9 +18,9 @@ export const CURRICULUM_STAGES: CurriculumStage[] = [
     name: "Insight",
     headline: "Start with the problem, not the idea.",
     description: [
-      "Every innovation starts with a real, specific problem, not a hypothetical one. In Insight, students learn to look closely at their own school, neighborhood, or community and notice something that is genuinely broken, inefficient, or unfair, then describe it in concrete terms instead of a vague statement like \"people should recycle more.\"",
-      "The core skill here is turning an observation into a problem statement that can actually be worked on: who is affected, how often, and what evidence supports that it's a real problem, not just an assumption. Students practice separating what they think is true from what they can actually show is true.",
-      "By the end of Insight, a student has a single, focused problem statement, the raw material every later stage builds on. Nothing about the eventual solution is decided yet, on purpose. Jumping to a solution before understanding the problem is one of the most common ways youth innovation projects go wrong.",
+      "Core question: Is this a real problem? Insight teaches students to observe closely, understand the people affected without assuming what they think, and narrow a broad concern into a problem small enough to work on. Topics: Observation Skills, Empathy Without Assumption, Problem Scope, Ethical Interviewing & Consent, and Team Charter.",
+      "Students practice by logging real frictions, interviewing someone affected (with consent), and rewriting a vague concern into a specific problem statement that names who is affected, where, when, and why it matters. A problem statement that is really a hidden solution does not pass.",
+      "Required artifact: Validated Problem Statement + Evidence Notes. It includes the problem statement, the affected group, observation evidence, firsthand interview evidence, the reason the scope is manageable, and, for teams, a team charter. To advance, the problem must be specific, evidenced, and something the student can explain.",
     ],
   },
   {
@@ -28,9 +28,9 @@ export const CURRICULUM_STAGES: CurriculumStage[] = [
     name: "Investigate",
     headline: "Research before you build, safely.",
     description: [
-      "Investigate is where the problem statement gets tested against evidence. Students dig into what's already known: existing research, prior attempts to solve similar problems, and, where appropriate, direct conversations with the people actually affected by the problem they identified in Insight.",
-      "Every project also passes a mandatory safety screening in this stage. Any high-risk answer, involving people, animals, health information, chemicals, biological materials, electricity, machinery, personal data, environmental sampling, drones, or AI, automatically routes the project to admin review before the student can continue. This isn't optional and it isn't a formality; it's the point where an adult reviews what a student is proposing before they go do it.",
-      "Students are expected to leave this stage having changed their mind about something. If the research only ever confirms what a student already believed going in, that's usually a sign it wasn't real research. A revised, evidence-backed problem statement is what carries forward into Imagine.",
+      "Core question: Why is it happening, and what does the evidence say? Investigate tests the problem against evidence. Topics: Basic Data Literacy, Bias Awareness, Data Privacy Basics, Research Integrity, Source Triangulation, and Citation vs. Plagiarism, plus Problem Ecosystem / System Mapping for high school students. The guiding principle: good research can change your mind.",
+      "Students collect more than one type of evidence, check each claim against independent sources, look honestly at evidence that contradicts them, find a credible root cause, and identify the gap in what already exists. Every project also completes a safety screening here. Any higher-risk answer sends the project to admin review before the student can continue.",
+      "Required artifact: Research Brief. It includes research questions, survey or interview evidence, a source list, triangulation, root cause analysis, the existing-solutions gap, and a stakeholder map (plus a System Map for high school). To advance, findings must be honest, the evidence varied, and the root cause and gap credible.",
     ],
   },
   {
@@ -38,9 +38,9 @@ export const CURRICULUM_STAGES: CurriculumStage[] = [
     name: "Imagine",
     headline: "Create options before choosing one.",
     description: [
-      "Imagine is the only stage built around volume, not judgment. Students generate as many possible solutions to their researched problem as they reasonably can, deliberately withholding judgment about which ones are \"good\" until there's a real set of options to compare.",
-      "Once a reasonable set of ideas exists, students evaluate them against real constraints: feasibility (can this actually be built with the time, materials, and skills available), impact (does it address the root problem from Investigate, not just a symptom of it), and safety.",
-      "The stage ends with a single committed direction, not a menu of options. That decision is what the student carries into Iterate; everything from here on assumes the idea has already been chosen.",
+      "Core question: What could solve it, which direction should we choose, and what must we test first? Imagine covers Value Proposition, User Needs vs. Features, Divergent Thinking, Constraints Thinking, Risk Identification, Accessibility & Inclusion, Responsible & Ethical Design, AI Fit & Responsible Use, Assumption Prioritization, Originality, Attribution & IP, and Decision Matrix / Concept Selection, plus Build vs. Buy vs. Partner for high school.",
+      "Students develop three or more genuinely different concepts, test them against real constraints, risks, accessibility, and ethics, ask honestly whether AI is actually needed, and record what is original and what is borrowed. A decision matrix then justifies the choice of one concept.",
+      "Required artifact: Concept Portfolio. It includes the value proposition, needs and features map, the concepts, constraints, risks, the originality record, the decision matrix, the selected concept, and the critical assumption to test first. To advance, multiple real options must have been considered, the selection justified, and the critical assumption named.",
     ],
   },
   {
@@ -48,9 +48,9 @@ export const CURRICULUM_STAGES: CurriculumStage[] = [
     name: "Iterate",
     headline: "Use failure as evidence.",
     description: [
-      "Iterate is where the idea from Imagine becomes something real: a prototype, a written plan, a working process, a piece of code, whatever form the solution actually takes. Students build a first real version, then test it against something outside their own head, feedback from another person, a trial run, a comparison against the original problem statement from Insight.",
-      "Failure is treated as data here, not as a setback to hide. When something doesn't work the way a student expected, the useful move is to write down what broke, why it broke, and what that implies for the next version, then actually build that next version.",
-      "This is also where the append-only Innovation Journal fills in fastest, one dated entry at a time. Editing a past entry creates a new version instead of overwriting it, so a student's actual thinking over time stays visible instead of getting quietly cleaned up after the fact.",
+      "Core question: Can we build and test the critical assumption? Iterate covers MVP Thinking, Prototype Fidelity, Experiment Design Basics, Test Questions & Success Criteria, Usability Basics, Observation vs. Opinion, Learning From Failure, Feedback to Revision, Versioning, and Team Execution & Task Tracking, plus Formal Experiment Controls and Git & Technical Documentation (when relevant) for high school. A prototype is not a product: build only enough to learn something.",
+      "Students define a minimum viable version, set a test question and success criteria in advance, run a real test with real participants, log what worked and what failed, revise based on the feedback, and then retest the revised version.",
+      "Required artifact: Tested Prototype + Test Plan + Iteration Log. It includes the MVP definition, the prototype, the test question, success criteria, observations, feedback, the learning log, revisions, version history, and retest evidence. To advance, the critical assumption must be tested, evidence collected, a revision made, and the revised version retested.",
     ],
   },
   {
@@ -58,9 +58,9 @@ export const CURRICULUM_STAGES: CurriculumStage[] = [
     name: "Impact",
     headline: "Make it matter beyond the prototype.",
     description: [
-      "A working prototype isn't the finish line. In Impact, students step back from what they built and ask an honest question: did the problem from Insight actually get smaller because of this, and what evidence supports that, not what they hope is true, what they can actually show.",
-      "This stage rewards specificity over enthusiasm. \"It helped a lot of people\" isn't evidence; \"three teachers piloted this for two weeks and reported X\" is. Students are expected to name real limitations, what this doesn't solve yet, who it doesn't reach, what would break at a larger scale, rather than presenting the work as finished.",
-      "The output of Impact is a clear-eyed account of what changed and what a next version would need to do better. That honesty is itself part of what's being evaluated here, not just the outcome.",
+      "Core question: Did it actually make a measurable difference? Impact walks through what changed, compared to what, how we know, who benefited, at what cost, what was not proven, and whether it would still work at scale. Topics include Choosing the Right Success Metric, Baseline and Comparison, Quantitative vs. Qualitative Evidence, Responsible Claims, Limitations, Unintended Consequences, and Cost vs. Benefit. High school adds Correlation vs. Causation, Leading vs. Lagging Indicators, Adoption Metrics, Scalability, and Unit Economics.",
+      "Students choose a meaningful metric, measure against a baseline or comparison, analyze the result, and state honestly what the evidence does and does not support, including limitations and unintended consequences.",
+      "Required artifact: Impact Report. To advance, the conclusion must match the evidence, even if the innovation did not achieve its impact. A null or negative result can still meet the standard, because review checks the evidence and rigor, never whether the outcome was positive.",
     ],
   },
   {
@@ -68,10 +68,9 @@ export const CURRICULUM_STAGES: CurriculumStage[] = [
     name: "Influence",
     headline: "Explain the work. Defend the decisions.",
     description: [
-      "Influence is the closing stage, where a student has to explain and defend everything the previous five stages produced, not just present it. It brings together a speaking submission, the Character Challenge, the Ethics Challenge, and a final AI-use disclosure into one finished package.",
-      "The AI-use disclosure at this stage isn't unique to Influence, it's required at the submission step of every stage, including this one, whether or not a student used AI at all. The point is a consistent, honest record, not a one-time confession.",
-      "Everything from Insight through Influence, the journal entries, the safety review, the prototype, the impact evidence, and this closing package, compiles into the student's finished Innovation Portfolio: the artifact that follows them through certification and, if they qualify, into the National Finals.",
+      "Core question: Can we defend it, sustain it, and convince someone to take the next step? Influence covers Audience Adaptation, Evidence-Based Storytelling, Visual Communication, Demo Skills, Defending Your Evidence, Q&A and Objections, Implementation & Sustainability Model, Clear Ask / Next Step, Portfolio Documentation, and Reflection. High school adds Budgeting, Funding and Support Models, Partnership Strategy, Risk & Mitigation, and an Executive Summary. The goal of a pitch is not applause. The goal is a decision.",
+      "Students plan for their audience, build a story from their evidence, demonstrate the work, prepare for hard questions, and present a realistic path to implementation, adoption, continuation, or further investigation. On a team, every member must be able to explain the project and their own contribution.",
+      "Required artifact: Final Pitch + Innovation Portfolio, which brings the artifacts from all six stages together with a reflection and an implementation and sustainability plan. To advance, the story must be clear, the evidence defensible, the next step realistic, and the Q&A strong.",
     ],
   },
 ];
-

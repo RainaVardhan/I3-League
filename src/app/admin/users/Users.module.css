@@ -1,0 +1,137 @@
+/* Search + role-filter pills, same recipe as the Journal's own toolbar
+   (src/app/dashboard/journal/Journal.module.css .searchInput/.filterPill —
+   Section 17 form input + the one considered pill use per Section 21.6). */
+
+/* People / Participants — same segmented-group shape as the sort toggle
+   (AdminHub.module.css .sortToggle/.sortBtn), but ink-filled when active
+   instead of cobalt, so switching the whole view reads as a distinct
+   control from sorting the list within a view. */
+.viewTabs {
+  display: inline-flex;
+  max-width: 100%;
+  margin-top: var(--space-8);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md, 8px);
+  overflow-x: auto;
+}
+
+.viewTab {
+  flex-shrink: 0;
+  padding: 0 20px;
+  min-height: 45px;
+  background: var(--paper);
+  border: none;
+  border-left: 1px solid var(--line-strong);
+  color: var(--muted);
+  font: 650 13.5px var(--font-body), sans-serif;
+  cursor: pointer;
+  transition:
+    background 0.16s ease,
+    color 0.16s ease;
+}
+
+.viewTabs .viewTab:first-child {
+  border-left: none;
+}
+
+.viewTab:hover {
+  background: var(--blue-pale);
+  color: var(--ink);
+}
+
+.viewTabActive,
+.viewTabActive:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.controls {
+  margin-top: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* Search input + the sort toggle (AdminHub.module.css .sortToggle/.sortBtn)
+   share a row, same layout as the admin History lists' own toolbar. */
+.searchRow {
+  display: flex;
+  gap: var(--space-5);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.search {
+  flex: 1 1 260px;
+  min-width: 0;
+  min-height: 47px;
+  padding: 0 16px;
+  background: var(--paper);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md, 8px);
+  font: 15px var(--font-body), sans-serif;
+  color: var(--ink);
+}
+
+.search::placeholder {
+  color: var(--dim);
+}
+
+.search:focus-visible {
+  outline: none;
+  border: 2px solid var(--blue);
+  padding: 0 15px;
+  box-shadow: 0 0 0 3px var(--blue-pale);
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pill {
+  padding: 7px 14px;
+  background: var(--paper);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  font: 600 12.5px var(--font-body), sans-serif;
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    background 0.16s ease,
+    color 0.16s ease,
+    border-color 0.16s ease;
+}
+
+.pill:hover {
+  border-color: var(--blue);
+  color: var(--ink);
+}
+
+.pillActive,
+.pillActive:hover {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: var(--white);
+}
+
+@media (max-width: 620px) {
+  .searchRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* The "this page's scope leaves something out" banner (an archived
+   season's page, missing Parent/Coach/Judge/Admin). Quiet, not an error —
+   a muted line on the canvas fill, not the coral warning treatment. */
+.scopeNote {
+  margin: var(--space-5) 0 var(--space-6);
+  padding: var(--space-4) var(--space-5);
+  background: var(--blue-pale);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.5;
+}

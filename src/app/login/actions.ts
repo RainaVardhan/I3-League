@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { EMAIL_MAX_LENGTH, PASSWORD_MAX_LENGTH } from "@/lib/account-field-limits";
+import { getCurrentAppUser } from "@/lib/auth";
 
 export type LoginState = { error: string | null };
 
@@ -41,5 +42,7 @@ export async function loginAction(
     return { error: "Incorrect email or password." };
   }
 
-  redirect("/dashboard");
+  // Admin has its own landing page — everyone else goes to the shared hub.
+  const appUser = await getCurrentAppUser();
+  redirect(appUser?.role === "ADMIN" ? "/admin" : "/dashboard");
 }

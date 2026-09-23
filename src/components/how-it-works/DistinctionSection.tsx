@@ -59,11 +59,11 @@ export function DistinctionSection({
               program work by one of the established completion windows.
             </p>
             <ul className={styles.list}>
-              <li>Complete assessments and submissions</li>
+              <li>Pass the review at all six stages</li>
               <li>
                 Finish by {springQualifyDeadline} or {summerQualifyDeadline}
               </li>
-              <li>Top innovators may advance to the Finals</li>
+              <li>Qualifying teams enter Finals selection, where the strongest are compared</li>
             </ul>
           </article>
         </div>
