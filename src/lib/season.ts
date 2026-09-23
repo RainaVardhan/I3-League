@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { databaseUrl, prisma } from "@/lib/prisma";
 
 export * from "@/lib/season-format";
 
@@ -17,7 +17,7 @@ export async function getActiveSeason() {
     // TEMPORARY diagnostics: Workers logs hide Prisma's real message. Logs the
     // error's parts and the database host (never the password). Remove once
     // the live site connects.
-    const url = process.env.DATABASE_URL;
+    const url = databaseUrl();
     let host = "DATABASE_URL is not set";
     try {
       if (url) host = `${new URL(url).username}@${new URL(url).host}`;
