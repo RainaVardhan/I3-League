@@ -16,6 +16,9 @@ type ScreenshotUploadProps = {
   name?: string;
   /** Small label above the dropzone. */
   label?: string;
+  /** Server-flagged error (e.g. rejected on submit) — shown the same way as
+   *  a client-side pick error. */
+  error?: string;
 };
 
 // Custom drag-and-drop dropzone in front of a real <input type="file">, so
@@ -23,11 +26,16 @@ type ScreenshotUploadProps = {
 // the look of the control, not how the form actually carries the file.
 // name/label are parameterized so Sprint 4's INSIGHT photo upload can reuse
 // this instead of duplicating it (same 5MB image-only rules apply there).
-export function ScreenshotUpload({ name = "screenshot", label = "Screenshot (optional)" }: ScreenshotUploadProps) {
+export function ScreenshotUpload({
+  name = "screenshot",
+  label = "Screenshot (optional)",
+  error: serverError,
+}: ScreenshotUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const shownError = error ?? serverError ?? null;
 
   function acceptFile(candidate: File | undefined) {
     if (!candidate) return;
@@ -67,7 +75,13 @@ export function ScreenshotUpload({ name = "screenshot", label = "Screenshot (opt
     <div>
       <span className={styles.label}>{label}</span>
       <div
-        className={isDragging ? `${styles.dropzone} ${styles.dropzoneActive}` : styles.dropzone}
+        className={[
+          styles.dropzone,
+          isDragging && styles.dropzoneActive,
+          shownError && styles.dropzoneError,
+        ]
+          .filter(Boolean)
+          .join(" ")}
         onDragOver={(event) => {
           event.preventDefault();
           setIsDragging(true);
@@ -133,9 +147,9 @@ export function ScreenshotUpload({ name = "screenshot", label = "Screenshot (opt
         )}
       </div>
 
-      {error && (
+      {shownError && (
         <p className={styles.error} role="alert">
-          {error}
+          {shownError}
         </p>
       )}
     </div>

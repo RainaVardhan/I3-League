@@ -3,9 +3,11 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { StageName } from "@prisma/client";
 import { Logo } from "@/components/design-system/Logo";
 import { STAGE_NUMBERS, type JourneyItem } from "@/lib/stage-progress";
 import { getStageCopy } from "@/lib/stage-copy";
+import { sidebarPagesFor } from "@/lib/stage-sidebar-pages";
 import { logoutAction } from "@/app/dashboard/actions";
 import { StageNavContext } from "./StageNavContext";
 import styles from "./AppShell.module.css";
@@ -18,6 +20,11 @@ type AppShellProps = {
   journey: JourneyItem[];
   /** Last crumb after "Workspace /" in the topbar, e.g. "Overview" or "Imagine". */
   breadcrumb: string;
+  /** Grade-gates a page list (Investigate's System Mapping, the guided
+   *  stages' HS CORE pages) the same way the stage pages themselves do. */
+  isHighSchool: boolean;
+  /** Shows Insight's Team Charter page in its list. */
+  isTeamProject: boolean;
   children: ReactNode;
 };
 
@@ -49,7 +56,15 @@ function initials(name: string) {
 // position:fixed on top. The flyout closes on a nav click, the scrim, or
 // Escape. Locked stages render as plain rows, not links (CLAUDE.md
 // "Sequential stage unlocking").
-export function AppShell({ studentName, studentMeta, journey, breadcrumb, children }: AppShellProps) {
+export function AppShell({
+  studentName,
+  studentMeta,
+  journey,
+  breadcrumb,
+  isHighSchool,
+  isTeamProject,
+  children,
+}: AppShellProps) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   // The profile bar at the bottom toggles a small "Logout" section instead
@@ -64,6 +79,17 @@ export function AppShell({ studentName, studentMeta, journey, breadcrumb, childr
   // section links (StageSections) portal themselves into it; see StageNavContext.
   const [stageNavSlot, setStageNavSlot] = useState<HTMLElement | null>(null);
   const stageNav = useMemo(() => ({ slot: stageNavSlot, closeMenu }), [stageNavSlot, closeMenu]);
+
+  // Which stages' page lists are expanded, keyed by StageName. Every
+  // unlocked stage can expand (its pages are static config, known whichever
+  // stage you're actually viewing), not only the active one. Every stage
+  // starts closed, including the active one — the rail should always render
+  // at the same compact, stage-numbers-only height regardless of which page
+  // you're on (owner preference); clicking a row still expands it in place.
+  const [openStages, setOpenStages] = useState<Partial<Record<StageName, boolean>>>({});
+  const toggleStage = useCallback((stage: StageName) => {
+    setOpenStages((open) => ({ ...open, [stage]: !open[stage] }));
+  }, []);
 
   // Toggling the rail open/closed always collapses the Logout section too,
   // so a collapsed rail never shows the logout control (it only exists
@@ -133,6 +159,41 @@ export function AppShell({ studentName, studentMeta, journey, breadcrumb, childr
             <span className={styles.navText}>Dashboard</span>
           </Link>
 
+          <Link
+            href="/dashboard/journal"
+            className={styles.navItem}
+            aria-current={pathname === "/dashboard/journal" ? "page" : undefined}
+            title="Innovation Journal"
+            onClick={closeMenu}
+          >
+            <span className={styles.navIcon} aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                <path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H17a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6.5A1.5 1.5 0 0 1 5 19.5z" />
+                <path d="M9 8h6M9 12h6M9 16h3" strokeLinecap="round" />
+              </svg>
+            </span>
+            <span className={styles.navText}>Journal</span>
+          </Link>
+
+          {isTeamProject && (
+            <Link
+              href="/dashboard/team"
+              className={styles.navItem}
+              aria-current={pathname === "/dashboard/team" ? "page" : undefined}
+              title="Team & Contributions"
+              onClick={closeMenu}
+            >
+              <span className={styles.navIcon} aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <circle cx="9" cy="8" r="3" />
+                  <circle cx="17" cy="9" r="2.4" />
+                  <path d="M4 19c0-2.9 2.2-5 5-5s5 2.1 5 5M14 15.2c2.4.2 4 1.8 4 3.8" strokeLinecap="round" />
+                </svg>
+              </span>
+              <span className={styles.navText}>Team</span>
+            </Link>
+          )}
+
           <p className={styles.navLabel}>Your journey</p>
           <ol className={styles.stageList}>
             {journey.map((item) => {
@@ -157,24 +218,74 @@ export function AppShell({ studentName, studentMeta, journey, breadcrumb, childr
                 </>
               );
 
+              const isOpen = Boolean(openStages[item.stage]);
+
               return (
                 <li key={item.stage}>
                   {item.status === "LOCKED" ? (
-                    <span className={rowClass} title={`${label} (locked)`}>
-                      {inner}
-                    </span>
+                    // Locked: the same clickable-row-toggles-the-list
+                    // behavior as any other stage, but nothing in it is a
+                    // Link (CLAUDE.md "Sequential stage unlocking") — a span
+                    // in place of the row's link, and the preview list below
+                    // renders each of its pages as plain text too.
+                    <div className={rowClass} title={`${label} (locked)`} onClick={() => toggleStage(item.stage)}>
+                      <span className={styles.stageRowLink}>{inner}</span>
+                      <button
+                        type="button"
+                        className={styles.stageChevron}
+                        aria-expanded={isOpen}
+                        aria-label={isOpen ? `Hide ${label} pages` : `Show ${label} pages`}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          toggleStage(item.stage);
+                        }}
+                      >
+                        <ChevronIcon />
+                      </button>
+                    </div>
                   ) : (
-                    <Link
-                      href={href}
-                      className={rowClass}
-                      aria-current={isActive ? "page" : undefined}
-                      title={label}
-                      onClick={closeMenu}
-                    >
-                      {inner}
-                    </Link>
+                    // Every unlocked stage, active or not: clicking the row
+                    // shows its sections in the panel — it never navigates
+                    // (the Link's own click is prevented; only a page inside
+                    // the expanded list, or the chevron button, is a real
+                    // target) — a wrapper (carrying the row's usual look)
+                    // around the Link and a separate arrow button, both of
+                    // which bubble a click up to the wrapper, so clicking
+                    // anywhere on the row toggles it, not only the arrow.
+                    <div className={rowClass} title={label} onClick={() => toggleStage(item.stage)}>
+                      <Link
+                        href={href}
+                        className={styles.stageRowLink}
+                        aria-current={isActive ? "page" : undefined}
+                        onClick={(event) => event.preventDefault()}
+                      >
+                        {inner}
+                      </Link>
+                      <button
+                        type="button"
+                        className={styles.stageChevron}
+                        aria-expanded={isOpen}
+                        aria-label={isOpen ? `Hide ${label} pages` : `Show ${label} pages`}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          toggleStage(item.stage);
+                        }}
+                      >
+                        <ChevronIcon />
+                      </button>
+                    </div>
                   )}
-                  {isActive && <div ref={setStageNavSlot} className={styles.subNavSlot} />}
+                  {isActive && isOpen && <div ref={setStageNavSlot} className={styles.subNavSlot} />}
+                  {!isActive && isOpen && (
+                    <StagePreviewPages
+                      stage={item.stage}
+                      href={href}
+                      isHighSchool={isHighSchool}
+                      isTeamProject={isTeamProject}
+                      onNavigate={closeMenu}
+                      locked={item.status === "LOCKED"}
+                    />
+                  )}
                 </li>
               );
             })}
@@ -245,5 +356,91 @@ export function AppShell({ studentName, studentMeta, journey, breadcrumb, childr
       </div>
     </div>
     </StageNavContext.Provider>
+  );
+}
+
+// A stage's page list, for any stage other than the one on screen — real
+// links (each one a full navigation, since there's no live form to portal
+// into for a stage you're not on), on the same dot-and-thread row styling
+// as the active stage's list (.subList/.subItem), but every dot plain and
+// neutral: this app has never tracked which page you left off on within a
+// stage you aren't currently viewing, only whether the whole stage is
+// locked, current or complete, so there's no "behind/ahead" state to show.
+function StagePreviewPages({
+  stage,
+  href,
+  isHighSchool,
+  isTeamProject,
+  onNavigate,
+  locked,
+}: {
+  stage: StageName;
+  href: string;
+  isHighSchool: boolean;
+  isTeamProject: boolean;
+  onNavigate: () => void;
+  /** The whole stage is locked (CLAUDE.md "Sequential stage unlocking"): the
+   *  list still shows what's coming, but nothing in it is a link — same
+   *  reason a locked stage row itself is a span, not a Link. */
+  locked?: boolean;
+}) {
+  const pages = [...sidebarPagesFor(stage, isHighSchool, isTeamProject), { id: "review", label: "Review" }];
+  return (
+    <div className={styles.subNavSlot}>
+      <ol className={styles.subList} aria-label={`${stage} pages`}>
+        {pages.map((page, index) => {
+          const num = <span className={styles.subNum}>{String(index + 1).padStart(2, "0")}</span>;
+          const name = <span className={styles.subLabel}>{page.label}</span>;
+          return (
+            <li key={page.id}>
+              {locked ? (
+                <span
+                  className={`${styles.subItem} ${styles.subItemLocked}`}
+                  title={`${page.label} (locked)`}
+                >
+                  {num}
+                  {name}
+                  <span className={styles.subLock} aria-hidden="true">
+                    <LockIcon />
+                  </span>
+                </span>
+              ) : (
+                <Link
+                  href={`${href}?page=${page.id}`}
+                  className={styles.subItem}
+                  title={page.label}
+                  onClick={onNavigate}
+                >
+                  {num}
+                  {name}
+                </Link>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    </div>
+  );
+}
+
+// Same mark StageSections uses for a locked Review page, so a locked stage's
+// preview list and an in-progress stage's locked Review row read as the
+// same "not yet" signal wherever they show up.
+function LockIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="5" y="11" width="14" height="9" rx="1.5" />
+      <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+    </svg>
+  );
+}
+
+// Right-pointing at rest, rotates to point down when the page list is open
+// (driven purely by the button's own [aria-expanded] in CSS).
+function ChevronIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="m9 6 6 6-6 6" />
+    </svg>
   );
 }

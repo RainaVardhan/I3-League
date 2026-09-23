@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { EMAIL_MAX_LENGTH, PASSWORD_MAX_LENGTH } from "@/lib/account-field-limits";
 
 export type SignupState = { error: string | null };
 
@@ -32,10 +33,18 @@ export async function signupAction(
   if (!email || !password) {
     return { error: "Email and password are required." };
   }
-  // The form's minLength={8} is a UI hint only — enforce it here too, since
-  // a direct POST bypasses HTML attribute validation entirely.
+  // The form's minLength={8}/maxLength are UI hints only — enforce both
+  // here too, since a direct POST bypasses HTML attribute validation
+  // entirely. The upper bound exists so an arbitrarily long value never
+  // reaches Supabase Auth — see src/lib/account-field-limits.ts.
   if (password.length < 8) {
     return { error: "Password must be at least 8 characters." };
+  }
+  if (password.length > PASSWORD_MAX_LENGTH) {
+    return { error: `Password must be ${PASSWORD_MAX_LENGTH} characters or fewer.` };
+  }
+  if (email.length > EMAIL_MAX_LENGTH) {
+    return { error: `That email is longer than ${EMAIL_MAX_LENGTH} characters. Please double-check it.` };
   }
   if (!isSelfServeRole(role)) {
     return { error: "Please choose a valid account type." };

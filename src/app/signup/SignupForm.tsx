@@ -6,6 +6,7 @@ import { Button } from "@/components/design-system/Button";
 import { Input } from "@/components/design-system/Input";
 import { RadioGroup } from "@/components/design-system/RadioGroup";
 import { useTurnstile } from "@/lib/useTurnstile";
+import { EMAIL_MAX_LENGTH, PASSWORD_MAX_LENGTH } from "@/lib/account-field-limits";
 import authFormStyles from "@/components/auth/AuthForm.module.css";
 import { signupAction, type SignupState } from "./actions";
 
@@ -37,6 +38,7 @@ export function SignupForm() {
         name="email"
         type="email"
         autoComplete="email"
+        maxLength={EMAIL_MAX_LENGTH}
         required
       />
 
@@ -47,6 +49,7 @@ export function SignupForm() {
         type="password"
         autoComplete="new-password"
         minLength={8}
+        maxLength={PASSWORD_MAX_LENGTH}
         required
       />
 

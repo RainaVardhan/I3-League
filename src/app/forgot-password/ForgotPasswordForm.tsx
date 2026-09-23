@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import { Button } from "@/components/design-system/Button";
 import { Input } from "@/components/design-system/Input";
 import { useTurnstile } from "@/lib/useTurnstile";
+import { EMAIL_MAX_LENGTH } from "@/lib/account-field-limits";
 import styles from "@/components/auth/AuthForm.module.css";
 import { forgotPasswordAction, type ForgotPasswordState } from "./actions";
 
@@ -22,6 +23,7 @@ export function ForgotPasswordForm() {
         name="email"
         type="email"
         autoComplete="email"
+        maxLength={EMAIL_MAX_LENGTH}
         required
       />
 

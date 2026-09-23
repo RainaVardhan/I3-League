@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { AuthCard } from "@/components/auth/AuthCard";
-import { Panel } from "@/components/design-system/Panel";
 import { prisma } from "@/lib/prisma";
 import { getCurrentAppUser } from "@/lib/auth";
 import { getActiveSeason } from "@/lib/season";
@@ -71,15 +70,14 @@ export default async function PaymentPage({
       wide
     >
       {joinCodeBanner && (
-        <Panel variant="selected">
-          <div className={styles.joinCodeBanner}>
-            <strong>Share this code with your teammates:</strong>
-            <span className={styles.joinCodeValue}>{team.joinCode}</span>
-            <span className={styles.notice}>
-              Each teammate registers and pays separately using this code.
-            </span>
-          </div>
-        </Panel>
+        <div className={styles.joinCodeBanner}>
+          <strong>Share this code with your teammates:</strong>
+          <span className={styles.joinCodeValue}>{team.joinCode}</span>
+          <span className={styles.notice}>
+            We&apos;ve also emailed this code to {appUser.email}. Each teammate registers and pays
+            separately using this code.
+          </span>
+        </div>
       )}
       <PaymentForm
         priceUsd={price}

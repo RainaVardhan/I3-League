@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { Button } from "@/components/design-system/Button";
 import { Input } from "@/components/design-system/Input";
+import { PASSWORD_MAX_LENGTH } from "@/lib/account-field-limits";
 import styles from "@/components/auth/AuthForm.module.css";
 import { resetPasswordAction, type ResetPasswordState } from "./actions";
 
@@ -24,6 +25,7 @@ export function ResetPasswordForm() {
         type="password"
         autoComplete="new-password"
         minLength={8}
+        maxLength={PASSWORD_MAX_LENGTH}
         required
       />
 
@@ -34,6 +36,7 @@ export function ResetPasswordForm() {
         type="password"
         autoComplete="new-password"
         minLength={8}
+        maxLength={PASSWORD_MAX_LENGTH}
         required
       />
 

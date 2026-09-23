@@ -33,6 +33,20 @@
   gap: var(--space-3) var(--space-4);
 }
 
+/* Error state pairs a coral border with explicit text — never color alone,
+   matching Input.module.css's .inputError. */
+.interestsGridError {
+  padding: var(--space-3);
+  border: 1px solid var(--coral);
+}
+
+.fieldErrorText {
+  margin: var(--space-2) 0 0;
+  font-family: var(--font-body), sans-serif;
+  font-size: 13px;
+  color: var(--coral);
+}
+
 .subFields {
   display: flex;
   flex-direction: column;

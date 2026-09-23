@@ -1,14 +1,27 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import type { SchoolingType } from "@prisma/client";
+import { Prisma, type SchoolingType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getCurrentAppUser } from "@/lib/auth";
 import { getActiveSeason } from "@/lib/season";
 import { generateJoinCode } from "@/lib/join-code";
 import { INNOVATION_FIELDS } from "@/lib/innovation-fields";
+import { isReasonableName, isReasonablePlace } from "@/lib/reasonable-text";
+import { isKnownCountry, isUnitedStates } from "@/lib/countries";
+import { isKnownUsState } from "@/lib/us-states";
+import { parseGradeNumber } from "@/lib/grade";
+import { sendEmail } from "@/lib/email";
+import {
+  COUNTRY_MAX_LENGTH,
+  EMAIL_MAX_LENGTH,
+  GRADE_MAX_LENGTH,
+  JOIN_CODE_MAX_LENGTH,
+  PHONE_MAX_LENGTH,
+  TEAM_NAME_MAX_LENGTH,
+} from "@/lib/account-field-limits";
 
-export type RegisterState = { error: string | null };
+export type RegisterState = { error: string | null; fields?: string[] };
 
 export async function studentRegisterAction(
   _prevState: RegisterState,
@@ -49,47 +62,124 @@ export async function studentRegisterAction(
   const teamName = String(formData.get("teamName") ?? "").trim();
   const joinCodeInput = String(formData.get("joinCode") ?? "").trim().toUpperCase();
 
-  if (!firstName || !lastName || !grade || !city || !state || !country) {
-    return { error: "Please fill in all required fields." };
+  const missingRequired = [
+    !firstName && "firstName",
+    !lastName && "lastName",
+    !grade && "grade",
+    !city && "city",
+    !state && "state",
+    !country && "country",
+  ].filter((field): field is string => Boolean(field));
+  if (missingRequired.length > 0) {
+    return { error: "Please fill in all required fields.", fields: missingRequired };
   }
+
+  // Length caps checked before any format/plausibility check below — a
+  // very long input (pasted, or sent by a direct POST past the form's own
+  // maxLength) should be rejected outright, not run through a regex/lookup
+  // first. See src/lib/account-field-limits.ts.
+  const tooLong = [
+    grade.length > GRADE_MAX_LENGTH && "grade",
+    country.length > COUNTRY_MAX_LENGTH && "country",
+    guardianEmail.length > EMAIL_MAX_LENGTH && "guardianEmail",
+    participationType === "TEAM" && teamMode === "CREATE" && teamName.length > TEAM_NAME_MAX_LENGTH && "teamName",
+    participationType === "TEAM" && teamMode === "JOIN" && joinCodeInput.length > JOIN_CODE_MAX_LENGTH && "joinCode",
+  ].filter((field): field is string => Boolean(field));
+  if (tooLong.length > 0) {
+    return { error: "One of your answers is too long. Please shorten it.", fields: tooLong };
+  }
+
+  // Format/plausibility checks below don't attempt a real address or
+  // school-directory lookup (no such API is wired into this project — see
+  // CLAUDE.md tech stack) — they catch obvious junk (a single character, a
+  // repeated key, digits where a name goes), not a confident fake.
+  const badNames = [
+    !isReasonableName(firstName) && "firstName",
+    !isReasonableName(lastName, 1) && "lastName",
+  ].filter((field): field is string => Boolean(field));
+  if (badNames.length > 0) {
+    return { error: "Please enter a real first and last name.", fields: badNames };
+  }
+  if (!isReasonablePlace(city) || !isReasonablePlace(state)) {
+    return {
+      error: "Please enter a real city and state.",
+      fields: [!isReasonablePlace(city) && "city", !isReasonablePlace(state) && "state"].filter(
+        (field): field is string => Boolean(field)
+      ),
+    };
+  }
+  if (!isKnownCountry(country)) {
+    return { error: "Please enter a real country.", fields: ["country"] };
+  }
+  if (isUnitedStates(country) && !isKnownUsState(state)) {
+    return { error: "Please enter a real US state.", fields: ["state"] };
+  }
+
   if (!dateOfBirthRaw) {
-    return { error: "Date of birth is required." };
+    return { error: "Date of birth is required.", fields: ["dateOfBirth"] };
   }
   const dateOfBirth = new Date(dateOfBirthRaw);
   if (Number.isNaN(dateOfBirth.getTime())) {
-    return { error: "Please enter a valid date of birth." };
+    return { error: "Please enter a valid date of birth.", fields: ["dateOfBirth"] };
   }
   const ageYears = (Date.now() - dateOfBirth.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
   if (ageYears < 8 || ageYears > 20) {
-    return { error: "Please double-check the date of birth. This program is for middle and high school students." };
+    return {
+      error: "Please double-check the date of birth. This program is for middle and high school students.",
+      fields: ["dateOfBirth"],
+    };
   }
+
+  // Only the plain 6-12 range is enforced here, deliberately not checked
+  // against date of birth — a student can legitimately be well ahead of
+  // (or behind) the typical grade for their age.
+  const gradeNumber = parseGradeNumber(grade);
+  if (gradeNumber === null) {
+    return { error: "Please enter a grade between 6 and 12.", fields: ["grade"] };
+  }
+
   if (schoolingType !== "SCHOOL" && schoolingType !== "HOMESCHOOL") {
-    return { error: "Please choose a schooling type." };
+    return { error: "Please choose a schooling type.", fields: ["schoolingType"] };
   }
-  if (schoolingType === "SCHOOL" && (!schoolName || !schoolCity || !schoolState)) {
-    return { error: "Please enter your school's name, city, and state." };
+  if (schoolingType === "SCHOOL") {
+    const badSchoolFields = [
+      !isReasonablePlace(schoolName, 3) && "schoolName",
+      !isReasonablePlace(schoolCity) && "schoolCity",
+      !isReasonablePlace(schoolState) && "schoolState",
+    ].filter((field): field is string => Boolean(field));
+    if (badSchoolFields.length > 0) {
+      return {
+        error: "Please enter your school's real name, city, and state.",
+        fields: badSchoolFields,
+      };
+    }
+    if (isUnitedStates(country) && !isKnownUsState(schoolState)) {
+      return { error: "Please enter a real US state for your school.", fields: ["schoolState"] };
+    }
   }
-  if (schoolingType === "HOMESCHOOL" && !homeschoolName) {
-    return { error: "Please enter your homeschool program's name." };
+  // Optional — not every homeschool arrangement has a named program. Only
+  // check the format when something was actually entered.
+  if (schoolingType === "HOMESCHOOL" && homeschoolName && !isReasonablePlace(homeschoolName, 3)) {
+    return { error: "Please enter your homeschool program's real name.", fields: ["homeschoolName"] };
   }
   if (!guardianEmail || !guardianEmail.includes("@")) {
-    return { error: "A parent or guardian email is required." };
+    return { error: "A parent or guardian email is required.", fields: ["guardianEmail"] };
   }
   if (interests.length === 0) {
-    return { error: "Please select at least one interest." };
+    return { error: "Please select at least one interest.", fields: ["interests"] };
   }
   if (participationType !== "INDIVIDUAL" && participationType !== "TEAM") {
-    return { error: "Please choose how you're participating." };
+    return { error: "Please choose how you're participating.", fields: ["participationType"] };
   }
   if (participationType === "TEAM") {
     if (teamMode !== "CREATE" && teamMode !== "JOIN") {
-      return { error: "Please choose to create a new team or join an existing one." };
+      return { error: "Please choose to create a new team or join an existing one.", fields: ["teamMode"] };
     }
     if (teamMode === "CREATE" && !teamName) {
-      return { error: "Please enter a team name." };
+      return { error: "Please enter a team name.", fields: ["teamName"] };
     }
     if (teamMode === "JOIN" && !joinCodeInput) {
-      return { error: "Please enter your team's join code." };
+      return { error: "Please enter your team's join code.", fields: ["joinCode"] };
     }
   }
 
@@ -131,6 +221,19 @@ export async function studentRegisterAction(
 
       if (participationType === "TEAM") {
         if (teamMode === "CREATE") {
+          // Primary check — case-insensitive, scoped to this season, so
+          // "Team Rocket" and "team rocket" can't both register this
+          // season, but the same name is free again next season. The raw
+          // SQL unique index in migration 20260923000000_team_name_unique_per_season
+          // is the fail-safe against a race between two concurrent
+          // creates — see the Team model comment in schema.prisma.
+          const nameClash = await tx.team.findFirst({
+            where: { seasonId: season.id, name: { equals: teamName, mode: "insensitive" } },
+          });
+          if (nameClash) {
+            throw new Error("TEAM_NAME_TAKEN");
+          }
+
           let code = generateJoinCode();
           for (let attempt = 0; attempt < 5; attempt++) {
             const clash = await tx.team.findUnique({ where: { joinCode: code } });
@@ -186,12 +289,61 @@ export async function studentRegisterAction(
     });
   } catch (err) {
     if (err instanceof Error && err.message === "JOIN_CODE_NOT_FOUND") {
-      return { error: "That join code doesn't match any team this season. Double-check it with your teammate." };
+      return {
+        error: "That join code doesn't match any team this season. Double-check it with your teammate.",
+        fields: ["joinCode"],
+      };
     }
     if (err instanceof Error && err.message === "TEAM_FULL") {
-      return { error: "That team is already full for this season." };
+      return {
+        error: `That team already has ${season.maxTeamSize} members, the max for a team this season.`,
+        fields: ["joinCode"],
+      };
+    }
+    if (err instanceof Error && err.message === "TEAM_NAME_TAKEN") {
+      return {
+        error: "That team name is already registered this season. Please choose a different one.",
+        fields: ["teamName"],
+      };
+    }
+    // Fail-safe for two students creating the same team name at the same
+    // instant, racing past the check above — the raw SQL unique index
+    // (see the Team model comment in schema.prisma) is what actually
+    // stops it; this just turns that DB-level rejection into the same
+    // field-flagged message as the primary check. Prisma reports a raw
+    // functional index's violation by its expression, not a declared
+    // field name — confirmed live: meta.target is ["lower(name)", "seasonId"].
+    if (
+      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err.code === "P2002" &&
+      Array.isArray(err.meta?.target) &&
+      (err.meta.target as unknown[]).includes("lower(name)")
+    ) {
+      return {
+        error: "That team name is already registered this season. Please choose a different one.",
+        fields: ["teamName"],
+      };
     }
     throw err;
+  }
+
+  // Registration itself (not payment) is what creates the team and its
+  // code — see CLAUDE.md-driven design: the code only exists once this
+  // transaction has actually committed, so there's no path where it's
+  // visible before registration finishes. Email it to the student who just
+  // created the team so they have it even if they close the payment page
+  // before copying it down; it also still shows there, unchanged.
+  if (result.teamJoinCode) {
+    try {
+      await sendEmail({
+        to: appUser.email,
+        subject: "Your I³ League team code",
+        text: `You're registered! Share this code with your teammates so they can join your team:\n\n${result.teamJoinCode}\n\nEach teammate registers and pays separately using this code.`,
+      });
+    } catch {
+      // Never block registration on a notification failure — the code is
+      // also shown on the payment page right after this redirect.
+    }
   }
 
   redirect(
@@ -216,8 +368,20 @@ export async function parentRegisterAction(
   const fullName = String(formData.get("fullName") ?? "").trim();
   const phone = String(formData.get("phone") ?? "").trim();
 
-  if (!fullName || !phone) {
-    return { error: "Please fill in all required fields." };
+  const missingParentFields = [!fullName && "fullName", !phone && "phone"].filter(
+    (field): field is string => Boolean(field)
+  );
+  if (missingParentFields.length > 0) {
+    return { error: "Please fill in all required fields.", fields: missingParentFields };
+  }
+  if (!isReasonableName(fullName)) {
+    return { error: "Please enter a real full name.", fields: ["fullName"] };
+  }
+  // Bounded on both ends — no real phone number is anywhere near
+  // PHONE_MAX_LENGTH characters, and the old pattern's unbounded `{7,}`
+  // would otherwise accept a phone field of any length.
+  if (!new RegExp(`^[\\d+()\\-.\\s]{7,${PHONE_MAX_LENGTH}}$`).test(phone)) {
+    return { error: "Please enter a real phone number.", fields: ["phone"] };
   }
 
   await prisma.$transaction(async (tx) => {

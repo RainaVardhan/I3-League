@@ -1,9 +1,11 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
+import type { ChangeEvent } from "react";
 import { Button } from "@/components/design-system/Button";
 import { Input } from "@/components/design-system/Input";
 import { RadioGroup } from "@/components/design-system/RadioGroup";
+import { PAYMENT_REFERENCE_MAX_LENGTH } from "@/lib/account-field-limits";
 import authFormStyles from "@/components/auth/AuthForm.module.css";
 import { PaymentMethodIcon } from "./PaymentMethodIcon";
 import { ScreenshotUpload } from "./ScreenshotUpload";
@@ -41,6 +43,18 @@ function methodHref(method: "PAYPAL" | "VENMO" | "ZELLE", detail: string): strin
 
 export function PaymentForm({ priceUsd, paypalLink, venmoHandle, zelleInfo, rejectionReason }: PaymentFormProps) {
   const [state, formAction, pending] = useActionState(submitPaymentAction, initialState);
+
+  // Controlled so a validation error (e.g. a missing reference number)
+  // doesn't also wipe the method choice — React 19 resets a
+  // <form action={...}> after every call, success or error.
+  const [method, setMethod] = useState<string | undefined>(undefined);
+  const [paymentReference, setPaymentReference] = useState("");
+
+  const flagged = state.fields ?? [];
+  function fieldError(field: string): string | undefined {
+    if (!flagged.includes(field)) return undefined;
+    return flagged.length === 1 ? state.error ?? undefined : "Please fill this in.";
+  }
 
   const methods: { method: "PAYPAL" | "VENMO" | "ZELLE"; name: string; detail: string }[] = [
     ...(paypalLink ? [{ method: "PAYPAL" as const, name: "PayPal", detail: paypalLink }] : []),
@@ -82,14 +96,26 @@ export function PaymentForm({ priceUsd, paypalLink, venmoHandle, zelleInfo, reje
       )}
 
       <form className={authFormStyles.form} action={formAction}>
-        <RadioGroup legend="How did you pay?" name="method" options={METHOD_OPTIONS} required />
+        <RadioGroup
+          legend="How did you pay?"
+          name="method"
+          options={METHOD_OPTIONS}
+          value={method}
+          onChange={setMethod}
+          required
+          error={fieldError("method")}
+        />
         <Input
           label="Transaction / confirmation number"
           id="paymentReference"
           name="paymentReference"
           required
+          maxLength={PAYMENT_REFERENCE_MAX_LENGTH}
+          value={paymentReference}
+          onChange={(event: ChangeEvent<HTMLInputElement>) => setPaymentReference(event.target.value)}
+          error={fieldError("paymentReference")}
         />
-        <ScreenshotUpload />
+        <ScreenshotUpload error={fieldError("screenshot")} />
 
         {state.error && (
           <p className={authFormStyles.formError} role="alert">

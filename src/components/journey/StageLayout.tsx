@@ -17,6 +17,10 @@ type StageLayoutProps = {
   hero: ReactNode;
   /** Full-bleed StageBand sections, alternating paper and canvas. */
   children: ReactNode;
+  /** Passed straight through to AppShell, so every stage's sidebar page list
+   *  (not only the one on screen) can grade-gate its own pages. */
+  isHighSchool: boolean;
+  isTeamProject: boolean;
 };
 
 // Shell for every /dashboard/[stage] page. Chrome (sidebar journey nav +
@@ -25,7 +29,16 @@ type StageLayoutProps = {
 // unused here now that the sidebar derives the active item from the URL,
 // but kept in the props so callers don't have to change and a future
 // in-page use (e.g. a secondary stepper) still has it.
-export function StageLayout({ studentName, studentMeta, journey, title, hero, children }: StageLayoutProps) {
+export function StageLayout({
+  studentName,
+  studentMeta,
+  journey,
+  title,
+  hero,
+  isHighSchool,
+  isTeamProject,
+  children,
+}: StageLayoutProps) {
   return (
     <>
       <GridBackground />
@@ -34,6 +47,8 @@ export function StageLayout({ studentName, studentMeta, journey, title, hero, ch
         studentMeta={studentMeta}
         journey={journey}
         breadcrumb={title}
+        isHighSchool={isHighSchool}
+        isTeamProject={isTeamProject}
       >
         {hero}
         {children}

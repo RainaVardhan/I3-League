@@ -18,7 +18,9 @@ import { prisma } from "@/lib/prisma";
 import { getActiveSeason, formatSeasonDate } from "@/lib/season";
 import { getJourney, STAGE_NUMBERS } from "@/lib/stage-progress";
 import { getStageCopy } from "@/lib/stage-copy";
+import { isHighSchoolGrade } from "@/lib/investigate-requirements";
 import { getStageChecklist } from "@/lib/stage-checklist";
+import { getOrCreateStudentProject } from "@/lib/project";
 import { createClient } from "@/lib/supabase/server";
 import { logoutAction } from "./actions";
 import styles from "./page.module.css";
@@ -137,17 +139,21 @@ export default async function DashboardPage() {
 // full stage explanations all live on their own pages. Chrome (the dark
 // sidebar + topbar) comes from the shared AppShell.
 async function StudentHub({ student, season }: { student: Student; season: Season }) {
-  const [journey, teamMemberships, individualProject] = await Promise.all([
+  const [journey, teamMemberships, project] = await Promise.all([
     getJourney(student.id),
     prisma.teamMembership.findMany({
       where: { studentId: student.id },
       include: { team: { include: { project: true } } },
     }),
-    prisma.project.findUnique({ where: { individualStudentId: student.id } }),
+    // Lazily creates the student's (or team's shared) Project right here,
+    // not just on the Insight page — a teammate who never opens Insight
+    // themselves should still see the Team tab work as soon as they open
+    // the dashboard, since whichever teammate gets there first creates the
+    // one shared Project (see getOrCreateStudentProject's own comment).
+    getOrCreateStudentProject(student.id),
   ]);
 
   const team = teamMemberships[0]?.team;
-  const project = individualProject ?? team?.project ?? null;
 
   const currentItem = journey.find((item) => item.status === "CURRENT");
   const stagesCleared = journey.filter((item) => item.status === "COMPLETE").length;
@@ -198,6 +204,8 @@ async function StudentHub({ student, season }: { student: Student; season: Seaso
         studentMeta={`Grade ${student.grade} · ${participation}`}
         journey={journey}
         breadcrumb="Dashboard"
+        isHighSchool={isHighSchoolGrade(student.grade)}
+        isTeamProject={Boolean(team)}
       >
         <DashboardHero
           firstName={student.firstName}

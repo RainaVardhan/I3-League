@@ -1,79 +1,163 @@
 /* The navy page bar under the hero: the Section 21.5 "Pattern D" ink band
    (full width, ink fill, soft grounding shadow) used as a navigation row.
-   Each page is the shared white ghost button (the home hero's "See How It
-   Works"); the open page is marked with a cobalt border and blue-pale fill. */
+   Each page is a quiet tab on the navy (mono number + label), and the open
+   page is marked with white text and a light cobalt underline. Tabs, not
+   boxed buttons: nine to nineteen white buttons read as competing calls to
+   action and crowded the longer stages. */
 .bar {
   position: relative;
   z-index: 1;
   /* Room for the sticky topbar when Back / Next scrolls here. */
   scroll-margin-top: 60px;
-  padding: 18px var(--gutter);
+  padding: 0 var(--gutter);
   background: var(--ink);
   box-shadow: 0 14px 30px rgba(16, 33, 61, 0.14);
 }
 
-/* Every page sits on one line. Each button is sized to its own text (a
-   short "Sources" is narrower than "Stakeholders & Gap") and the buttons
-   share out any spare room so the row ends flush. The row uses the full
-   width of the page, not the 1160px container, and the buttons are a little
-   tighter than the shared ghost button, so Investigate's nine pages fit on a
-   laptop screen (measured: about 1175px with the numbers). On a narrower screen the row
-   scrolls sideways rather than wrapping. */
+/* The rail the tabs sit on: one hairline across the foot of the band, so the
+   open page's underline reads as a mark on a rule rather than a floating
+   dash. ::before, not ::after, so the tabs' own underlines paint over it. */
+.bar::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.11);
+}
+
+/* Every page sits on one line, each tab sized to its own text (a short
+   "Sources" is narrower than "Stakeholders & Gap"). The row uses the full
+   width of the page, not the 1160px container. On a narrower screen, or on a
+   stage with many pages, it scrolls sideways rather than wrapping. */
 .barList {
-  margin: 0;
-  /* Bottom room so the buttons' 5px offset shadow isn't clipped by the
-     scroll container. */
-  padding: 0 0 6px;
+  /* Pulled out by one tab's side padding so the first label (and its
+     underline) lines up with the gutter, not 15px inside it. */
+  margin: 0 -15px;
+  padding: 0;
   list-style: none;
   display: flex;
   flex-wrap: nowrap;
-  gap: 6px;
+  gap: 0;
   overflow-x: auto;
-  scrollbar-width: thin;
+  scrollbar-width: none;
+}
+
+.barList::-webkit-scrollbar {
+  display: none;
 }
 
 .barList > li {
-  flex: 1 1 auto;
+  flex: 0 0 auto;
 }
 
-/* Doubled selector so these win over the shared .button padding and size
-   whatever order the stylesheets load in. */
-.barList .barButton {
-  width: 100%;
-  gap: 6px;
-  min-height: 42px;
-  padding: 0 10px;
-  font-size: 12.5px;
+/* Nothing is drawn around a tab: no dividers, no fills, no boxes. A tab is
+   its own text, and the only marks on the row are the open page's underline
+   and the shift in text color.
+   The label is the site's nav-link treatment (Section 21.3: Hanken Grotesk,
+   ~14px) in the canonical body-text-on-ink grey (Section 21.8: #c6d0df), with
+   the mono number beside it as tracked uppercase metadata. Sentence case, not
+   mono uppercase, because a row of nine to nineteen mono labels is far wider
+   than a laptop screen. */
+.barButton {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 56px;
+  padding: 0 15px;
+  border: 0;
+  background: transparent;
+  color: #c6d0df;
+  font: 600 13.5px var(--font-body), sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+/* The open-page underline, drawn for every tab and only shown on the open
+   one, so nothing moves as the open page changes. */
+.barButton::after {
+  content: "";
+  position: absolute;
+  left: 15px;
+  right: 15px;
+  bottom: 0;
+  height: 2px;
+  background: var(--blue-soft);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.barButton:hover:not(:disabled) {
+  color: var(--paper);
+}
+
+/* The global cobalt focus ring is too dark to see on ink. */
+.barButton:focus-visible {
+  outline: 2px solid var(--blue-soft);
+  outline-offset: -4px;
+}
+
+.barButton:hover:not(:disabled) .barNum {
+  color: #b8c8f8;
 }
 
 .barNum {
   font: 650 10px var(--font-mono), monospace;
-  letter-spacing: 0.06em;
-  color: var(--blue);
+  letter-spacing: 0.1em;
+  /* The ink-bridge mono label (Section 21.8: #bbc8e9), held back so the
+     number reads as a marker beside the label, not as a second word. */
+  color: rgba(187, 200, 233, 0.55);
+  transition: color 0.15s ease;
 }
 
-/* The shared ghost fill is 72% opaque, which reads grey over the navy. A
-   solid paper fill makes these the same white as the home hero's button.
-   (Declared before the open-page rule below so that one still wins.) */
-.barList .barButton {
-  background: var(--paper);
+.barLabel {
+  /* Optical balance: the mono number sits a touch high beside the label. */
+  line-height: 1;
 }
 
-.barButton:disabled,
-.barButton:disabled:hover,
-.barButton:disabled:active {
-  opacity: 0.5;
+.barLock {
+  display: inline-flex;
+  color: rgba(187, 200, 233, 0.55);
+}
+
+.barButton:disabled {
+  opacity: 0.4;
   cursor: not-allowed;
-  transform: none;
-  box-shadow: 0 5px 0 var(--dim);
 }
 
-/* The open page. Doubled selector so it wins over the shared ghost hover. */
-.barButton.barButtonActive,
-.barButton.barButtonActive:hover {
-  background: var(--blue-pale);
-  border-color: var(--blue);
-  color: var(--ink);
+/* The open page. */
+.barButtonActive,
+.barButtonActive:hover:not(:disabled) {
+  color: var(--paper);
+}
+
+.barButtonActive::after {
+  opacity: 1;
+}
+
+/* The eyebrow-on-ink literal (Section 21.8: #b8c8f8). Blue-soft is a plane
+   color in this system and is never used as text. */
+.barButtonActive .barNum {
+  color: #b8c8f8;
+}
+
+@media (max-width: 600px) {
+  .barButton {
+    height: 50px;
+    padding: 0 12px;
+    gap: 8px;
+    font-size: 13px;
+  }
+  .barButton::after {
+    left: 12px;
+    right: 12px;
+  }
+  .barList {
+    margin: 0 -12px;
+  }
 }
 
 /* Room for the sticky topbar when a sidebar link or Next scrolls to a page. */

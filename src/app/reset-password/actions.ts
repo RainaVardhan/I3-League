@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { PASSWORD_RECOVERY_COOKIE } from "@/lib/passwordRecoveryCookie";
 import { createClient } from "@/lib/supabase/server";
+import { PASSWORD_MAX_LENGTH } from "@/lib/account-field-limits";
 
 export type ResetPasswordState = { error: string | null };
 
@@ -32,6 +33,9 @@ export async function resetPasswordAction(
   // a direct POST bypasses HTML attribute validation entirely.
   if (password.length < 8) {
     return { error: "Password must be at least 8 characters." };
+  }
+  if (password.length > PASSWORD_MAX_LENGTH) {
+    return { error: `Password must be ${PASSWORD_MAX_LENGTH} characters or fewer.` };
   }
   if (password !== confirmPassword) {
     return { error: "Passwords don't match." };

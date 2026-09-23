@@ -46,6 +46,13 @@
   background: var(--blue-pale);
 }
 
+/* Error state pairs a coral border with explicit text — never color alone,
+   matching Input.module.css's .inputError. */
+.dropzoneError {
+  border-color: var(--coral);
+  border-style: solid;
+}
+
 .prompt {
   display: flex;
   flex-direction: column;

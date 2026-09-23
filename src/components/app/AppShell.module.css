@@ -116,16 +116,28 @@
   padding: var(--space-3) var(--space-2) var(--space-4);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  /* 4px read as the Dashboard/Journal icons sitting squished together as a
+     pair — more breathing room between top-level nav rows. */
+  gap: 8px;
   overflow-y: auto;
   overflow-x: hidden;
 }
 
 /* Rail: every nav row is a centred 44px target showing only its icon /
-   stage number. */
+   stage number. flex-shrink: 0 is load-bearing, not decorative — .nav is a
+   scrollable (overflow-y: auto) flex column, and a flex item's default
+   flex-shrink is 1. Once a stage's expanded section-dot list pushes the
+   rail's total content taller than the viewport (a short/narrow phone
+   screen especially), every shrinkable row gets compressed toward its
+   min-content size instead of the column actually scrolling — collapsing
+   this 44px square down to ~19px (the bare icon's own size) and reading as
+   "squished." Pinning flex-shrink: 0 here makes every row a fixed size no
+   matter how much content stacks above or below it; .nav's own
+   overflow-y: auto is what should absorb the overflow instead. */
 .navItem,
 .stageRow {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
   gap: 0;
@@ -182,7 +194,9 @@
 }
 
 /* Rail: a hairline between the Dashboard item and the stage numbers,
-   standing in for the hidden "Your journey" label. */
+   standing in for the hidden "Your journey" label. Same gap as .nav (8px),
+   so the rhythm between stage rows matches the rhythm between Dashboard and
+   Journal instead of reading as two different spacings stacked together. */
 .stageList {
   list-style: none;
   margin: var(--space-2) var(--space-2) 0;
@@ -190,7 +204,8 @@
   border-top: 1px solid var(--side-line);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  flex-shrink: 0;
+  gap: 8px;
 }
 
 .stageNum {
@@ -239,6 +254,48 @@
 
 .stageRowActive .stageName {
   color: var(--paper);
+}
+
+/* The active stage's Link is wrapped in a div (.stageRow, above) alongside a
+   separate arrow button, so `display: contents` makes it invisible as a box:
+   its own children (stageNum/stageName/stageState) become the wrapper's
+   direct flex/grid items, exactly as when the Link itself carried .stageRow,
+   so the rail's centered icon-only layout is unaffected. */
+.stageRowLink {
+  display: contents;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* Hidden in the rail: no room, and the row can't expand/collapse there
+   anyway (the dropdown's own arrow lives in the open panel only). */
+.stageChevron {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--side-dim);
+  cursor: pointer;
+}
+
+.stageChevron:hover {
+  background: var(--side-hover);
+  color: var(--paper);
+}
+
+.stageChevron svg {
+  transition: transform 0.18s ease;
+}
+
+.stageChevron[aria-expanded="true"] svg {
+  transform: rotate(90deg);
 }
 
 .sidebarBottom {
@@ -359,60 +416,186 @@
 }
 
 /* ---- Stage sections: listed under the current stage's row ----
-   Rail: small numbered buttons (labels hidden), a step under the stage
-   number. Open flyout: indented rows with labels, hung off a hairline. */
+   ONE list, shown two ways. In the open flyout it is rows of number + page
+   name, hung off a hairline. In the rail there is no room for names, so the
+   same list is a run of dots on a thread, centred on the stage numbers' own
+   axis: pages behind you are lit cobalt dots, the open page is a coral dot
+   that breathes gently, pages ahead recede into the navy. Flat, solid fills,
+   no gradients on the dots themselves. The thread fades at both ends instead
+   of stopping hard.
+   Each dot is still that page's button, and keeps the page name as its
+   accessible name and its native tooltip. */
 .subNavSlot {
-  margin-top: 2px;
+  display: flex;
+  justify-content: center;
+  /* Tight under the stage row it belongs to; the next stage row's own height
+     supplies the space below, so this side needs almost none. */
+  margin: 11px 0 5px;
 }
 
 .subList {
+  position: relative;
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 0;
 }
 
+/* The thread the dots sit on, faded at both ends rather than cut off hard. */
+.subList::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 9px;
+  bottom: 9px;
+  width: 1px;
+  transform: translateX(-0.5px);
+  /* A fixed-length fade at each end (10px), not a percentage one: percentage
+     stops fade over that share of the WHOLE thread, so a stage with many
+     pages (a long thread) made the last stretch near the final dot visibly
+     dim instead of just softening the very tip. */
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(169, 189, 242, 0.32) 10px,
+    rgba(169, 189, 242, 0.32) calc(100% - 10px),
+    transparent
+  );
+}
+
+/* The row is wider than the dot it draws, so the click target is a
+   comfortable size even though the mark itself is small. */
 .subItem {
+  position: relative;
+  /* Above the thread (.subList::before). It sits inside a non-positioned
+     <li>, and CSS paints positioned content (the absolutely-positioned
+     thread) after non-positioned in-flow content regardless of source order,
+     so without this the thread was drawing over the dots instead of behind
+     them; the "ink ring" box-shadow alone can't fix a paint-order problem. */
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 30px;
+  width: 36px;
+  height: 21px;
   padding: 0;
   border: 0;
-  border-radius: var(--radius-sm);
   background: none;
   color: var(--side-muted);
   font: inherit;
+  text-decoration: none;
   cursor: pointer;
 }
 
-.subItem:not(:disabled):hover {
-  background: var(--side-hover);
-  color: var(--paper);
+/* The dot. A page ahead is a muted, fully OPAQUE cobalt (not the token's
+   translucent form, flattened by hand over --ink: #3b4d70 = 28% #a9bdf2 on
+   #10213d) so it fully blocks the thread behind it. A translucent fill always
+   lets whatever sits behind it blend through, regardless of paint order,
+   which is what let the thread show as a faint line through these dots. */
+.subItem::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #3b4d70;
+  box-shadow: 0 0 0 3px var(--ink);
+  transition:
+    width 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    height 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.subItemActive {
-  background: var(--side-active);
-  color: var(--paper);
+/* Pages already behind the open one: a lit, flat cobalt dot. */
+.subItemBehind::before {
+  background: #a9bdf2;
+  box-shadow:
+    0 0 0 3px var(--ink),
+    0 0 5px rgba(169, 189, 242, 0.5);
 }
 
+/* Hover: the dot grows with a gentle spring overshoot and brightens. */
+.subItem:not(:disabled):hover::before {
+  width: 9px;
+  height: 9px;
+  background: #eef2fd;
+  box-shadow:
+    0 0 0 3px var(--ink),
+    0 0 9px rgba(216, 227, 251, 0.6);
+}
+
+/* The open page: a coral bead, echoing the coral "CURRENT" label on the
+   stage row directly above this list, with a slow, gentle breathing glow so
+   it is unmistakably the one live point on the thread. Paused for anyone who
+   prefers reduced motion (see the media query at the bottom of this file). */
+.subItemActive::before,
+.subItemActive:not(:disabled):hover::before {
+  width: 10px;
+  height: 10px;
+  background: var(--coral);
+  animation: subBeadBreathe 2.6s ease-in-out infinite;
+}
+
+@keyframes subBeadBreathe {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 3px var(--ink),
+      0 0 0 5px rgba(227, 94, 73, 0.22),
+      0 0 7px rgba(227, 94, 73, 0.55);
+  }
+  50% {
+    box-shadow:
+      0 0 0 3px var(--ink),
+      0 0 0 6px rgba(227, 94, 73, 0.3),
+      0 0 11px rgba(227, 94, 73, 0.75);
+  }
+}
+
+/* Locked (Review, before submit): a fine ring, inert. Filled with --ink
+   rather than left transparent: it looks the same against the ink sidebar,
+   but a truly transparent center let the thread show straight through it. */
 .subItemLocked {
   cursor: default;
-  color: var(--side-dim);
+}
+
+.subItemLocked::before,
+.subItemLocked.subItemBehind::before,
+.subItemLocked:not(:disabled):hover::before {
+  width: 7px;
+  height: 7px;
+  background: var(--ink);
+  animation: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(169, 189, 242, 0.42),
+    0 0 0 3px var(--ink);
 }
 
 .subNum {
+  flex: 0 0 auto;
   font: 700 10px var(--font-mono), monospace;
   letter-spacing: 0.04em;
 }
 
-.subLabel,
+/* Hidden in the rail: the rule carries the row. */
+.subNum,
 .subLock {
   display: none;
+}
+
+/* Kept for screen readers and the native tooltip, not drawn in the rail. */
+.subLabel {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
 }
 
 /* ---- Flyout: sidebar widens to a full panel, floating over the page ---- */
@@ -472,7 +655,9 @@
 
 .shellOpen .stageRow {
   display: grid;
-  grid-template-columns: 22px minmax(0, 1fr) auto;
+  /* A 4th column for the arrow button, on the active row only; a row
+     without one (nothing to put there) just leaves it empty. */
+  grid-template-columns: 22px minmax(0, 1fr) auto auto;
   justify-content: initial;
   gap: var(--space-3);
   width: 100%;
@@ -490,29 +675,102 @@
   text-align: left;
 }
 
-.shellOpen .subNavSlot {
-  margin: 2px 0 6px 21px;
-  padding-left: var(--space-3);
-  border-left: 1px solid var(--side-line);
+.shellOpen .stageChevron {
+  display: flex;
 }
 
-.shellOpen .subList {
-  align-items: stretch;
+/* No padding/border here any more: that was a second, separate indent guide
+   line sitting a few pixels apart from the thread below, which is what made
+   two lines show instead of one. The thread (.subList::before) is now the
+   only line, and it starts flush with this slot's own left edge. */
+.shellOpen .subNavSlot {
+  display: block;
+  margin: 2px 0 6px 21px;
 }
+
+/* The open panel has room for the page names, so the rules that stand in for
+   them are switched off and the numbers and names appear. The rows, the
+   hairline they hang off and their hover / open fills are the same in both
+   states. */
+.shellOpen .subList {
+  width: auto;
+  align-items: stretch;
+  gap: 0;
+}
+
+/* The thread, the dot's size, its ink ring, every state's color, and the
+   open page's breathing glow are all UNCHANGED from the rail above (nothing
+   here overrides them) — the two are meant to read as the same mark, just at
+   two different widths. Only this thread's position is different, since it
+   can no longer be centred on the row (left: 50%): it lines up with the
+   dot's own centre instead, which is the row's left padding plus half the
+   dot. Same fixed-length end fade as the rail's thread. */
+.shellOpen .subList::before {
+  display: block;
+  left: calc(var(--space-4) + 3.5px);
+  top: 18px;
+  bottom: 18px;
+  transform: none;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(169, 189, 242, 0.32) 10px,
+    rgba(169, 189, 242, 0.32) calc(100% - 10px),
+    transparent
+  );
+}
+
+/* Nothing to style on the dot itself here: no order, no color, no size — the
+   pseudo-element is already the row's first child by default (before the
+   number, before the name), so it needs no repositioning either. */
 
 .shellOpen .subItem {
   justify-content: flex-start;
   gap: var(--space-3);
   width: 100%;
   height: auto;
-  padding: 8px var(--space-3);
+  padding: 8px var(--space-3) 8px var(--space-4);
+  border-radius: var(--radius-sm);
   text-align: left;
 }
 
-.shellOpen .subLabel {
+.shellOpen .subItem:not(:disabled):hover {
+  background: var(--side-hover);
+}
+
+.shellOpen .subItemActive {
+  background: var(--side-active);
+}
+
+.shellOpen .subItem:not(:disabled):hover {
+  color: var(--paper);
+}
+
+.shellOpen .subItemActive {
+  color: var(--paper);
+}
+
+.shellOpen .subItemLocked {
+  color: var(--side-dim);
+}
+
+.shellOpen .subNum {
   display: block;
+}
+
+.shellOpen .subItemActive .subNum {
+  color: var(--coral);
+}
+
+.shellOpen .subLabel {
+  position: static;
+  display: block;
+  width: auto;
+  height: auto;
   min-width: 0;
   flex: 1 1 auto;
+  margin: 0;
+  clip-path: none;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -523,10 +781,6 @@
 .shellOpen .subLock {
   display: flex;
   flex: 0 0 auto;
-}
-
-.shellOpen .subItemActive .subNum {
-  color: var(--coral);
 }
 
 .shellOpen .sidebarBottom {
@@ -647,5 +901,13 @@
   .menuBar,
   .menuToggle {
     transition: none;
+  }
+  .subItemActive::before,
+  .subItemActive:not(:disabled):hover::before {
+    animation: none;
+    box-shadow:
+      0 0 0 3px var(--ink),
+      0 0 0 5px rgba(227, 94, 73, 0.25),
+      0 0 8px rgba(227, 94, 73, 0.6);
   }
 }

@@ -6,6 +6,7 @@ import { useActionState } from "react";
 import { Button } from "@/components/design-system/Button";
 import { Input } from "@/components/design-system/Input";
 import { useTurnstile } from "@/lib/useTurnstile";
+import { EMAIL_MAX_LENGTH, PASSWORD_MAX_LENGTH } from "@/lib/account-field-limits";
 import authFormStyles from "@/components/auth/AuthForm.module.css";
 import { loginAction, type LoginState } from "./actions";
 import styles from "./LoginForm.module.css";
@@ -24,6 +25,7 @@ export function LoginForm() {
         name="email"
         type="email"
         autoComplete="email"
+        maxLength={EMAIL_MAX_LENGTH}
         required
       />
 
@@ -33,6 +35,7 @@ export function LoginForm() {
         name="password"
         type="password"
         autoComplete="current-password"
+        maxLength={PASSWORD_MAX_LENGTH}
         required
       />
 

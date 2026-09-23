@@ -123,6 +123,7 @@ export function StageSections({
     return submitted ? "review" : tasks[0]?.id ?? "review";
   });
   const { slot, closeMenu } = useStageNav();
+  const activeIndex = allTabs.findIndex((tab) => tab.id === active);
 
   useImperativeHandle(ref, () => ({ goTo: (pageId, fieldName) => select(pageId, fieldName) }));
 
@@ -171,6 +172,10 @@ export function StageSections({
             {allTabs.map((tab, index) => {
               const locked = isLocked(tab.id);
               const isActive = active === tab.id;
+              // In the rail, the pages already behind you are drawn brighter
+              // than the ones ahead, so the stack of lines reads top-down as
+              // how far into the stage you are.
+              const behind = index < activeIndex;
               return (
                 <li key={tab.id}>
                   <button
@@ -180,10 +185,15 @@ export function StageSections({
                     title={locked ? `${tab.label} (unlocks after you submit)` : tab.label}
                     onClick={() => select(tab.id)}
                     className={`${shellStyles.subItem} ${isActive ? shellStyles.subItemActive : ""} ${
-                      locked ? shellStyles.subItemLocked : ""
-                    }`}
+                      behind ? shellStyles.subItemBehind : ""
+                    } ${locked ? shellStyles.subItemLocked : ""}`}
                   >
-                    <span className={shellStyles.subNum}>{index + 1}</span>
+                    {/* Zero-padded, like the navy page bar, so the numbers are
+                        all one width. Shown in the open flyout; in the rail the
+                        row is drawn as a rule instead. */}
+                    <span className={shellStyles.subNum}>{String(index + 1).padStart(2, "0")}</span>
+                    {/* In the rail this is the button's accessible name, read
+                        out and shown in the native tooltip, though not drawn. */}
                     <span className={shellStyles.subLabel}>{tab.label}</span>
                     {locked && (
                       <span className={shellStyles.subLock} aria-hidden="true">
@@ -207,26 +217,26 @@ export function StageSections({
             const isActive = active === tab.id;
             return (
               <li key={tab.id}>
-                {/* The shared white ghost button, the same one as the home
-                    hero's "See How It Works" (docs/design-system.md Section 9). */}
-                <Button
+                {/* A quiet nav tab, not a button: label on the navy with a
+                    mono number, marked when open by a light cobalt underline.
+                    Boxed white buttons made this row read as nine competing
+                    calls to action and crowded the longer stages. */}
+                <button
                   type="button"
-                  variant="ghost"
-                  showArrow={false}
                   disabled={locked}
                   aria-current={isActive ? "page" : undefined}
                   title={locked ? `${tab.label} (unlocks after you submit)` : undefined}
                   onClick={() => select(tab.id)}
-                  className={`${buttonStyles.ghostStrong} ${styles.barButton} ${isActive ? styles.barButtonActive : ""}`}
+                  className={`${styles.barButton} ${isActive ? styles.barButtonActive : ""}`}
                 >
                   <span className={styles.barNum}>{String(index + 1).padStart(2, "0")}</span>
-                  <span>{tab.label}</span>
+                  <span className={styles.barLabel}>{tab.label}</span>
                   {locked && (
-                    <span aria-hidden="true">
+                    <span className={styles.barLock} aria-hidden="true">
                       <LockIcon />
                     </span>
                   )}
-                </Button>
+                </button>
               </li>
             );
           })}

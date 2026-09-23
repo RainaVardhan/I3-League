@@ -42,3 +42,17 @@
   border-color: var(--blue);
   background: var(--blue-pale);
 }
+
+/* Error state pairs a coral border with explicit text — never color alone,
+   matching Input.module.css's .inputError. Skips a checked option so
+   picking one still reads as selected, not as still-flagged. */
+.optionsError .option:not(:has(input:checked)) {
+  border-color: var(--coral);
+}
+
+.error {
+  margin: var(--space-2) 0 0;
+  font-family: var(--font-body), sans-serif;
+  font-size: 13px;
+  color: var(--coral);
+}

@@ -26,6 +26,7 @@ import { PrismaClient, Role, SchoolingType, ParticipationType,
   PaymentMethod, PaymentStatus, StageName, StageStatus,
   ReviewStatus } from '@prisma/client';
 import { STAGE_ORDER } from '../src/lib/stage-progress';
+import { STAGE_CONTENT_3_TO_6 } from './stage-content-3-6';
 
 const prisma = new PrismaClient();
 
@@ -236,6 +237,29 @@ async function main() {
         { title: "Existing Solutions & Gap Analysis", instructions: "Required supporting activity. Worksheet: Existing Solutions & Gap Analysis. Output: Comparison of 2–4 existing approaches + identified gap. Why it's needed: Required before entering IMAGINE." },
         { title: "Stakeholder Mapping (all students)", instructions: "Required supporting activity. Worksheet: Stakeholder Map. Output: Users, beneficiaries, decision-makers, funders/supporters, influencers. Why it's needed: Strengthens later interviews, impact analysis, and implementation. Not HS-only, unlike System Mapping." },
       ],
+    },
+    // Stages 3-6: generated from the curriculum docs (see
+    // prisma/stage-content-3-6.ts). The one-line descriptions are each
+    // stage's guiding principle or question.
+    [StageName.IMAGINE]: {
+      title: 'Imagine',
+      description: 'Create options before choosing one.',
+      ...STAGE_CONTENT_3_TO_6.IMAGINE,
+    },
+    [StageName.ITERATE]: {
+      title: 'Iterate',
+      description: 'Use failure as evidence.',
+      ...STAGE_CONTENT_3_TO_6.ITERATE,
+    },
+    [StageName.IMPACT]: {
+      title: 'Impact',
+      description: 'A project does not have to prove success. It has to prove learning with credible evidence.',
+      ...STAGE_CONTENT_3_TO_6.IMPACT,
+    },
+    [StageName.INFLUENCE]: {
+      title: 'Influence',
+      description: 'The goal is not to sound impressive. The goal is to make a credible case for what should happen next.',
+      ...STAGE_CONTENT_3_TO_6.INFLUENCE,
     },
   };
 

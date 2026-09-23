@@ -1,0 +1,532 @@
+/* /dashboard/journal and /dashboard/journal/new, rendered inside AppShell's
+   <main>. Same section-band vocabulary as the dashboard hub
+   (DashboardHub.module.css) and every marketing page
+   (docs/design-system.md Section 21.1): full-bleed bands, a
+   --container-width inner column, mono cobalt kickers over Chakra Petch
+   headings. The entry list itself is one connected Pattern-C plane
+   (Section 21.5), the same "shared surface, hairline rows" recipe the
+   hub's own checklist (StageProgressPanel) uses — not a stack of separate
+   floating cards. */
+
+.band {
+  padding: clamp(48px, 6vw, 72px) var(--gutter);
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+}
+
+.inner {
+  max-width: var(--container);
+  margin: 0 auto;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--blue);
+  font: 650 10px var(--font-mono), monospace;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.heading {
+  margin: 10px 0 0;
+  font: 700 var(--text-stage) / 1.08 var(--font-display), sans-serif;
+  letter-spacing: -0.032em;
+  color: var(--ink);
+}
+
+.headingSm {
+  margin: 10px 0 0;
+  font: 700 clamp(22px, 2.4vw, 27px) / 1.15 var(--font-display), sans-serif;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.lead {
+  margin: 14px 0 0;
+  max-width: 640px;
+  color: var(--muted);
+  font-size: var(--text-body);
+  line-height: 1.7;
+}
+
+/* The new-entry page's rail lede sits in a full 1160px-wide band (see
+   StageBand in new/page.tsx), not a narrow centered column, so it isn't
+   capped like the other .lead uses. */
+.leadWide {
+  max-width: none;
+}
+
+.backLink {
+  display: inline-block;
+  margin-bottom: var(--space-6);
+  color: var(--blue-dark);
+  font: 650 13px var(--font-body), sans-serif;
+  border-bottom: 2px solid var(--blue-soft);
+  text-decoration: none;
+  transition: border-color 0.16s ease;
+}
+
+.backLink:hover {
+  border-color: var(--blue);
+}
+
+/* ---- List page header: "Add entry" is the first thing a student can act
+   on, right under the hero's count. ---- */
+.headRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-8);
+}
+
+.addEntryBtn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* ---- Timeline: one connected plane (Pattern C), same recipe as the
+   dashboard hub's StageProgressPanel .progressPanel. ---- */
+.plane {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  box-shadow:
+    20px 22px 0 rgba(49, 88, 216, 0.1),
+    0 38px 68px rgba(16, 33, 61, 0.12);
+  padding: 32px 34px;
+}
+
+.emptyState {
+  padding: 48px var(--space-6);
+  text-align: center;
+  background: var(--paper-warm);
+  border: 1px solid var(--line);
+}
+
+.emptyState .lead {
+  margin: 0 auto var(--space-6);
+}
+
+/* The plain .ghost fill is translucent (rgba paper), meant to sit over a
+   checkerboard hero band — against this empty state's solid --paper-warm
+   background that reads as barely-there, not as a button. Solid white box
+   instead, keeping .ghostStrong's hard offset shadow/press motion. */
+.emptyStateBtn {
+  background: var(--paper);
+  border-color: var(--line-strong);
+}
+.emptyStateBtn:hover {
+  border-color: var(--blue);
+}
+
+.noResults {
+  padding: var(--space-8) 0;
+  text-align: center;
+}
+
+.noResults .lead {
+  margin: 0 auto var(--space-3);
+}
+
+/* ---- Search / sort toolbar (Section 17 form-input recipe) ---- */
+.toolbar {
+  display: flex;
+  gap: var(--space-5);
+  align-items: center;
+  flex-wrap: wrap;
+  padding-bottom: var(--space-6);
+  border-bottom: 1px solid var(--line);
+}
+
+.searchInput {
+  flex: 1 1 260px;
+  min-width: 0;
+  min-height: 47px;
+  padding: 0 16px;
+  background: var(--paper);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  font: 15px var(--font-body), sans-serif;
+  color: var(--ink);
+}
+
+.searchInput::placeholder {
+  color: var(--dim);
+}
+
+.searchInput:focus-visible {
+  outline: none;
+  border: 2px solid var(--blue);
+  padding: 0 15px;
+  box-shadow: 0 0 0 3px var(--blue-pale);
+}
+
+.sortToggle {
+  display: inline-flex;
+  flex: 0 0 auto;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.sortBtn {
+  padding: 0 16px;
+  min-height: 45px;
+  background: var(--paper);
+  border: none;
+  border-left: 1px solid var(--line-strong);
+  color: var(--muted);
+  font: 600 13px var(--font-body), sans-serif;
+  cursor: pointer;
+  transition:
+    background 0.16s ease,
+    color 0.16s ease;
+}
+
+.sortToggle .sortBtn:first-child {
+  border-left: none;
+}
+
+.sortBtn:hover {
+  background: var(--blue-pale);
+  color: var(--ink);
+}
+
+.sortBtnActive,
+.sortBtnActive:hover {
+  background: var(--blue);
+  color: var(--white);
+}
+
+/* ---- Type filter pills — the one deliberate pill use on this page (a
+   toggle-filter group, the semantics the design system reserves pills
+   for), each carrying a live count. ---- */
+.typeFilters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: var(--space-6) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.filterPill {
+  padding: 7px 14px;
+  background: var(--paper);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  font: 600 12.5px var(--font-body), sans-serif;
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    background 0.16s ease,
+    color 0.16s ease,
+    border-color 0.16s ease;
+}
+
+.filterPill:hover {
+  border-color: var(--blue);
+  color: var(--ink);
+}
+
+.filterPillActive,
+.filterPillActive:hover {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: var(--white);
+}
+
+/* ---- Entry rows: hairline-divided, hover bleeds to the plane's edges,
+   same technique as the dashboard hub's .progressItem. ---- */
+.rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.row {
+  margin: 0 -34px;
+  padding: var(--space-6) 34px;
+  border-top: 1px solid var(--line);
+  transition: background 0.16s ease;
+}
+
+.rows > .row:first-child {
+  border-top: 0;
+}
+
+.row:hover {
+  background: var(--blue-pale);
+}
+
+/* The always-visible, clickable summary: tags/date, then the title, then
+   an arrow. Collapsed, this is all a row shows — the rest (the entry's
+   text, photo, and actions) only renders once expanded. A real <button>
+   so it's keyboard-operable, reset to read as plain row content. */
+.rowSummary {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  width: 100%;
+  padding: 0;
+  background: none;
+  border: none;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.rowSummaryMain {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.chevron {
+  flex-shrink: 0;
+  margin-top: 3px;
+  color: var(--dim);
+  transition: transform 0.16s ease;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+  color: var(--blue);
+}
+
+/* The expanded content: text, photo, actions, history, revise form. */
+.rowBody {
+  margin-top: var(--space-4);
+}
+
+.rowBody > *:first-child {
+  margin-top: 0;
+}
+
+.rowHead {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.typeTag {
+  font: 650 10px var(--font-mono), monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--blue-dark);
+}
+
+.editedTag {
+  font: 600 10px var(--font-mono), monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dim);
+  padding: 2px 7px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+}
+
+/* Which stage the entry is tagged to — same mono treatment as .typeTag but
+   a boxed pill (like .editedTag) so it reads as a second, separate facet
+   of the entry rather than a continuation of the type label. */
+.stageTag {
+  font: 650 10px var(--font-mono), monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--blue);
+  padding: 2px 7px;
+  border: 1px solid var(--blue-soft);
+  border-radius: 999px;
+}
+
+.dateTag {
+  margin-left: auto;
+  font: 500 13px var(--font-mono), monospace;
+  color: var(--dim);
+}
+
+.rowTitle {
+  margin: var(--space-3) 0 0;
+  color: var(--ink);
+  font: 700 clamp(17px, 1.8vw, 19px) / 1.3 var(--font-display), sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.rowText {
+  margin: var(--space-3) 0 0;
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.rowTitle + .rowText {
+  margin-top: var(--space-2);
+}
+
+/* Text-link recipe, Section 21.4 (contact email): blue-dark, 650, a
+   2px blue-soft bottom border that turns blue on hover. Used for both real
+   <a> links (View photo) and text-styled buttons (Add an update, Show
+   earlier versions, Clear filters). */
+.textLink {
+  display: inline-block;
+  margin-top: var(--space-3);
+  padding: 0;
+  background: none;
+  border: none;
+  border-bottom: 2px solid var(--blue-soft);
+  color: var(--blue-dark);
+  font: 650 13px var(--font-body), sans-serif;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: border-color 0.16s ease;
+}
+
+.textLink:hover {
+  border-color: var(--blue);
+}
+
+/* "Show earlier versions" and "Add an update" are the shared design-system
+   Button (Section 9, ghost variant) — a real button, not text-link styling —
+   so no custom button CSS lives here; this wrapper just lays the two out. */
+.rowFoot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+/* ---- Version history ---- */
+.history {
+  list-style: none;
+  margin: var(--space-4) 0 0;
+  padding: var(--space-4) 0 0;
+  border-top: 1px dashed var(--line-strong);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.historyRow {
+  padding-left: var(--space-4);
+  border-left: 2px solid var(--line-strong);
+}
+
+.historyMeta {
+  display: block;
+  font: 600 11px var(--font-mono), monospace;
+  letter-spacing: 0.04em;
+  color: var(--dim);
+}
+
+.historyTitle {
+  margin: var(--space-1) 0 0;
+  color: var(--ink-2);
+  font: 650 14px var(--font-body), sans-serif;
+}
+
+.historyText {
+  margin: var(--space-1) 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+/* ---- Composer (new-entry page): fields are one column at the full
+   content width, per docs/design-system.md Section 22.2 "Show pages are
+   one column" — no narrow max-width wrapper, so the form actually uses
+   the page instead of leaving empty space beside it. ---- */
+.composer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* Section 21.6: "Form submit ... normal primary button but
+   align-self: flex-start. It is left-aligned and sized to its content,
+   never a full-width bar." Both submit buttons sit at the end of a flex
+   column, which otherwise stretches them to the container's full width. */
+.submitBtn {
+  align-self: flex-start;
+}
+
+/* The new-entry page's own Add entry button sits on the right instead,
+   at the owner's request — still sized to its content, just anchored to
+   the opposite edge of the form. */
+.submitRight {
+  align-self: flex-end;
+}
+
+/* Title + Date side by side: Title takes the rest of the row, Date is a
+   short, fixed-width field on the right (it never needs more room than
+   its own digits). */
+.dateTitleRow {
+  display: grid;
+  grid-template-columns: 1fr 150px;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+@media (max-width: 560px) {
+  .dateTitleRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+.error {
+  margin: 0;
+  color: var(--coral);
+  font-size: 14px;
+}
+
+.currentPhoto {
+  margin: -8px 0 0;
+}
+
+/* ---- Revise form: nested inside an already-highlighted row, so it stays
+   plain (no extra card treatment of its own). ---- */
+.reviseForm {
+  margin-top: var(--space-5);
+  padding-top: var(--space-5);
+  border-top: 1px dashed var(--line-strong);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 820px) {
+  .band {
+    padding: 44px var(--gutter);
+  }
+  .plane {
+    padding: 24px 20px;
+    box-shadow: 9px 11px 0 rgba(49, 88, 216, 0.07);
+  }
+  .row {
+    margin: 0 -20px;
+    padding: var(--space-5) 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .sortToggle {
+    align-self: stretch;
+  }
+  .sortBtn {
+    flex: 1 1 0;
+  }
+  .dateTag {
+    margin-left: 0;
+    flex-basis: 100%;
+  }
+}

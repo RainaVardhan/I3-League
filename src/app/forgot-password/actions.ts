@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { EMAIL_MAX_LENGTH } from "@/lib/account-field-limits";
 
 export type ForgotPasswordState = { error: string | null };
 
@@ -18,6 +19,13 @@ export async function forgotPasswordAction(
 
   if (!email) {
     return { error: "Email is required." };
+  }
+  // No real email address is this long. Redirect to the same "check your
+  // email" success page a real address gets, rather than an error — same
+  // enumeration-safety reasoning as the comment below: this form should
+  // never reveal anything about whether an input was almost-valid.
+  if (email.length > EMAIL_MAX_LENGTH) {
+    redirect("/forgot-password/check-email");
   }
 
   const supabase = await createClient();

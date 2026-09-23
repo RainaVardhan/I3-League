@@ -1,0 +1,413 @@
+/* /dashboard/team, rendered inside AppShell's <main>. Same section-band
+   vocabulary as the Journal and the dashboard hub (docs/design-system.md
+   Section 21.1): full-bleed bands, a --container-width inner column, mono
+   cobalt kickers over Chakra Petch headings. The contribution log is one
+   connected Pattern-C plane (Section 21.5), the same recipe Journal's
+   timeline and the hub's StageProgressPanel use. */
+
+.band {
+  padding: clamp(48px, 6vw, 72px) var(--gutter);
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+}
+
+.bandBlue {
+  background: var(--blue-pale);
+}
+
+.inner {
+  max-width: var(--container);
+  margin: 0 auto;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--blue);
+  font: 650 10px var(--font-mono), monospace;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.headingSm {
+  margin: 10px 0 0;
+  font: 700 clamp(22px, 2.4vw, 27px) / 1.15 var(--font-display), sans-serif;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.lead {
+  margin: 14px 0 0;
+  max-width: 640px;
+  color: var(--muted);
+  font-size: var(--text-body);
+  line-height: 1.7;
+}
+
+/* The new-entry page's rail lede sits in a full 1160px-wide band (see
+   StageBand in new/page.tsx), not a narrow centered column, so it isn't
+   capped like the other .lead uses. */
+.leadWide {
+  max-width: none;
+}
+
+.backLink {
+  display: inline-block;
+  margin-bottom: var(--space-6);
+  color: var(--blue-dark);
+  font: 650 13px var(--font-body), sans-serif;
+  border-bottom: 2px solid var(--blue-soft);
+  text-decoration: none;
+  transition: border-color 0.16s ease;
+}
+
+.backLink:hover {
+  border-color: var(--blue);
+}
+
+/* ---- Contribution log header: "Add contribution" is the first thing a
+   student can act on, right under the heading — same layout as Journal's
+   .headRow above its timeline. ---- */
+.headRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-6);
+}
+
+.addBtn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* ---- Roster: each teammate as a plain hairline-divided row, no card
+   clutter for something this small. ---- */
+.roster {
+  list-style: none;
+  margin: var(--space-6) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.rosterRow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+}
+
+.roster > .rosterRow:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.rosterName {
+  font: 650 15px var(--font-body), sans-serif;
+  color: var(--ink);
+}
+
+.rosterRole {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.rosterYou {
+  margin-left: auto;
+  font: 650 10px var(--font-mono), monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--blue-dark);
+}
+
+/* ---- Add-contribution form (/dashboard/team/new). ---- */
+.composer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.submitBtn {
+  align-self: flex-end;
+}
+
+.error {
+  margin: 0;
+  color: var(--coral);
+  font-size: 14px;
+}
+
+/* ---- Contribution log: connected plane, hairline-divided rows. ---- */
+.plane {
+  margin-top: var(--space-6);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  box-shadow:
+    20px 22px 0 rgba(49, 88, 216, 0.1),
+    0 38px 68px rgba(16, 33, 61, 0.12);
+  padding: 32px 34px;
+}
+
+.emptyState {
+  margin-top: var(--space-6);
+  padding: 48px var(--space-6);
+  text-align: center;
+  background: var(--paper-warm);
+  border: 1px solid var(--line);
+}
+
+.emptyState .lead {
+  margin: 0 auto var(--space-6);
+}
+
+/* The plain .ghost fill is translucent (rgba paper), meant to sit over a
+   checkerboard hero band — against this empty state's solid --paper-warm
+   background that reads as barely-there, not as a button. Solid white box
+   instead, keeping .ghostStrong's hard offset shadow/press motion. */
+.emptyStateBtn {
+  background: var(--paper);
+  border-color: var(--line-strong);
+}
+.emptyStateBtn:hover {
+  border-color: var(--blue);
+}
+
+.noResults {
+  padding: var(--space-8) 0;
+  text-align: center;
+}
+
+.noResults .lead {
+  margin: 0 auto var(--space-3);
+}
+
+/* ---- Search / sort toolbar (Section 17 form-input recipe), same as
+   Journal's own .toolbar/.searchInput/.sortToggle. ---- */
+.toolbar {
+  display: flex;
+  gap: var(--space-5);
+  align-items: center;
+  flex-wrap: wrap;
+  padding-bottom: var(--space-6);
+  border-bottom: 1px solid var(--line);
+}
+
+.searchInput {
+  flex: 1 1 260px;
+  min-width: 0;
+  min-height: 47px;
+  padding: 0 16px;
+  background: var(--paper);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  font: 15px var(--font-body), sans-serif;
+  color: var(--ink);
+}
+
+.searchInput::placeholder {
+  color: var(--dim);
+}
+
+.searchInput:focus-visible {
+  outline: none;
+  border: 2px solid var(--blue);
+  padding: 0 15px;
+  box-shadow: 0 0 0 3px var(--blue-pale);
+}
+
+.sortToggle {
+  display: inline-flex;
+  flex: 0 0 auto;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.sortBtn {
+  padding: 0 16px;
+  min-height: 45px;
+  background: var(--paper);
+  border: none;
+  border-left: 1px solid var(--line-strong);
+  color: var(--muted);
+  font: 600 13px var(--font-body), sans-serif;
+  cursor: pointer;
+  transition:
+    background 0.16s ease,
+    color 0.16s ease;
+}
+
+.sortToggle .sortBtn:first-child {
+  border-left: none;
+}
+
+.sortBtn:hover {
+  background: var(--blue-pale);
+  color: var(--ink);
+}
+
+.sortBtnActive,
+.sortBtnActive:hover {
+  background: var(--blue);
+  color: var(--white);
+}
+
+/* Text-link recipe, Section 21.4 (contact email): blue-dark, 650, a 2px
+   blue-soft bottom border that solidifies to blue on hover. */
+.textLink {
+  display: inline-block;
+  margin-top: var(--space-3);
+  padding: 0;
+  background: none;
+  border: none;
+  border-bottom: 2px solid var(--blue-soft);
+  color: var(--blue-dark);
+  font: 650 13px var(--font-body), sans-serif;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: border-color 0.16s ease;
+}
+
+.textLink:hover {
+  border-color: var(--blue);
+}
+
+/* ---- Filter pills (teammate, then stage) — the same one deliberate pill
+   use Journal's type filter is (a toggle-filter group). Two stacked
+   groups, each padded/bordered the same way. ---- */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: var(--space-6) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.filterPill {
+  padding: 7px 14px;
+  background: var(--paper);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  font: 600 12.5px var(--font-body), sans-serif;
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    background 0.16s ease,
+    color 0.16s ease,
+    border-color 0.16s ease;
+}
+
+.filterPill:hover {
+  border-color: var(--blue);
+  color: var(--ink);
+}
+
+.filterPillActive,
+.filterPillActive:hover {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: var(--white);
+}
+
+.rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.row {
+  margin: 0 -34px;
+  padding: var(--space-6) 34px;
+  border-top: 1px solid var(--line);
+}
+
+.rows > .row:first-child {
+  border-top: 0;
+}
+
+.rowHead {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.rowName {
+  font: 650 14px var(--font-body), sans-serif;
+  color: var(--ink);
+}
+
+/* Which stage the contribution is tagged to — same mono boxed-pill
+   treatment as Journal's .stageTag. */
+.stageTag {
+  font: 650 10px var(--font-mono), monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--blue);
+  padding: 2px 7px;
+  border: 1px solid var(--blue-soft);
+  border-radius: 999px;
+}
+
+.dateTag {
+  margin-left: auto;
+  font: 500 13px var(--font-mono), monospace;
+  color: var(--dim);
+}
+
+.rowText {
+  margin: var(--space-3) 0 0;
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+/* Evidence / result: a plain labeled block under the description, not a
+   card of its own (per the "no left-bar boxes" convention — a label is
+   enough to mark it as a distinct field). */
+.rowResult {
+  margin-top: var(--space-4);
+}
+
+.rowResultLabel {
+  display: block;
+  font: 650 10px var(--font-mono), monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+@media (max-width: 820px) {
+  .band {
+    padding: 44px var(--gutter);
+  }
+  .plane {
+    padding: 24px 20px;
+    box-shadow: 9px 11px 0 rgba(49, 88, 216, 0.07);
+  }
+  .row {
+    margin: 0 -20px;
+    padding: var(--space-5) 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .sortToggle {
+    align-self: stretch;
+  }
+  .sortBtn {
+    flex: 1 1 0;
+  }
+  .dateTag {
+    margin-left: 0;
+    flex-basis: 100%;
+  }
+}

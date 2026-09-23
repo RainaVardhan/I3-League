@@ -371,6 +371,18 @@ model Payment {
 
 /// Lightweight grouping only — no billing or curriculum logic lives here.
 /// See CLAUDE.md "Payment flow & pricing model."
+///
+/// Team names must be unique per season, case-insensitively (a competition
+/// season can't have two teams both registered as "Team Rocket"/"team
+/// rocket"). Prisma's `@@unique` is case-sensitive and can't express a
+/// functional index, so this is enforced twice, same fail-safe pattern as
+/// Project's exactly-one-owner check: (1) a case-insensitive lookup in
+/// application code (src/app/register/actions.ts) before every Team
+/// create, and (2) a hand-written raw SQL unique index on
+/// (seasonId, lower(name)), added directly in migration
+/// 20260923000000_team_name_unique_per_season. If a migration is ever
+/// reset/regenerated, re-add that index by hand; Prisma will not recreate
+/// it from schema.prisma.
 model Team {
   id        String   @id @default(uuid())
   name      String
@@ -679,6 +691,16 @@ model TeamContribution {
   projectId   String
   studentId   String
   description String
+  // "Output / Evidence" in the UI: the concrete thing that came out of the
+  // work (what was found, produced, changed, or documented), not just a
+  // claim that the work happened. Optional — not every logged contribution
+  // has an output yet (e.g. work still in progress). Column name kept as
+  // `result` rather than renamed to match the label, to avoid an
+  // unnecessary migration over a cosmetic rename.
+  result      String?
+  // Which of the six stages this contribution is about. Nullable, same
+  // "General (not tied to a stage)" escape hatch as JournalEntry.stage.
+  stage       StageName?
 
   createdAt DateTime @default(now())
 
@@ -773,12 +795,19 @@ model JournalEntry {
 
   entryDate    DateTime @default(now())
   entryType    String   // "thought" | "observation" | "research" | "sketch" | "experiment" | "failure" | "result" | "feedback" | "decision" | "improvement" | "mentor_feedback" | "ai_use"
+  title        String?  // optional, student-written; not required to save an entry
+  stage        StageName? // which of the six stages this entry is about; defaults to the student's current stage in the UI but stays editable/optional
   text         String?
   attachments  Json?    // [{type, url}]
 
   createdAt DateTime @default(now())
 
   @@index([studentId, entryGroupId])
+  // Guards against two near-simultaneous revisions of the same entry (a
+  // double-click, a second tab) both computing the same "next version" and
+  // landing two rows at the same version number, which would make "the
+  // latest version" ambiguous. See reviseJournalEntryAction's retry-on-P2002.
+  @@unique([entryGroupId, version])
 }
 
 // ============================================================================

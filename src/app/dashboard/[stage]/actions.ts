@@ -1,6 +1,6 @@
 "use server";
 
-import { Prisma } from "@prisma/client";
+import { Prisma, type StageName } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -12,6 +12,7 @@ import { completeStage } from "@/lib/stage-progress";
 import { saveUploadedFile } from "@/lib/storage";
 import { INNOVATION_FIELDS } from "@/lib/innovation-fields";
 import { TEXT_LIMITS, type TextField } from "@/lib/stage-field-limits";
+import { containsInappropriateLanguage, INAPPROPRIATE_LANGUAGE_ERROR } from "@/lib/content-filter";
 import {
   EVIDENCE_TYPES,
   INVESTIGATE_TEXT_KEYS,
@@ -20,6 +21,14 @@ import {
   isInvestigateRequirementMet,
   type InvestigateTextKey,
 } from "@/lib/investigate-requirements";
+import { GUIDED_STAGES, isGuidedStage } from "@/lib/stages";
+import {
+  guidedFieldByKey,
+  guidedLimit,
+  guidedRequirementsFor,
+  guidedTextKeys,
+  isGuidedRequirementMet,
+} from "@/lib/guided-stage";
 
 export type StageFormState = { error: string | null };
 
@@ -113,6 +122,9 @@ function readTextFields<K extends TextField>(
     if (value.length > TEXT_LIMITS[field]) {
       return { values, error: TOO_LONG_ERROR };
     }
+    if (containsInappropriateLanguage(value)) {
+      return { values, error: INAPPROPRIATE_LANGUAGE_ERROR };
+    }
     values[field] = value;
   }
   return { values, error: null };
@@ -170,7 +182,7 @@ async function requireCurrentStudent() {
 // write to a stage the student hasn't reached yet, or re-submit one that's
 // already done. Same "defense in depth" pattern as the rest of this
 // codebase's server actions.
-async function requireCurrentStage(studentId: string, stageName: "INSIGHT" | "INVESTIGATE") {
+async function requireCurrentStage(studentId: string, stageName: StageName) {
   const stageProgress = await prisma.stageProgress.findUnique({
     where: { studentId_stageName: { studentId, stageName } },
   });
@@ -611,4 +623,122 @@ export async function saveInvestigateAction(
 // draft, never redirects, never writes the AI-use disclosure.
 export async function autosaveInvestigateAction(formData: FormData): Promise<StageFormState> {
   return persistInvestigate(formData, "draft");
+}
+
+// ---------------------------------------------------------------------------
+// Guided stages (Imagine, Iterate, Impact, Influence): one persist function
+// for all four, driven by the stage's config (src/lib/stages/*.ts). The
+// stage name comes from the client (bound into the action), so it is checked
+// against the known guided stages before anything else; requireCurrentStage
+// then refuses it unless it is this student's CURRENT stage.
+// ---------------------------------------------------------------------------
+async function persistGuided(stageName: string, formData: FormData, intent: "draft" | "final"): Promise<StageFormState> {
+  if (!isGuidedStage(stageName)) return { error: "Unknown stage." };
+  const stage = GUIDED_STAGES[stageName];
+
+  const student = await requireCurrentStudent();
+  await requireCurrentStage(student.id, stageName);
+  const project = await getOrCreateStudentProject(student.id);
+
+  // Every field the stage knows, whichever grade: over-long input is refused
+  // (never truncated), and a fixed-choice field only ever stores one of its
+  // offered answers.
+  const content: Record<string, string> = {};
+  for (const key of guidedTextKeys(stage)) {
+    const field = guidedFieldByKey(stage, key)!;
+    const value = String(formData.get(key) ?? "").trim();
+    if (value.length > guidedLimit(field)) return { error: TOO_LONG_ERROR };
+    if (containsInappropriateLanguage(value)) return { error: INAPPROPRIATE_LANGUAGE_ERROR };
+    if (field.options && value && !(field.options as readonly string[]).includes(value)) {
+      return { error: "Please choose one of the offered answers." };
+    }
+    content[key] = value;
+  }
+
+  const { disclosure: aiDisclosure, answered: aiAnswered, error: aiTooLong } = readAiDisclosure(formData);
+  if (aiTooLong) return { error: aiTooLong };
+
+  if (intent === "final") {
+    const unmet = guidedRequirementsFor(stage, isHighSchoolGrade(student.grade)).filter(
+      (item) => !item.optional && !isGuidedRequirementMet(content[item.key])
+    );
+    if (unmet.length > 0) {
+      return { error: "Please fill in every required field before submitting." };
+    }
+    if (!aiAnswered) {
+      return { error: "Please answer whether you used AI for this stage." };
+    }
+    if (aiDisclosure.usedAi && (!aiDisclosure.toolName || !aiDisclosure.purpose)) {
+      return { error: "Please fill in which AI tool you used and what for." };
+    }
+  }
+
+  const existing = await prisma.submission.findUnique({
+    where: {
+      studentId_projectId_stageName: { studentId: student.id, projectId: project.id, stageName },
+    },
+  });
+  // A late autosave must never turn a submitted stage back into a draft.
+  if (intent === "draft" && existing?.isFinal) return { error: null };
+
+  await prisma.$transaction(async (tx) => {
+    // A draft only ever updates a row that is still a draft (the isFinal
+    // condition is checked by the database in the same statement), so an
+    // autosave that races a final submit can't undo it.
+    if (intent === "draft" && existing) {
+      await tx.submission.updateMany({ where: { id: existing.id, isFinal: false }, data: { content } });
+      return;
+    }
+
+    const submission = await tx.submission.upsert({
+      where: {
+        studentId_projectId_stageName: { studentId: student.id, projectId: project.id, stageName },
+      },
+      update: {
+        content,
+        isFinal: intent === "final",
+        submittedAt: intent === "final" ? new Date() : existing?.submittedAt ?? null,
+      },
+      create: {
+        studentId: student.id,
+        projectId: project.id,
+        stageName,
+        content,
+        isFinal: intent === "final",
+        submittedAt: intent === "final" ? new Date() : null,
+      },
+    });
+
+    if (intent === "final") {
+      await tx.aIDisclosure.upsert({
+        where: { submissionId: submission.id },
+        update: aiDisclosure,
+        create: { submissionId: submission.id, ...aiDisclosure },
+      });
+    }
+  });
+
+  if (intent === "final") {
+    await completeStage(student.id, stageName);
+  }
+
+  return { error: null };
+}
+
+/** Bound by GuidedStageForm to its stage: `saveGuidedStageAction.bind(null, "IMAGINE")`. */
+export async function saveGuidedStageAction(
+  stageName: string,
+  _prevState: StageFormState,
+  formData: FormData
+): Promise<StageFormState> {
+  const intent = formData.get("intent") === "final" ? "final" : "draft";
+  const result = await persistGuided(stageName, formData, intent);
+  if (result.error) {
+    return result;
+  }
+  redirect(`/dashboard/${stageName.toLowerCase()}`);
+}
+
+export async function autosaveGuidedStageAction(stageName: string, formData: FormData): Promise<StageFormState> {
+  return persistGuided(stageName, formData, "draft");
 }

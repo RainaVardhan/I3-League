@@ -1,4 +1,5 @@
 import type { StageName } from "@prisma/client";
+import { RUBRICS_3_TO_6 } from "@/lib/stages/rubrics";
 
 // ---------------------------------------------------------------------------
 // Canonical stage copy for the student dashboard.
@@ -719,24 +720,29 @@ const STAGE_COPY: Record<StageName, StageCopy> = {
     headline: "Create options before choosing one.",
     coreQuestion:
       "What could solve it, which direction should we choose, and what must we test first?",
+    guidingQuestion: "What could solve it, which direction should we choose, and what must we test first?",
     description:
       "Generate at least three genuinely different concepts, compare them with a decision matrix completed before you choose, disclose your originality and influences, and name the one assumption that could sink the idea.",
     producesArtifact: "Concept Portfolio",
-    submissionFormat:
-      "One Concept Portfolio, roughly 4–8 pages or an equivalent visual/digital format.",
+    // Verbatim from 03_SHOW (Stage 3). The Concept Portfolio is made of the
+    // typed answers on this stage's pages ("or equivalent visual/digital format").
+    submissionFormat: "One Concept Portfolio, approximately 4–8 pages or equivalent visual/digital format.",
     submissionChecklist: [
-      "Value proposition and user needs",
+      "Value proposition",
+      "User needs",
       "At least 3 genuinely different concepts",
       "Constraints considered",
       "Key risks",
       "Accessibility considerations",
-      "Ethical and responsible-design considerations",
-      "AI Fit evaluation (if AI is proposed)",
+      "Ethical/responsible-design considerations",
+      "AI Fit evaluation if AI is proposed",
       "Major assumptions",
-      "Originality, attribution & IP record",
-      "Decision matrix",
-      "Selected concept and the reason for selecting it",
-      "One clearly named critical assumption",
+      "Originality, Attribution & IP record",
+      "Decision Matrix",
+      "Selected concept",
+      "Reason for selection",
+      "One clearly named Critical Assumption",
+      "HS: Build vs. Buy vs. Partner analysis",
     ],
     reviewerChecks: [
       "Were genuinely different solutions considered, and do they trace back to user needs?",
@@ -748,34 +754,47 @@ const STAGE_COPY: Record<StageName, StageCopy> = {
       "Is the final choice supported by the comparison?",
       "Could the critical assumption actually kill or seriously weaken the concept?",
     ],
-    advancesWhen:
-      "You've selected a defensible concept and know exactly what you must learn next.",
+    advancesWhen: "The team has selected a defensible concept and knows exactly what it must learn next.",
+    revisesWhen:
+      "Only one real idea was explored, alternatives are cosmetic variations, the Decision Matrix was reverse-engineered to justify a favorite idea, originality is overstated, or the critical assumption is trivial.",
     mentalTest: "Explore → Compare → Decide → What could prove us wrong?",
     depthNote: "High-school projects also include a Build vs. Buy vs. Partner analysis.",
+    finalSubmission: {
+      closingReflection: {
+        text: "What could solve it, which direction should we choose, and what must we test first? Before moving to Stage 4 (Iterate), you should be able to show multiple genuinely different concepts, a reasoned selection using a decision matrix, a named critical assumption, and an honest account of what already exists, what was adapted or credited, and what is distinct about the selected concept.",
+      },
+    },
+    detailedRubric: RUBRICS_3_TO_6.IMAGINE,
   },
   ITERATE: {
     name: "Iterate",
     tagline: "Build and test",
     headline: "Use failure as evidence.",
     coreQuestion: "Can we build and test the critical assumption?",
+    guidingQuestion: "Can we build and test the critical assumption?",
     description:
       "Build the smallest version that can actually test your critical assumption, set success criteria before testing, run a real test, revise based on what you learn, and retest.",
     producesArtifact: "Tested Prototype + Test Plan + Iteration Log",
+    // Verbatim from 03_SHOW (Stage 4).
     submissionFormat:
-      "A prototype or other appropriate testable representation, plus a Test Plan and an Iteration Log.",
+      "Prototype or appropriate testable representation (software, physical, simulated, process-based, service-based, research-based, visual, or another appropriate representation), plus Test Plan + Iteration Log.",
     submissionChecklist: [
-      "The critical assumption being tested",
-      "MVP / minimum testable version",
+      "Critical assumption being tested",
+      "MVP / Minimum Testable Version",
       "Why the chosen prototype fidelity is appropriate",
       "Test question",
       "Success criteria defined before testing",
-      "Test participants and context, with permissions where needed",
+      "Test participants/context",
+      "Permissions where necessary",
       "Observations",
-      "Participant / user feedback",
+      "Participant/user feedback",
       "Failed, partial, surprising, or inconclusive findings",
       "What was learned",
-      "V1 → V2 changes, with a reason for every meaningful revision",
+      "V1 → V2 changes",
+      "Reason for every meaningful revision",
       "Evidence of retesting",
+      "HS where applicable: Formal Experiment Design",
+      "Technical projects where applicable: Git/repository + README",
     ],
     reviewerChecks: [
       "Does the MVP actually test the critical assumption?",
@@ -786,36 +805,48 @@ const STAGE_COPY: Record<StageName, StageCopy> = {
       "Was the revised version tested again?",
       "Can a reviewer follow the V1 → V2 learning trail?",
     ],
-    advancesWhen:
-      "You've demonstrated a real, evidence-driven iteration cycle: test, learn, revise, retest.",
+    advancesWhen: "The team has demonstrated a real evidence-driven iteration cycle.",
+    revisesWhen:
+      "Testing is informal, success criteria were created afterward, only positive feedback is recorded, changes are cosmetic/unrelated to evidence, or the revised solution was never retested.",
     mentalTest: "Assumption → Build → Test → Learn → Change → Retest",
     depthNote:
       "High-school projects add a Formal Experiment Design; technical projects add a Git repository and README where relevant.",
+    finalSubmission: {
+      closingReflection: {
+        text: "Can we build and test the critical assumption? Before moving to Stage 5 (Impact), you should be able to show a real test of your MVP against a stated test question and success criteria, both observed and reported feedback, at least one meaningful learning from testing (including any failed, partial, surprising, or inconclusive result), and a version history showing at least one real revision based on evidence.",
+      },
+    },
+    detailedRubric: RUBRICS_3_TO_6.ITERATE,
   },
   IMPACT: {
     name: "Impact",
     tagline: "Measure the difference",
     headline: "Make it matter beyond the prototype.",
     coreQuestion: "Did it actually make a measurable difference?",
+    guidingQuestion: "Did it actually make a measurable difference?",
+    guidingPrinciple: "A project does not have to prove success. It has to prove learning with credible evidence.",
     description:
       "Choose a metric that reflects the original problem, compare it against a credible baseline or benchmark, report what actually changed, and state honestly what you did and didn't prove.",
     producesArtifact: "Impact Report",
-    submissionFormat:
-      "One polished Impact Report, roughly 4–8 pages or an equivalent evidence package.",
+    // Verbatim from 03_SHOW (Stage 5).
+    submissionFormat: "One polished Impact Report, approximately 4–8 pages or equivalent evidence package.",
     submissionChecklist: [
       "Impact statement",
-      "Success metric, and why that metric matters",
-      "Baseline, benchmark, or comparison condition",
+      "Success metric",
+      "Why that metric matters",
+      "Baseline, benchmark, comparison condition, or other appropriate reference point",
       "Result",
       "Quantitative evidence where appropriate",
       "Qualitative evidence where appropriate",
-      "Data interpretation and alternative explanations",
+      "Data interpretation",
+      "Alternative explanations",
       "Responsible claims",
       "Limitations",
       "Unintended consequences",
       "Impact across relevant stakeholders",
       "Cost vs. benefit",
-      "Final conclusion: supported / partially supported / not supported",
+      "Final conclusion: Supported / Partially supported / Not supported",
+      "HS/advanced where applicable: Adoption/Uptake, Scalability, Leading/lagging indicators, ROI/unit economics, Advanced analysis",
     ],
     reviewerChecks: [
       "Does the metric actually relate to the original problem?",
@@ -829,36 +860,51 @@ const STAGE_COPY: Record<StageName, StageCopy> = {
       "Does the final conclusion match the evidence?",
     ],
     advancesWhen:
-      "You can state honestly what changed, what didn't, and what the evidence supports. A null or negative result still advances if the learning is rigorous.",
+      "The team can state honestly what changed, what did not, and what the evidence actually supports. A null or negative result can advance: a project does not need to prove the solution worked, it needs to prove learning with credible evidence.",
+    revisesWhen:
+      "There is no credible reference point (baseline, benchmark, or comparison condition), metrics do not represent the problem, claims are exaggerated, limitations are hidden, or evidence is selectively reported.",
     mentalTest:
       "Compared to what? → What changed? → How do we know? → What didn't we prove?",
     depthNote:
       "Advanced projects add adoption/uptake, scalability, ROI / unit economics, and leading vs. lagging indicators where relevant.",
+    finalSubmission: {
+      closingReflection: {
+        text: "Did it actually make a measurable difference? Before moving to Stage 6 (Influence), you should be able to show a clear baseline-to-result comparison, both quantitative and qualitative evidence, an honest account of limitations and any unintended consequences, and a stated cost relative to the benefit produced.",
+      },
+    },
+    detailedRubric: RUBRICS_3_TO_6.IMPACT,
   },
   INFLUENCE: {
     name: "Influence",
     tagline: "Make the case",
     headline: "Explain the work. Defend the decisions.",
     coreQuestion: "Can we defend it, sustain it, and convince someone to take the next step?",
+    guidingQuestion: "Can we defend it, sustain it, and convince someone to take the next step?",
+    guidingPrinciple: "The goal is not to sound impressive. The goal is to make a credible case for what should happen next.",
     description:
       "Bring all six stages into one evidence-backed story with a live demo, defend your claims in Q&A without bluffing, lay out a realistic implementation and sustainability model, and make one specific Ask.",
     producesArtifact: "Final Pitch + Innovation Portfolio",
-    submissionFormat:
-      "The Final Innovation Portfolio, a Final Pitch / Presentation, and an appropriate demonstration of the solution.",
+    // Verbatim from 03_SHOW (Stage 6).
+    submissionFormat: "Final Innovation Portfolio, plus Final Pitch/Presentation, plus appropriate solution demonstration.",
     submissionChecklist: [
       "Audience definition",
-      "Evidence-based story: clear problem, research evidence, solution-selection reasoning",
-      "Prototype and iteration story",
+      "Evidence-based story",
+      "Clear problem",
+      "Research evidence",
+      "Solution selection reasoning",
+      "Prototype/iteration story",
       "Impact evidence",
       "At least one strong evidence visual",
-      "An appropriate demo",
+      "Appropriate demo",
       "Major claims linked to evidence",
       "Limitations",
-      "Implementation & sustainability model",
-      "A clear next-step Ask",
-      "Reflection and future direction",
-      "Completed mock reviewer Q&A",
-      "The complete portfolio",
+      "Implementation & Sustainability Model",
+      "Clear next-step Ask",
+      "Reflection",
+      "Future direction",
+      "Mock Reviewer Q&A completion",
+      "HS: Budget/resources, Funding/support model where applicable, Partnerships, Implementation risks/mitigation, Executive Summary",
+      "Stretch: Go-to-market/adoption, Opportunity sizing, Technical architecture/deployment",
     ],
     reviewerChecks: [
       "Can the team explain the problem clearly?",
@@ -871,13 +917,20 @@ const STAGE_COPY: Record<StageName, StageCopy> = {
       "Is the Ask specific?",
       "Does every team member understand the project and can each explain their own contribution?",
     ],
-    advancesWhen:
-      "The team can make a credible, evidence-backed case for what should happen next, and every member can explain the project and their own contribution.",
+    advancesWhen: "The team can make a credible, evidence-backed case for what should happen next.",
+    revisesWhen:
+      "The pitch relies on hype, major claims lack evidence, students cannot defend their work, one member appears to own the entire project, implementation is unrealistic, or the Ask is unclear.",
     mentalTest: "Explain → Show → Prove → Defend → Ask",
     depthNote:
       "High-school projects add a budget, funding/support model, partnerships, implementation risks, and an executive summary; Stretch work adds go-to-market, opportunity sizing, and technical architecture.",
     finalsNote:
       "This is the only stage scored comparatively. After you pass the Stage 6 gate, Finals selection ranks qualified teams on the same six dimensions.",
+    finalSubmission: {
+      closingReflection: {
+        text: "Can we defend it, sustain it, and convince someone to take the next step? The final Pitch and Portfolio should show a story backed by evidence at every stage, at least one clear visual and one live demo, honest answers to hard questions, a realistic implementation and sustainability plan, and a specific closing Ask. The goal of the pitch is not applause; it is a decision.",
+      },
+    },
+    detailedRubric: RUBRICS_3_TO_6.INFLUENCE,
   },
 };
 

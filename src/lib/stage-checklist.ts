@@ -1,5 +1,7 @@
 import type { StageName } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { GUIDED_STAGES, isGuidedStage } from "@/lib/stages";
+import { guidedAnswersFromSaved, guidedRequirementsFor, isGuidedRequirementMet } from "@/lib/guided-stage";
 import { getStageCopy } from "@/lib/stage-copy";
 import { insightRequirementsFor, isInsightRequirementMet } from "@/lib/insight-requirements";
 import {
@@ -184,8 +186,32 @@ export async function getStageChecklist(
     return summarize(items, false, !!submission?.isFinal);
   }
 
-  // Stages 3–6: guided workspace not built yet — show the curriculum's own
-  // "must include" list as a preview, nothing to auto-check.
+  if (isGuidedStage(stageName) && projectId) {
+    // Imagine, Iterate, Impact, Influence: built from the stage's config, the
+    // same list the Submit popup and the server's final check use
+    // (src/lib/guided-stage.ts).
+    const stage = GUIDED_STAGES[stageName];
+    const [student, submission] = await Promise.all([
+      prisma.student.findUnique({ where: { id: studentId }, select: { grade: true } }),
+      prisma.submission.findUnique({
+        where: { studentId_projectId_stageName: { studentId, projectId, stageName } },
+      }),
+    ]);
+    const answers = guidedAnswersFromSaved(stage, submission?.content);
+    const items: ChecklistItem[] = guidedRequirementsFor(stage, isHighSchoolGrade(student?.grade ?? "")).map((item) => ({
+      label: item.label,
+      group: item.pageLabel,
+      page: item.page,
+      anchor: item.key,
+      optional: item.optional,
+      done: isGuidedRequirementMet(answers[item.key]),
+    }));
+    return summarize(items, false, !!submission?.isFinal);
+  }
+
+  // A stage with no project yet (nothing can be answered before Insight
+  // creates one): show the curriculum's own "must include" list as a
+  // preview, nothing to auto-check.
   const items = getStageCopy(stageName).submissionChecklist.map((label) => ({
     label,
     done: false,

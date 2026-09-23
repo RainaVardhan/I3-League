@@ -56,11 +56,13 @@
   color: var(--blue-dark);
 }
 
-/* A ghost button with the same visual weight/press motion as .primary,
-   for when a secondary action needs to read as equally prominent — e.g.
-   paired next to a primary CTA, the way "See How It Works" sits next to
-   "Register Today" on the homepage. Pass as an extra className alongside
-   variant="ghost"; comes after .ghost above so it wins on box-shadow. */
+/* A ghost button with the same visual weight/press motion as .primary —
+   the treatment every white/paper button needs (docs/design-system.md
+   Section 9), not just one paired next to a primary CTA, so the plain
+   .ghost's faint resting shadow doesn't read as flat. The homepage's
+   "See How It Works" next to "Register Today" is the canonical example.
+   Pass as an extra className alongside variant="ghost"; comes after .ghost
+   above so it wins on box-shadow. */
 .ghostStrong {
   box-shadow: 0 5px 0 var(--dim);
 }

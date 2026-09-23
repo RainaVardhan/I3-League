@@ -6,8 +6,9 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentAppUser } from "@/lib/auth";
 import { getActiveSeason } from "@/lib/season";
 import { saveUploadedFile } from "@/lib/storage";
+import { PAYMENT_REFERENCE_MAX_LENGTH } from "@/lib/account-field-limits";
 
-export type PaymentState = { error: string | null };
+export type PaymentState = { error: string | null; fields?: string[] };
 
 const PAYMENT_METHODS = ["PAYPAL", "VENMO", "ZELLE"];
 
@@ -47,10 +48,16 @@ export async function submitPaymentAction(
   const screenshot = formData.get("screenshot");
 
   if (!PAYMENT_METHODS.includes(method)) {
-    return { error: "Please choose how you paid." };
+    return { error: "Please choose how you paid.", fields: ["method"] };
   }
   if (!paymentReference) {
-    return { error: "Please enter your transaction or confirmation number." };
+    return { error: "Please enter your transaction or confirmation number.", fields: ["paymentReference"] };
+  }
+  if (paymentReference.length > PAYMENT_REFERENCE_MAX_LENGTH) {
+    return {
+      error: `That's longer than ${PAYMENT_REFERENCE_MAX_LENGTH.toLocaleString()} characters. Please shorten it.`,
+      fields: ["paymentReference"],
+    };
   }
 
   let screenshotUrl: string | null = null;
@@ -59,10 +66,10 @@ export async function submitPaymentAction(
       screenshotUrl = await saveUploadedFile(screenshot, "payment-screenshots");
     } catch (err) {
       if (err instanceof Error && err.message === "FILE_TOO_LARGE") {
-        return { error: "That screenshot is too large. Please keep it under 5MB." };
+        return { error: "That screenshot is too large. Please keep it under 5MB.", fields: ["screenshot"] };
       }
       if (err instanceof Error && err.message === "FILE_TYPE_NOT_ALLOWED") {
-        return { error: "Please upload a PNG, JPEG, or WebP image." };
+        return { error: "Please upload a PNG, JPEG, or WebP image.", fields: ["screenshot"] };
       }
       throw err;
     }

@@ -26,6 +26,10 @@ import { TaskSection, pagerToneAfter } from "@/components/journey/TaskSection";
 import { InsightForm } from "./InsightForm";
 import { InvestigateForm } from "./InvestigateForm";
 import { investigatePageParts } from "./investigate-parts";
+import { GuidedStageForm } from "./GuidedStageForm";
+import { guidedPageParts, hasShow } from "./guided-parts";
+import { GUIDED_STAGES, isGuidedStage } from "@/lib/stages";
+import { buildGuidedSections, guidedAnswersFromSaved, guidedPagesFor } from "@/lib/guided-stage";
 import type { InsightContent, InvestigateContent } from "./actions";
 import {
   buildInsightSections,
@@ -111,6 +115,9 @@ export default async function StagePage({ params }: { params: Promise<{ stage: s
   // Insight's fifth lesson and activity (Team Charter) only exist for team
   // projects, so an individual's hero counts one fewer of each.
   const visibleCount = (total: number) => (stageName === "INSIGHT" && !isTeamProject ? Math.max(total - 1, 0) : total);
+  // A guided stage's hero counts the lessons and activities on the pages this
+  // student actually sees (HS CORE pages are high school only).
+  const guidedPages = isGuidedStage(stageName) ? guidedPagesFor(GUIDED_STAGES[stageName], isHighSchool) : null;
 
   // CLAUDE.md "Sequential stage unlocking": no direct URL to a locked stage.
   if (journeyItem.status === "LOCKED") {
@@ -438,6 +445,82 @@ export default async function StagePage({ params }: { params: Promise<{ stage: s
         />
       );
     }
+  } else if (isGuidedStage(stageName)) {
+    // Imagine, Iterate, Impact, Influence: the guided-stage engine (see
+    // src/lib/guided-stage.ts), with the same page → Learn / Do / Show
+    // structure as Investigate, all driven by the stage's config.
+    const stage = GUIDED_STAGES[stageName];
+    const project = await getOrCreateStudentProject(student.id);
+    const submission = await prisma.submission.findUnique({
+      where: {
+        studentId_projectId_stageName: { studentId: student.id, projectId: project.id, stageName },
+      },
+      include: { aiDisclosure: true },
+    });
+    const lessons = curriculumModule?.lessons ?? [];
+    const answers = guidedAnswersFromSaved(stage, submission?.content);
+    const parts = guidedPageParts(stage, lessons, isHighSchool);
+
+    if (isComplete && submission) {
+      // Read-only: each page recaps its own slice of the submitted answers.
+      const sections = buildGuidedSections(stage, answers, isHighSchool);
+      const tasks = guidedPagesFor(stage, isHighSchool).map((page) => {
+        const part = parts[page.id];
+        const section = sections.find((item) => item.title === page.label);
+        const fields = (section?.items ?? []).flatMap((item) =>
+          "value" in item ? [{ label: item.label, value: item.value }] : []
+        );
+        return {
+          id: page.id,
+          label: page.label,
+          title: page.title,
+          content: (
+            <TaskSection
+              title={page.title}
+              learnParts={part.learnParts}
+              doParts={part.doParts}
+              mustInclude={page.mustInclude}
+              reviewerChecks={page.reviewerChecks}
+              showNotes={page.showNotes}
+              show={hasShow(page) ? <SubmissionSummary fields={fields} aiDisclosure={null} submittedAt={null} /> : undefined}
+            />
+          ),
+          pagerTone: part.pagerTone,
+        };
+      });
+
+      body = (
+        <StageSections
+          tasks={tasks}
+          reviewContent={
+            <StageReviewPage
+              stageName={stageName}
+              lead={
+                <SubmissionAnswers
+                  sections={sections}
+                  aiDisclosure={submission.aiDisclosure}
+                  submittedAt={submission.submittedAt}
+                  footnote={stage.keepNote}
+                />
+              }
+            />
+          }
+          reviewLocked={false}
+          submitted
+        />
+      );
+    } else {
+      body = (
+        <GuidedStageForm
+          stageName={stageName}
+          isHighSchool={isHighSchool}
+          submitted={Boolean(submission?.isFinal)}
+          reviewContent={<StageReviewPage stageName={stageName} startTone="canvas" submitBelow />}
+          parts={parts}
+          defaults={answers}
+        />
+      );
+    }
   } else {
     body = (
       <StageBand tone="paper">
@@ -452,14 +535,16 @@ export default async function StagePage({ params }: { params: Promise<{ stage: s
       studentMeta={studentMeta}
       journey={journey}
       activeStage={stageName}
+      isHighSchool={isHighSchool}
+      isTeamProject={isTeamProject}
       title={getStageCopy(stageName).name}
       hero={
         <StageHero
           stageName={stageName}
           stageNumber={STAGE_NUMBERS[stageName]}
           status={journeyItem.status}
-          lessonsCount={visibleCount(curriculumModule?.lessons.length ?? 0)}
-          assignmentsCount={visibleCount(curriculumModule?.assignments.length ?? 0)}
+          lessonsCount={guidedPages ? guidedPages.filter((page) => page.lessonIndex !== undefined).length : visibleCount(curriculumModule?.lessons.length ?? 0)}
+          assignmentsCount={guidedPages ? guidedPages.length : visibleCount(curriculumModule?.assignments.length ?? 0)}
         />
       }
     >
