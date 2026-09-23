@@ -5,7 +5,7 @@ Two sites from one repository:
 | | Public site | Testing site |
 |---|---|---|
 | Git branch | `main` | `testing` |
-| Worker name | `i3league` | `i3league-testing` |
+| Worker name | `i3league-app` | `i3league-testing` |
 | Deploy command | `npm run deploy` | `npm run deploy:testing` |
 | Supabase project | live | testing |
 | R2 bucket | `i3league-uploads` | `i3league-uploads-testing` |
@@ -28,7 +28,7 @@ Configuration lives in `wrangler.jsonc` (both Workers) and `open-next.config.ts`
 
    | | Public | Testing |
    |---|---|---|
-   | Project / Worker name | `i3league` | `i3league-testing` |
+   | Project / Worker name | `i3league-app` | `i3league-testing` |
    | Production branch | `main` | `testing` |
    | Build command | `npm ci && npx opennextjs-cloudflare build` | same |
    | Deploy command | `npx opennextjs-cloudflare deploy` | `npx opennextjs-cloudflare deploy --env testing` |
@@ -49,7 +49,11 @@ Configuration lives in `wrangler.jsonc` (both Workers) and `open-next.config.ts`
    Use each environment's OWN Supabase values (public = live project,
    testing = testing project).
 
-6. **Domains.** On the `i3league` Worker: Settings > Domains & Routes > add your
+6. **Domains.** A Worker named `i3league` already serves the old coming-soon
+   page at i3league.com. Deploy `i3league-app` first and check it on its
+   workers.dev address. Only then move the domain: remove `i3league.com` from the
+   old `i3league` Worker (Settings > Domains & Routes) and add it to
+   `i3league-app`. To roll back, do the reverse. On the `i3league-app` Worker: Settings > Domains & Routes > add your
    custom domain(s). Forward the secondary domain to the primary with a redirect
    rule.
 7. **Keep testing private.** Zero Trust > Access > Applications > Add a
