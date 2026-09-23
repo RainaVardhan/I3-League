@@ -7,6 +7,9 @@
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-09-01",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  // Keep variables and secrets typed into the Cloudflare dashboard. Without this,
+  // every deploy deletes dashboard variables that are not listed in this file.
+  "keep_vars": true,
   "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
   "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "i3league-app" }],
   // Private file storage for uploads (see src/lib/storage.ts). Create the
@@ -20,6 +23,7 @@
     // Separate Worker, separate bucket. Keep it private with Cloudflare Access.
     "testing": {
       "name": "i3league-testing",
+      "keep_vars": true,
       "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "i3league-testing" }],
       "r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "i3league-uploads-testing" }],
       "observability": { "enabled": true }
