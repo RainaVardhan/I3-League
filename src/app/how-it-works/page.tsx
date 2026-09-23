@@ -7,6 +7,10 @@ import { ProcessSection } from "@/components/how-it-works/ProcessSection";
 import { DistinctionSection } from "@/components/how-it-works/DistinctionSection";
 import { getActiveSeason, formatSeasonDate } from "@/lib/season";
 
+// Reads the active Season (prices, dates) from the database on every request,
+// so an admin change shows up immediately instead of being frozen at build time.
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "How It Works | I³ League",
   description:

@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/design-system/Button";
 import buttonStyles from "@/components/design-system/Button.module.css";
-import { TEAM_STAGE_OPTIONS, teamStageLabel, type ContributionRow } from "@/lib/team-contribution";
+import { TEAM_STAGE_OPTIONS, teamStageLabel, type ContributionRow } from "@/lib/team-contribution-shared";
 import { matchesQuery, toSearchWords } from "@/lib/text-search";
 import styles from "./Team.module.css";
 

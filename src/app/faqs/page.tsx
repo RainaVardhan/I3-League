@@ -6,6 +6,10 @@ import { FaqSections } from "@/components/faq/FaqSections";
 import { buildFaqSections } from "@/components/faq/faq-data";
 import { getActiveSeason, formatSeasonDate } from "@/lib/season";
 
+// Reads the active Season (prices, dates) from the database on every request,
+// so an admin change shows up immediately instead of being frozen at build time.
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "FAQs | I³ League",
   description: "Answers to common questions about I³ League registration, teams, curriculum, and qualification.",

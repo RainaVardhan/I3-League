@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { StageName } from "@prisma/client";
 import { Logo } from "@/components/design-system/Logo";
-import { STAGE_NUMBERS, type JourneyItem } from "@/lib/stage-progress";
+import { STAGE_NUMBERS, type JourneyItem } from "@/lib/stage-constants";
 import { getStageCopy } from "@/lib/stage-copy";
 import { sidebarPagesFor } from "@/lib/stage-sidebar-pages";
 import { logoutAction } from "@/app/dashboard/actions";

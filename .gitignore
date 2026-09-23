@@ -47,3 +47,8 @@ next-env.d.ts
 /public/uploads
 /private-uploads
 !.env.example
+
+# Cloudflare / OpenNext build output and local secrets
+.open-next
+.wrangler
+.dev.vars

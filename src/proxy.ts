@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
+import { isAccountLocked } from "@/lib/launch";
 
 // Proves "logged in vs not" end to end, plus (as of Sprint 4) one role
 // check for the stage routes below — everything else is still deliberately
@@ -27,10 +28,20 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL(dest, request.url));
   }
 
-  // Pre-launch lockdown (src/lib/launch.ts) is NOT enforced here: it depends
-  // on whether the account has finished registration, which needs a database
-  // read this edge proxy does not do. It is enforced in the registration
-  // page/actions and the dashboard instead.
+  // Public-site lockdown (src/lib/launch.ts): while closed, only admins and
+  // allowlisted emails may use anything past login. The rule depends only on
+  // the session's email and role (no database read), so it is enforced here for
+  // every path and every form submission (server actions are POSTed to these
+  // same paths). The registration/payment pages and the dashboard re-check it
+  // server-side as well. /dashboard itself stays reachable: it shows the
+  // "Account created. Coming soon." card and the log out button.
+  if (
+    user &&
+    (pathname.startsWith("/register") || pathname.startsWith("/consent") || pathname.startsWith("/dashboard/")) &&
+    isAccountLocked({ email: user.email ?? "", role: String(user.user_metadata?.role ?? "") })
+  ) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
 
   // /dashboard/<stage> (the six-stage journey pages) is STUDENT-only — a
   // Parent or Coach session should bounce back to the shared hub, not see a

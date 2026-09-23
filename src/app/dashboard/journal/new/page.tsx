@@ -7,7 +7,7 @@ import { getJourney } from "@/lib/stage-progress";
 import { isHighSchoolGrade } from "@/lib/investigate-requirements";
 import { AppShell } from "@/components/app/AppShell";
 import { RailHeading, StageBand } from "@/components/journey/StageBand";
-import { toDateInputValue } from "@/lib/journal";
+import { journalEarliestDate, toDateInputValue } from "@/lib/journal";
 import { JournalComposer } from "../JournalComposer";
 import styles from "../Journal.module.css";
 
@@ -74,7 +74,7 @@ export default async function NewJournalEntryPage() {
           </>
         }
       >
-        <JournalComposer defaultStage={currentStage} minEntryDate={toDateInputValue(season.openDate)} />
+        <JournalComposer defaultStage={currentStage} minEntryDate={toDateInputValue(journalEarliestDate(season.openDate))} />
       </StageBand>
     </AppShell>
   );

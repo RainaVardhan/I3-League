@@ -14,6 +14,7 @@ import {
   isJournalStage,
   JOURNAL_TEXT_LIMIT,
   JOURNAL_TITLE_LIMIT,
+  journalEarliestDate,
   toJournalAttachments,
   type JournalAttachment,
 } from "@/lib/journal";
@@ -180,7 +181,7 @@ export async function createJournalEntryAction(
   const { student, season } = await requireVerifiedStudent();
   const limited = assertNotRateLimited(student.id);
   if (limited) return limited;
-  const parsed = await readEntryFields(formData, season.openDate);
+  const parsed = await readEntryFields(formData, journalEarliestDate(season.openDate));
   if (parsed.error !== null) return { error: parsed.error };
 
   await prisma.journalEntry.create({
@@ -228,7 +229,7 @@ export async function reviseJournalEntryAction(
   });
   if (!existing) return { error: "That entry couldn't be found." };
 
-  const parsed = await readEntryFields(formData, season.openDate, toJournalAttachments(existing.attachments));
+  const parsed = await readEntryFields(formData, journalEarliestDate(season.openDate), toJournalAttachments(existing.attachments));
   if (parsed.error !== null) return { error: parsed.error };
 
   // Two near-simultaneous revisions of the same entry (a double-click, or a

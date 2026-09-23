@@ -6,13 +6,22 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
+    "postinstall": "node scripts/fix-pg-cloudflare.mjs",
+    "deploy:testing": "opennextjs-cloudflare build && opennextjs-cloudflare deploy --env testing"
   },
   "dependencies": {
+    "@opennextjs/cloudflare": "^1.20.6",
+    "@prisma/adapter-pg": "^6.19.3",
     "@prisma/client": "^6.19.3",
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.112.3",
-    "next": "16.3.1",
+    "next": "^16.3.6",
+    "pg": "^8.23.0",
+    "pg-cloudflare": "^1.4.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "resend": "^6.28.1",
@@ -20,14 +29,16 @@
   },
   "devDependencies": {
     "@types/node": "^20",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.3.1",
+    "eslint-config-next": "^16.3.6",
     "prisma": "^6.19.3",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wrangler": "^4.137.0"
   },
   "prisma": {
     "seed": "ts-node -r tsconfig-paths/register --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"

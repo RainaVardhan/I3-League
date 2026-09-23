@@ -17,7 +17,7 @@ import {
   journalStageLabel,
   toDateInputValue,
   toJournalAttachments,
-} from "@/lib/journal";
+} from "@/lib/journal-shared";
 import { reviseJournalEntryAction, type JournalFormState } from "./actions";
 import styles from "./Journal.module.css";
 

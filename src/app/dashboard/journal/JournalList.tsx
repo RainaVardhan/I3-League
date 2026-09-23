@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/design-system/Button";
 import buttonStyles from "@/components/design-system/Button.module.css";
-import { JOURNAL_ENTRY_TYPES, journalEntryTypeLabel, journalStageLabel } from "@/lib/journal";
+import { JOURNAL_ENTRY_TYPES, journalEntryTypeLabel, journalStageLabel } from "@/lib/journal-shared";
 import { matchesQuery, toSearchWords } from "@/lib/text-search";
 import { JournalEntryCard, type EntrySnapshot } from "./JournalEntryCard";
 import styles from "./Journal.module.css";

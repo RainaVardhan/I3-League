@@ -6,7 +6,7 @@ import type { StageName } from "@prisma/client";
 import { Button } from "@/components/design-system/Button";
 import { RadioGroup } from "@/components/design-system/RadioGroup";
 import { Textarea } from "@/components/design-system/Textarea";
-import { CONTRIBUTION_RESULT_LIMIT, CONTRIBUTION_TEXT_LIMIT, TEAM_STAGE_OPTIONS } from "@/lib/team-contribution";
+import { CONTRIBUTION_RESULT_LIMIT, CONTRIBUTION_TEXT_LIMIT, TEAM_STAGE_OPTIONS } from "@/lib/team-contribution-shared";
 import { addTeamContributionAction, type ContributionFormState } from "./actions";
 import styles from "./Team.module.css";
 

@@ -1,8 +1,6 @@
-import { readFile } from "fs/promises";
-import path from "path";
 import { prisma } from "@/lib/prisma";
 import { getCurrentAppUser } from "@/lib/auth";
-import { PRIVATE_UPLOAD_ROOT, UPLOAD_SUBDIRS } from "@/lib/storage";
+import { readUploadedFile, UPLOAD_SUBDIRS } from "@/lib/storage";
 
 // Serves uploaded files (payment screenshots, Insight photos, journal photos)
 // only to people allowed to see them. Files live outside public/ (see
@@ -50,20 +48,17 @@ export async function GET(_request: Request, context: { params: Promise<{ path: 
     }
   }
 
-  try {
-    const bytes = await readFile(path.join(PRIVATE_UPLOAD_ROOT, subdir, filename));
-    return new Response(new Uint8Array(bytes), {
-      headers: {
-        "Content-Type": CONTENT_TYPES[match[1]],
-        // Never cached by a shared cache or kept after logout.
-        "Cache-Control": "private, no-store",
-        "Content-Disposition": "inline",
-        "X-Content-Type-Options": "nosniff",
-      },
-    });
-  } catch {
-    return NOT_FOUND();
-  }
+  const bytes = await readUploadedFile(subdir, filename);
+  if (!bytes) return NOT_FOUND();
+  return new Response(bytes as BodyInit, {
+    headers: {
+      "Content-Type": CONTENT_TYPES[match[1]],
+      // Never cached by a shared cache or kept after logout.
+      "Cache-Control": "private, no-store",
+      "Content-Disposition": "inline",
+      "X-Content-Type-Options": "nosniff",
+    },
+  });
 }
 
 // `url` is built from the validated subdir and filename above, so it is safe

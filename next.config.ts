@@ -10,6 +10,23 @@ const nextConfig: NextConfig = {
     root: path.join(__dirname),
   },
 
+  // Keep Prisma's generated client out of Next's own bundler. On Cloudflare,
+  // its WebAssembly query engine must be imported by the Cloudflare bundler
+  // itself; Next's bundler wraps that import in a loader Prisma cannot read
+  // ("The loaded wasm module was unexpectedly undefined").
+  serverExternalPackages: [".prisma/client"],
+
+  // Cloudflare Workers reach Postgres through pg-cloudflare, which Next's file
+  // tracer skips (it only sees the empty Node-side stub). Force the whole
+  // package into the deployed bundle. See scripts/fix-pg-cloudflare.mjs.
+  outputFileTracingIncludes: {
+    "/*": ["./node_modules/pg-cloudflare/**/*"],
+  },
+  // Local upload folder (development only) must never be bundled into a deploy.
+  outputFileTracingExcludes: {
+    "/*": ["./private-uploads/**/*"],
+  },
+
   // Baseline security headers on every response. Deliberately conservative:
   // no Content-Security-Policy yet, because Next's inline bootstrap scripts
   // need a nonce and getting that wrong breaks the whole app silently. These

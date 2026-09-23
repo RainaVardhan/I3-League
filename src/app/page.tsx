@@ -8,6 +8,10 @@ import { Footer } from "@/components/homepage/Footer";
 import { GridBackground } from "@/components/design-system/GridBackground";
 import { getActiveSeason, formatSeasonMonthYear } from "@/lib/season";
 
+// Reads the active Season (prices, dates) from the database on every request,
+// so an admin change shows up immediately instead of being frozen at build time.
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const season = await getActiveSeason();
 

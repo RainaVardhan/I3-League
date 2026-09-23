@@ -1,50 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { getActiveSeason } from "@/lib/season";
-import type { StageName, StageStatus } from "@prisma/client";
+import type { StageName } from "@prisma/client";
+import { STAGE_ORDER, STAGE_SLUGS, type JourneyItem } from "@/lib/stage-constants";
 
-// Single source of truth for stage sequence — CLAUDE.md "Sequential stage
-// unlocking". prisma/seed.ts imports this instead of keeping its own copy.
-export const STAGE_ORDER: StageName[] = [
-  "INSIGHT",
-  "INVESTIGATE",
-  "IMAGINE",
-  "ITERATE",
-  "IMPACT",
-  "INFLUENCE",
-];
-
-// StageName <-> URL slug, e.g. /dashboard/insight.
-export const STAGE_SLUGS: Record<StageName, string> = {
-  INSIGHT: "insight",
-  INVESTIGATE: "investigate",
-  IMAGINE: "imagine",
-  ITERATE: "iterate",
-  IMPACT: "impact",
-  INFLUENCE: "influence",
-};
-
-// Display number for the journey rail, dashboard overview, and stage
-// headings — one source so they can't drift out of sync with each other.
-export const STAGE_NUMBERS: Record<StageName, string> = {
-  INSIGHT: "01",
-  INVESTIGATE: "02",
-  IMAGINE: "03",
-  ITERATE: "04",
-  IMPACT: "05",
-  INFLUENCE: "06",
-};
-
-const SLUG_TO_STAGE: Record<string, StageName> = Object.fromEntries(
-  Object.entries(STAGE_SLUGS).map(([stage, slug]) => [slug, stage as StageName])
-) as Record<string, StageName>;
-
-export function stageForSlug(slug: string): StageName | null {
-  return SLUG_TO_STAGE[slug] ?? null;
-}
-
-export function canAccessStatus(status: StageStatus): boolean {
-  return status !== "LOCKED";
-}
+export * from "@/lib/stage-constants";
 
 // Idempotently backfills any missing StageProgress rows for a student and
 // lazily promotes INSIGHT from LOCKED to CURRENT the first time their
@@ -82,13 +41,6 @@ export async function ensureStageProgressInitialized(studentId: string): Promise
     });
   }
 }
-
-export type JourneyItem = {
-  stage: StageName;
-  slug: string;
-  status: StageStatus;
-  module: { title: string; description: string | null } | null;
-};
 
 // Ordered stage list for the dashboard hub's journey overview and every
 // stage page's journey rail, so the two can never drift out of sync.

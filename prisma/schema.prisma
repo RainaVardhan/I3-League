@@ -18,6 +18,10 @@
 
 generator client {
   provider = "prisma-client-js"
+  // Rust-free client that talks to Postgres through a driver adapter
+  // (src/lib/prisma.ts uses @prisma/adapter-pg). Needed so the app can run on
+  // Cloudflare Workers, which cannot load Prisma's native query engine.
+  engineType = "client"
 }
 
 datasource db {

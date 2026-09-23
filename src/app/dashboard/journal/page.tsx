@@ -6,7 +6,7 @@ import { getCurrentAppUser } from "@/lib/auth";
 import { getActiveSeason } from "@/lib/season";
 import { getJourney } from "@/lib/stage-progress";
 import { isHighSchoolGrade } from "@/lib/investigate-requirements";
-import { getJournalTimeline, toDateInputValue } from "@/lib/journal";
+import { getJournalTimeline, journalEarliestDate, toDateInputValue } from "@/lib/journal";
 import { AppShell } from "@/components/app/AppShell";
 import { JournalHero } from "./JournalHero";
 import { JournalList } from "./JournalList";
@@ -107,7 +107,7 @@ export default async function JournalPage() {
             )}
           </div>
 
-          <JournalList groups={groups} minEntryDate={toDateInputValue(season.openDate)} />
+          <JournalList groups={groups} minEntryDate={toDateInputValue(journalEarliestDate(season.openDate))} />
         </div>
       </section>
     </AppShell>

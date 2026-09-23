@@ -1,6 +1,10 @@
 import { LegalLayout } from "@/components/legal/LegalLayout";
 import { getActiveSeason, formatSeasonDate } from "@/lib/season";
 
+// Reads the active Season (prices, dates) from the database on every request,
+// so an admin change shows up immediately instead of being frozen at build time.
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Competition Policies | I³ League",
   description: "Eligibility, team, safety, and academic integrity policies for I³ League.",

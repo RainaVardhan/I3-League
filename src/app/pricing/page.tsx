@@ -7,6 +7,10 @@ import { IncludedSection } from "@/components/pricing/IncludedSection";
 import { PaymentSection } from "@/components/pricing/PaymentSection";
 import { getActiveSeason, formatSeasonDate } from "@/lib/season";
 
+// Reads the active Season (prices, dates) from the database on every request,
+// so an admin change shows up immediately instead of being frozen at build time.
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Pricing | I³ League",
   description: "I³ League registration is priced per participant, fair for every team size.",

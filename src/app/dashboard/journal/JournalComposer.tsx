@@ -14,7 +14,7 @@ import {
   JOURNAL_TEXT_LIMIT,
   JOURNAL_TITLE_LIMIT,
   toDateInputValue,
-} from "@/lib/journal";
+} from "@/lib/journal-shared";
 import { createJournalEntryAction, type JournalFormState } from "./actions";
 import styles from "./Journal.module.css";
 

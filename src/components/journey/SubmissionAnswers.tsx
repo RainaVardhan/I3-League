@@ -1,4 +1,4 @@
-import { formatSeasonDate } from "@/lib/season";
+import { formatSeasonDate } from "@/lib/season-format";
 import styles from "./SubmissionAnswers.module.css";
 
 // One row inside a section: a written answer, a yes/no confirmation, or a

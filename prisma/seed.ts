@@ -22,13 +22,18 @@
 //   (to demonstrate the append-only version pattern, not an UPDATE)
 // ============================================================================
 
+import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient, Role, SchoolingType, ParticipationType,
   PaymentMethod, PaymentStatus, StageName, StageStatus,
   ReviewStatus } from '@prisma/client';
 import { STAGE_ORDER } from '../src/lib/stage-progress';
 import { STAGE_CONTENT_3_TO_6 } from './stage-content-3-6';
 
-const prisma = new PrismaClient();
+// The client is Rust-free (schema.prisma: engineType = "client"), so it needs
+// a driver adapter. Seeding uses the direct (non-pooled) connection.
+const prisma = new PrismaClient({
+  adapter: new PrismaPg({ connectionString: process.env.DIRECT_URL ?? process.env.DATABASE_URL }),
+});
 
 async function main() {
   console.log('Seeding i3League demo data...');

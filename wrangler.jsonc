@@ -1,0 +1,26 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // PUBLIC site (git branch `main`). Deploy with: npm run deploy
+  "name": "i3league",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
+  "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "i3league" }],
+  // Private file storage for uploads (see src/lib/storage.ts). Create the
+  // bucket once in the Cloudflare dashboard (R2) before deploying.
+  "r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "i3league-uploads" }],
+  "observability": { "enabled": true },
+
+  "env": {
+    // TESTING site (git branch `testing`). Deploy with:
+    //   npm run deploy:testing
+    // Separate Worker, separate bucket. Keep it private with Cloudflare Access.
+    "testing": {
+      "name": "i3league-testing",
+      "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "i3league-testing" }],
+      "r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "i3league-uploads-testing" }],
+      "observability": { "enabled": true }
+    }
+  }
+}
