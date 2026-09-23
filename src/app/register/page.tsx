@@ -22,7 +22,7 @@ export default async function RegisterPage() {
   }
 
   // Pre-launch: only approved accounts get in (see launch.ts).
-  if (await isAccountLocked(appUser)) redirect("/dashboard");
+  if (isAccountLocked(appUser)) redirect("/dashboard");
 
   if (appUser.role === "STUDENT") {
     const student = await prisma.student.findUnique({ where: { userId: appUser.id } });

@@ -46,3 +46,4 @@ next-env.d.ts
 # (see CLAUDE.md tech stack); payment screenshots land here in dev
 /public/uploads
 /private-uploads
+!.env.example

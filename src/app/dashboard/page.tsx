@@ -56,9 +56,9 @@ export default async function DashboardPage() {
 
   // Pre-launch (src/lib/launch.ts): only approved accounts see their real
   // dashboard. Everyone else gets the "coming soon" card below.
-  const comingSoon = appUser !== null && (await isAccountLocked(appUser));
+  const comingSoon = appUser !== null && isAccountLocked(appUser);
 
-  if (appUser?.role === "STUDENT" && appUser.student) {
+  if (!comingSoon && appUser?.role === "STUDENT" && appUser.student) {
     const season = await getActiveSeason();
     const enrollment = await prisma.enrollment.findUnique({
       where: { studentId_seasonId: { studentId: appUser.student.id, seasonId: season.id } },
@@ -98,9 +98,9 @@ export default async function DashboardPage() {
               // Pre-launch (src/lib/launch.ts): no registration, payment or
               // dashboard yet. Full flow is intact behind PLATFORM_OPEN.
               <>
-                <h1 className={styles.heading}>Coming soon</h1>
+                <h1 className={styles.heading}>Account created. Coming soon.</h1>
                 <p className={styles.notice}>
-                  Your account is created. Registration and the student
+                  Thank you for signing up. Registration and the student
                   dashboard are not open yet. We will let you know when they
                   are.
                 </p>

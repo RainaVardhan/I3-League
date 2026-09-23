@@ -34,7 +34,7 @@ export async function studentRegisterAction(
     redirect("/login");
   }
   // Pre-launch: only approved accounts get in (launch.ts).
-  if (await isAccountLocked(appUser)) redirect("/dashboard");
+  if (isAccountLocked(appUser)) redirect("/dashboard");
 
   // Defense in depth — the page itself already redirects a student who has
   // already registered to /register/payment, but a direct POST shouldn't
@@ -367,7 +367,7 @@ export async function parentRegisterAction(
   if (!appUser || appUser.role !== "PARENT") {
     redirect("/login");
   }
-  if (await isAccountLocked(appUser)) redirect("/dashboard");
+  if (isAccountLocked(appUser)) redirect("/dashboard");
 
   const existingParent = await prisma.parent.findUnique({ where: { userId: appUser.id } });
   if (existingParent) {
