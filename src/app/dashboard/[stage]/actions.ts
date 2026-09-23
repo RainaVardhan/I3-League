@@ -163,8 +163,8 @@ const INSIGHT_TEXT_FIELDS = [
 const STAGE_WRITE_LIMIT = 120;
 const STAGE_WRITE_WINDOW_MS = 60_000;
 
-function assertStageWriteAllowed(studentId: string): StageFormState | null {
-  if (checkRateLimit(`stage-write:${studentId}`, STAGE_WRITE_LIMIT, STAGE_WRITE_WINDOW_MS)) return null;
+async function assertStageWriteAllowed(studentId: string): Promise<StageFormState | null> {
+  if (await checkRateLimit("RL_STAGE", studentId, STAGE_WRITE_LIMIT, STAGE_WRITE_WINDOW_MS)) return null;
   return { error: "You're saving too quickly. Please wait a moment and try again." };
 }
 
@@ -235,7 +235,7 @@ function readAiDisclosure(formData: FormData) {
 // without reloading the page.
 async function persistInsight(formData: FormData, intent: "draft" | "final"): Promise<StageFormState> {
   const student = await requireCurrentStudent();
-  const limited = assertStageWriteAllowed(student.id);
+  const limited = await assertStageWriteAllowed(student.id);
   if (limited) return limited;
   await requireCurrentStage(student.id, "INSIGHT");
   const project = await getOrCreateStudentProject(student.id);
@@ -472,7 +472,7 @@ export async function saveSafetyScreeningAction(
   formData: FormData
 ): Promise<StageFormState> {
   const student = await requireCurrentStudent();
-  const limited = assertStageWriteAllowed(student.id);
+  const limited = await assertStageWriteAllowed(student.id);
   if (limited) return limited;
   await requireCurrentStage(student.id, "INVESTIGATE");
   const project = await getOrCreateStudentProject(student.id);
@@ -541,7 +541,7 @@ export async function saveSafetyScreeningAction(
 // hub checklist read, so all three agree on what "finished" means.
 async function persistInvestigate(formData: FormData, intent: "draft" | "final"): Promise<StageFormState> {
   const student = await requireCurrentStudent();
-  const limited = assertStageWriteAllowed(student.id);
+  const limited = await assertStageWriteAllowed(student.id);
   if (limited) return limited;
   await requireCurrentStage(student.id, "INVESTIGATE");
   const project = await getOrCreateStudentProject(student.id);
@@ -677,7 +677,7 @@ async function persistGuided(stageName: string, formData: FormData, intent: "dra
   const stage = GUIDED_STAGES[stageName];
 
   const student = await requireCurrentStudent();
-  const limited = assertStageWriteAllowed(student.id);
+  const limited = await assertStageWriteAllowed(student.id);
   if (limited) return limited;
   await requireCurrentStage(student.id, stageName);
   const project = await getOrCreateStudentProject(student.id);

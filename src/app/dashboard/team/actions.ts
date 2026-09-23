@@ -63,7 +63,7 @@ export async function addTeamContributionAction(
 ): Promise<ContributionFormState> {
   const { student, teamContext } = await requireTeamStudent();
 
-  const allowed = checkRateLimit(`team-contribution:${student.id}`, CONTRIBUTION_WRITE_LIMIT, CONTRIBUTION_WRITE_WINDOW_MS);
+  const allowed = await checkRateLimit("RL_TEAM", student.id, CONTRIBUTION_WRITE_LIMIT, CONTRIBUTION_WRITE_WINDOW_MS);
   if (!allowed) {
     return { error: "You're saving too quickly. Please wait a moment and try again." };
   }

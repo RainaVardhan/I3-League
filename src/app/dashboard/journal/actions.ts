@@ -61,8 +61,8 @@ async function requireVerifiedStudent() {
 const JOURNAL_WRITE_LIMIT = 20;
 const JOURNAL_WRITE_WINDOW_MS = 60_000;
 
-function assertNotRateLimited(studentId: string): JournalFormState | null {
-  const allowed = checkRateLimit(`journal-write:${studentId}`, JOURNAL_WRITE_LIMIT, JOURNAL_WRITE_WINDOW_MS);
+async function assertNotRateLimited(studentId: string): Promise<JournalFormState | null> {
+  const allowed = await checkRateLimit("RL_JOURNAL", studentId, JOURNAL_WRITE_LIMIT, JOURNAL_WRITE_WINDOW_MS);
   if (allowed) return null;
   return { error: "You're saving too quickly. Please wait a moment and try again." };
 }
@@ -179,7 +179,7 @@ export async function createJournalEntryAction(
   formData: FormData,
 ): Promise<JournalFormState> {
   const { student, season } = await requireVerifiedStudent();
-  const limited = assertNotRateLimited(student.id);
+  const limited = await assertNotRateLimited(student.id);
   if (limited) return limited;
   const parsed = await readEntryFields(formData, journalEarliestDate(season.openDate));
   if (parsed.error !== null) return { error: parsed.error };
@@ -212,7 +212,7 @@ export async function reviseJournalEntryAction(
   formData: FormData,
 ): Promise<JournalFormState> {
   const { student, season } = await requireVerifiedStudent();
-  const limited = assertNotRateLimited(student.id);
+  const limited = await assertNotRateLimited(student.id);
   if (limited) return limited;
 
   const entryGroupId = String(formData.get("entryGroupId") ?? "");

@@ -1,24 +1,22 @@
-// A minimal in-memory rate limiter — a fixed window per key, held in module
-// state for the lifetime of this server process. Deliberately not backed by
-// Redis/Upstash: this is a solo 2-week MVP running on a single Next.js
-// process (see CLAUDE.md — Cloudflare Workers deployment, where in-memory
-// state wouldn't survive across isolates, is explicitly deferred), so this
-// is the same kind of stopgap as storage.ts's local-disk file uploads:
-// correct for now, and every call site should go through this function so
-// swapping in a real shared store later is a one-file change.
+import { getCloudflareContext } from "@opennextjs/cloudflare";
+
+// Rate limiter with two backends, chosen automatically:
 //
-// Not a defense against a truly determined attacker (a restart clears it,
-// and it doesn't coordinate across processes) — it exists to stop a script
-// or a stuck retry loop from hammering a write action, not to replace the
-// real validation each action already does.
+// 1. On Cloudflare: the Workers Rate Limiting binding named by `binding`
+//    (declared in wrangler.jsonc). It is shared across every instance of the
+//    Worker, so it actually holds. Its limit and window (10 or 60 seconds) are
+//    fixed in wrangler.jsonc; the `limit`/`windowMs` arguments below are only
+//    used by the fallback, and should match what wrangler.jsonc says.
+// 2. Everywhere else (local development): an in-memory fixed window per key.
+//    Per process only, so it is a stopgap for local use, not a defense.
+//
+// If a binding is missing on Cloudflare, we fall back to the in-memory limiter
+// rather than failing open with no limit at all.
+type RateLimitBinding = { limit(options: { key: string }): Promise<{ success: boolean }> };
+
 const buckets = new Map<string, number[]>();
 
-/**
- * Returns true if `key` is still within `limit` calls per `windowMs`,
- * recording this call. Returns false (and does NOT record the call) once
- * the key is over its limit for the current window.
- */
-export function checkRateLimit(key: string, limit: number, windowMs: number): boolean {
+function checkInMemory(key: string, limit: number, windowMs: number): boolean {
   const now = Date.now();
   const recent = (buckets.get(key) ?? []).filter((timestamp) => now - timestamp < windowMs);
 
@@ -30,4 +28,31 @@ export function checkRateLimit(key: string, limit: number, windowMs: number): bo
   recent.push(now);
   buckets.set(key, recent);
   return true;
+}
+
+function findBinding(name: string): RateLimitBinding | null {
+  try {
+    const env = getCloudflareContext().env as unknown as Record<string, RateLimitBinding | undefined>;
+    return env[name] ?? null;
+  } catch {
+    return null; // not running on Cloudflare
+  }
+}
+
+/**
+ * Returns true if `key` is still within its limit, recording this call.
+ * Returns false once the key is over its limit for the current window.
+ */
+export async function checkRateLimit(
+  binding: string,
+  key: string,
+  limit: number,
+  windowMs: number,
+): Promise<boolean> {
+  const limiter = findBinding(binding);
+  if (limiter) {
+    const { success } = await limiter.limit({ key });
+    return success;
+  }
+  return checkInMemory(`${binding}:${key}`, limit, windowMs);
 }

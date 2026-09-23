@@ -2,6 +2,11 @@ import path from "path";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Hard cap on the size of any form submission, checked before the body is
+  // read. Uploads are limited to 5MB in src/lib/storage.ts; this leaves room
+  // for the other form fields. It also stops huge requests from reaching R2.
+  experimental: { serverActions: { bodySizeLimit: "6mb" } },
+
   // Pins the workspace root explicitly. Without this, Turbopack walks up
   // looking for lockfiles and can pick up an unrelated one in a parent
   // directory (e.g. a stray package-lock.json in the user's home folder),

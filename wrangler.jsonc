@@ -15,6 +15,14 @@
   // Private file storage for uploads (see src/lib/storage.ts). Create the
   // bucket once in the Cloudflare dashboard (R2) before deploying.
   "r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "i3league-uploads" }],
+  "unsafe": {
+    "bindings": [
+      { "name": "RL_STAGE", "type": "ratelimit", "namespace_id": "101", "simple": { "limit": 120, "period": 60 } },
+      { "name": "RL_JOURNAL", "type": "ratelimit", "namespace_id": "102", "simple": { "limit": 20, "period": 60 } },
+      { "name": "RL_TEAM", "type": "ratelimit", "namespace_id": "103", "simple": { "limit": 20, "period": 60 } },
+      { "name": "RL_UPLOAD", "type": "ratelimit", "namespace_id": "104", "simple": { "limit": 10, "period": 60 } }
+    ]
+  },
   "observability": { "enabled": true },
 
   "env": {
@@ -26,6 +34,14 @@
       "keep_vars": true,
       "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "i3league-testing" }],
       "r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "i3league-uploads-testing" }],
+      "unsafe": {
+        "bindings": [
+          { "name": "RL_STAGE", "type": "ratelimit", "namespace_id": "2001", "simple": { "limit": 120, "period": 60 } },
+          { "name": "RL_JOURNAL", "type": "ratelimit", "namespace_id": "2002", "simple": { "limit": 20, "period": 60 } },
+          { "name": "RL_TEAM", "type": "ratelimit", "namespace_id": "2003", "simple": { "limit": 20, "period": 60 } },
+          { "name": "RL_UPLOAD", "type": "ratelimit", "namespace_id": "2004", "simple": { "limit": 10, "period": 60 } }
+        ]
+      },
       "observability": { "enabled": true }
     }
   }

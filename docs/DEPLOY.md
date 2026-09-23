@@ -94,3 +94,14 @@ for normal `npm run dev`.
 - `scripts/fix-pg-cloudflare.mjs` repairs a packaging bug in `pg-cloudflare`
   after every `npm install`. If Postgres stops connecting on Cloudflare after a
   dependency upgrade, check that script first.
+
+## Keeping R2 and abuse costs at zero
+
+- **Rate limits in code:** `wrangler.jsonc` declares four Workers rate-limit bindings (`RL_STAGE`, `RL_JOURNAL`, `RL_TEAM`, `RL_UPLOAD`), used through `src/lib/rate-limit.ts`. Locally it falls back to an in-memory limiter.
+- **Upload size:** 5 MB per file (`src/lib/storage.ts`) and a 6 MB cap on any form submission (`next.config.ts`).
+- **Delete old payment screenshots** (run once per bucket, after `wrangler login`):
+  `npx wrangler r2 bucket lifecycle add i3league-uploads delete-old-payments --prefix payment-screenshots/ --expire-days 120`
+  (repeat for `i3league-uploads-testing`).
+- **Public access:** keep "Public access" and the `r2.dev` URL OFF on both buckets. Do not attach a custom domain to them.
+- **Billing alert:** Cloudflare dashboard, Notifications, Add, "Usage-based billing" for R2, so you hear before leaving the free tier.
+- **WAF (Free plan, 1 rule):** one rate limiting rule on paths starting with `/login`, `/signup`, `/auth`, `/register/payment`. Turn on Bot Fight Mode.

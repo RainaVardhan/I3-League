@@ -7,6 +7,7 @@ import { getCurrentAppUser } from "@/lib/auth";
 import { isAccountLocked } from "@/lib/launch";
 import { getActiveSeason } from "@/lib/season";
 import { saveUploadedFile } from "@/lib/storage";
+import { checkRateLimit } from "@/lib/rate-limit";
 import { PAYMENT_REFERENCE_MAX_LENGTH } from "@/lib/account-field-limits";
 
 export type PaymentState = { error: string | null; fields?: string[] };
@@ -44,6 +45,12 @@ export async function submitPaymentAction(
   // defense in depth against a direct POST).
   if (existingEnrollment && existingEnrollment.payment?.status !== "REJECTED") {
     redirect("/register/payment");
+  }
+
+  // 10 payment submissions a minute per account is far above real use (one or
+  // two per family) and stops a script from filling the uploads bucket.
+  if (!(await checkRateLimit("RL_UPLOAD", appUser.id, 10, 60_000))) {
+    return { error: "You're submitting too quickly. Please wait a minute and try again." };
   }
 
   const method = String(formData.get("method") ?? "");
