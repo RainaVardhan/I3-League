@@ -7,6 +7,12 @@ const nextConfig: NextConfig = {
   // for the other form fields. It also stops huge requests from reaching R2.
   experimental: { serverActions: { bodySizeLimit: "6mb" } },
 
+  // Development only: lets a phone on the same Wi-Fi open the dev server at
+  // this computer's network address. Without it, Next blocks its dev scripts
+  // for that address and the page loads with no JavaScript (frozen homepage
+  // cube, missing stage text). Has no effect on a production build.
+  allowedDevOrigins: ["192.168.1.241"],
+
   // Pins the workspace root explicitly. Without this, Turbopack walks up
   // looking for lockfiles and can pick up an unrelated one in a parent
   // directory (e.g. a stray package-lock.json in the user's home folder),

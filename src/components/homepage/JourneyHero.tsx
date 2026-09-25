@@ -270,9 +270,41 @@ export function JourneyHero({ enrollmentOpenDate }: { enrollmentOpenDate: string
       return mobileStickyOffsetPx();
     }
 
+    // Small tier only: the card's height depends on the screen height, but
+    // the cube's size does not, so on a short phone a full-size cube would
+    // cover the "01 / 06" caption and the watermark/progress row. Measure
+    // the free space between them and shrink/center the cube to fit it.
+    // CUBE_FOOTPRINT is how tall the rotated cube draws relative to its
+    // side length (its corner-on angle plus the 1.08 start scale), with a
+    // little breathing room.
+    const CUBE_FOOTPRINT = 1.7;
+    const fitCube = () => {
+      if (window.innerWidth > SMALL_TIER_WIDTH) {
+        scene.style.removeProperty("--fit");
+        scene.style.removeProperty("--cube-y");
+        return;
+      }
+      const box = stickyEl.getBoundingClientRect();
+      const masthead = stickyEl.querySelector<HTMLElement>(`.${styles.journeyMasthead}`);
+      const watermark = journeyWatermarkRef.current;
+      const progress = stickyEl.querySelector<HTMLElement>(`.${styles.journeyProgress}`);
+      if (!masthead || !watermark || !progress) return;
+      const top = masthead.getBoundingClientRect().bottom - box.top;
+      const bottom =
+        Math.min(watermark.getBoundingClientRect().top, progress.getBoundingClientRect().top) -
+        box.top;
+      const space = bottom - top;
+      if (space <= 0) return;
+      const size = getCubeSize(window.innerWidth);
+      const fit = Math.min(1, space / (size * CUBE_FOOTPRINT));
+      scene.style.setProperty("--fit", fit.toFixed(3));
+      scene.style.setProperty("--cube-y", `${Math.round(top + space / 2)}px`);
+    };
+
     const setHeight = () => {
       const track = heroExtraPx() + Math.round((TOTAL + 1) * window.innerHeight);
       section.style.height = `${track}px`;
+      fitCube();
     };
     setHeight();
     window.addEventListener("resize", setHeight, { passive: true });
